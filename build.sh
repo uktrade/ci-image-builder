@@ -2,30 +2,55 @@
 set -x
 
 export INPUT_BUILDER="paketobuildpacks/builder:0.2.263-full"
-export DOCKERREG="public.ecr.aws/h0i0h2o7"
+#export DOCKERREG="public.ecr.aws/h0i0h2o7"
+export DOCKERREG="public.ecr.aws/e9f6t9n0"
 export CACHE_IMAGE="/uktrade/paketo-cache"
 export LOG_LEVEL="DEBUG"
+export GIT_TAG=$CODEBUILD_SOURCE_VERSION
+export GIT_COMMIT=`echo $CODEBUILD_RESOLVED_SOURCE_VERSION |cut -c1-7`
+export APP_NAME=`echo $CODEBUILD_SRC_DIR |awk -F / '{print $(NF)}'`
+
+if [ -f "buildpack.json" ]; then
+  count=$(($(jq  '.[]|length' buildpack.json) - 1))
+  for i in $(seq 0 $count); do
+      BUILDPACKS+=" --buildpack $(jq -r ".[][$i]|keys[]" buildpack.json)/$(jq -r ".[][$i]|values[]" buildpack.json)"
+  done
+else
+  BUILDPACKS=""
+fi
+
+if [ -f "runtime.txt" ]; then
+  PYTHON_VERSION="--env BP_CPYTHON_VERSION=$(cat runtime.txt |awk -F - '{print $2}')"
+else
+  PYTHON_VERSION=""
+fi
 
 nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
 timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
 
 aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${DOCKERREG}
 
-if [ -f "runtime.txt" ]; then
-  export PYTHON_VERSION=`cat runtime.txt |awk -F - '{print $2}'`
-  pack build ${DOCKERREG}/uktrade/${APP_NAME}:${TAG} \
-    --builder ${INPUT_BUILDER} \
-    --env BP_LOG_LEVEL=${LOG_LEVEL} \
-    --env BP_CPYTHON_VERSION=${PYTHON_VERSION} \
-    --cache-image ${DOCKERREG}${CACHE_IMAGE} \
-    --publish
-else
-  pack build ${DOCKERREG}/uktrade/${APP_NAME}:${TAG} \
-    --builder ${INPUT_BUILDER} \
-    --env BP_LOG_LEVEL=${LOG_LEVEL} \
-    --cache-image ${DOCKERREG}${CACHE_IMAGE} \
-    --publish
-fi
+#if [ -f "runtime.txt" ]; then
+#export PYTHON_VERSION=`cat runtime.txt |awk -F - '{print $2}'`
+pack build ${DOCKERREG}/uktrade/${APP_NAME} \
+  --tag ${DOCKERREG}/uktrade/${APP_NAME}:${GIT_TAG} \
+  --tag ${DOCKERREG}/uktrade/${APP_NAME}:${GIT_COMMIT} \
+  --builder ${INPUT_BUILDER} \
+  ${BUILDPACKS} \
+  --env BP_LOG_LEVEL=${LOG_LEVEL} \
+  ${PYTHON_VERSION} \
+  --cache-image ${DOCKERREG}${CACHE_IMAGE} \
+  --publish
+# else
+#   pack build ${DOCKERREG}/uktrade/${APP_NAME} \
+#     --tag ${DOCKERREG}/uktrade/${APP_NAME}:${GIT_TAG} \
+#     --tag ${DOCKERREG}/uktrade/${APP_NAME}:${GIT_COMMIT} \
+#     --builder ${INPUT_BUILDER} \
+#     ${BUILDPACKS} \
+#     --env BP_LOG_LEVEL=${LOG_LEVEL} \
+#     --cache-image ${DOCKERREG}${CACHE_IMAGE} \
+#     --publish
+# fi
 
 #command="docker --version"
 #sh -c "${command}"
