@@ -15,9 +15,3 @@ RUN mkdir /work
 
 COPY build.sh /work/build.sh
 RUN chmod +x /work/build.sh
-
-#COPY entrypoint.sh /work/entrypoint.sh
-
-#RUN chmod +x /work/entrypoint.sh
-
-#ENTRYPOINT [ "/work/entrypoint.sh" ]
