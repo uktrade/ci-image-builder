@@ -3,7 +3,8 @@ set -x
 
 INPUT_BUILDER="paketobuildpacks/builder:0.2.263-full"
 #DOCKERREG="public.ecr.aws/h0i0h2o7"
-DOCKERREG="public.ecr.aws/e9f6t9n0"
+#DOCKERREG="public.ecr.aws/e9f6t9n0"
+DOCKERREG=$(aws ecr-public describe-registries --region us-east-1 |jq -r '."registries"|.[0]|."registryUri"')
 CACHE_IMAGE="/uktrade/paketo-cache"
 LOG_LEVEL="DEBUG"
 GIT_TAG=$CODEBUILD_SOURCE_VERSION
