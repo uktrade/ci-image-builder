@@ -49,7 +49,7 @@ do
   if [ $procf_name  != "Procfile" ];
   then
       cp $procf_name Procfile
-      IMAGE_NAME=$APP_NAME$(echo $procf_name | awk -F "-" '{print "-"$2}')
+      IMAGE_NAME=$APP_NAME-$(echo $procf_name | cut -d"-" -f2-)
   else
       IMAGE_NAME=$APP_NAME
   fi
