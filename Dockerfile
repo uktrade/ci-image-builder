@@ -13,5 +13,8 @@ RUN curl -LO https://github.com/buildpacks/pack/releases/download/${PACK_VERSION
 
 RUN mkdir /work
 
+RUN mkdir /docker_images
+
+
 COPY build.sh /work/build.sh
 RUN chmod +x /work/build.sh

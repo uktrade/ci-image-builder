@@ -1,10 +1,10 @@
 #!/bin/bash
 set -x
 
-#INPUT_BUILDER="paketobuildpacks/builder:0.2.263-full"
-INPUT_BUILDER="public.ecr.aws/uktrade-dev/paketobuildpacks/builder:0.2.263-full"
+#INPUT_BUILDER="public.ecr.aws/uktrade-dev/paketobuildpacks/builder:0.2.263-full"
+INPUT_BUILDER="public.ecr.aws/uktrade-dev/paketobuildpacks/builder:0.2.326-full"
 BUILDER_RUN="public.ecr.aws/uktrade-dev/paketobuildpacks/run:full-cnb"
-LIFECYCLE="public.ecr.aws/uktrade-dev/buildpacksio/lifecycle:0.15.2"
+LIFECYCLE="public.ecr.aws/uktrade-dev/buildpacksio/lifecycle:0.16.0"
 #DOCKERREG="public.ecr.aws/h0i0h2o7"
 #DOCKERREG="public.ecr.aws/e9f6t9n0"
 #DOCKERREG=$(aws ecr-public describe-registries --region us-east-1 |jq -r '."registries"|.[0]|."registryUri"')
@@ -38,8 +38,9 @@ docker pull ${BUILDER_RUN}
 docker tag ${BUILDER_RUN} paketobuildpacks/run:full-cnb
 
 docker pull ${LIFECYCLE}
-docker tag ${LIFECYCLE} buildpacksio/lifecycle:0.15.2
-docker tag ${LIFECYCLE} buildpacksio/lifecycle:latest
+docker tag ${LIFECYCLE} buildpacksio/lifecycle:0.16.0
+
+docker images
 
 #aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${DOCKERREG}
 aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin ${DOCKERREG}
