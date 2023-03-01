@@ -39,6 +39,7 @@ docker tag ${BUILDER_RUN} paketobuildpacks/run:full-cnb
 
 docker pull ${LIFECYCLE}
 docker tag ${LIFECYCLE} buildpacksio/lifecycle:0.15.2
+docker tag ${LIFECYCLE} buildpacksio/lifecycle:latest
 
 #aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${DOCKERREG}
 aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin ${DOCKERREG}
