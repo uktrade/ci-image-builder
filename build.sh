@@ -45,8 +45,6 @@ aws ecr get-login-password --region eu-west-2 | docker login --username AWS --pa
 
 cp Procfile Procfile_tmp
 
-pip install -U niet
-
 APP_NAME=$(niet ".application.name" copilot/process.yml)
 
 count=1
@@ -57,19 +55,20 @@ do
   sed -n "$count p" Procfile_tmp > Procfile
 
   # If ECR repo does not exist create it
-  # aws ecr describe-repositories --repository-names ${APP_NAME}/${PROC} --region eu-west-2 >/dev/null
-  # status=$?
-  # [ $status -ne 0 ] && aws ecr create-repository --repository-name ${APP_NAME}/${PROC} --region eu-west-2
+  aws ecr describe-repositories --repository-names ${APP_NAME}/${PROC} --region eu-west-2 >/dev/null
+  status=$?
+  [ $status -ne 0 ] && aws ecr create-repository --repository-name ${APP_NAME}/${PROC} --region eu-west-2
 
   # Build image and push to ECR
-  # pack build ${DOCKERREG}/${APP_NAME}/${PROC} \
-  #   --tag ${DOCKERREG}/${APP_NAME}/${PROC}:${GIT_TAG} \
-  #   --tag ${DOCKERREG}/${APP_NAME}/${PROC}:${GIT_COMMIT} \
-  #   --builder ${INPUT_BUILDER} \
-  #   ${BUILDPACKS} \
-  #   --env BP_LOG_LEVEL=${LOG_LEVEL} \
-  #   ${PYTHON_VERSION} \
-  #   --publish
-  echo ${APP_NAME}/${PROC}
+  pack build ${DOCKERREG}/${APP_NAME}/${PROC} \
+    --tag ${DOCKERREG}/${APP_NAME}/${PROC}:${GIT_TAG} \
+    --tag ${DOCKERREG}/${APP_NAME}/${PROC}:${GIT_COMMIT} \
+    --builder ${INPUT_BUILDER} \
+    ${BUILDPACKS} \
+    --env BP_LOG_LEVEL=${LOG_LEVEL} \
+    ${PYTHON_VERSION} \
+    --publish
+  
+  let count++
 
 done
