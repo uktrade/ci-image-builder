@@ -12,6 +12,7 @@ LOG_LEVEL="DEBUG"
 #ACCOUNT_NAME=$(aws iam list-account-aliases |jq -r ".[][]")
 GIT_TAG=$CODEBUILD_SOURCE_VERSION
 GIT_COMMIT=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION |cut -c1-7)
+GIT_BRANCH=$(git branch --show-current)
 #APP_NAME=$(echo $CODEBUILD_SRC_DIR |awk -F / '{print $(NF)}')
 
 if [ -f "buildpack.json" ]; then
@@ -63,12 +64,13 @@ do
   pack build ${DOCKERREG}/${APP_NAME}/${PROC} \
     --tag ${DOCKERREG}/${APP_NAME}/${PROC}:${GIT_TAG} \
     --tag ${DOCKERREG}/${APP_NAME}/${PROC}:${GIT_COMMIT} \
+    --tag ${DOCKERREG}/${APP_NAME}/${PROC}:${GIT_BRANCH} \
     --builder ${INPUT_BUILDER} \
     ${BUILDPACKS} \
     --env BP_LOG_LEVEL=${LOG_LEVEL} \
     ${PYTHON_VERSION} \
     --publish
-  
+
   let count++
 
 done
