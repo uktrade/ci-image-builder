@@ -10,7 +10,7 @@ DOCKERREG=$(aws sts get-caller-identity --query Account --output text).dkr.ecr.e
 #CACHE_IMAGE="/uktrade/paketo-cache"
 LOG_LEVEL="DEBUG"
 #ACCOUNT_NAME=$(aws iam list-account-aliases |jq -r ".[][]")
-GIT_TAG=$CODEBUILD_SOURCE_VERSION
+GIT_TAG=$(git describe --tags --abbrev=0)
 GIT_COMMIT=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION |cut -c1-7)
 GIT_BRANCH=$(git branch --show-current)
 #APP_NAME=$(echo $CODEBUILD_SRC_DIR |awk -F / '{print $(NF)}')
