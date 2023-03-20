@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -x
 
 #INPUT_BUILDER="public.ecr.aws/uktrade-dev/paketobuildpacks/builder:0.2.263-full"
 INPUT_BUILDER="public.ecr.aws/uktrade-dev/paketobuildpacks/builder:0.2.326-full"
@@ -70,6 +70,9 @@ do
     --env BP_LOG_LEVEL=${LOG_LEVEL} \
     ${PYTHON_VERSION} \
     --publish
+
+  status=$?
+  [ $status -ne 0 ] && exit 1
 
   let count++
 
