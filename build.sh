@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+set -e
 
 #INPUT_BUILDER="public.ecr.aws/uktrade-dev/paketobuildpacks/builder:0.2.263-full"
 INPUT_BUILDER="public.ecr.aws/uktrade-dev/paketobuildpacks/builder:0.2.326-full"
