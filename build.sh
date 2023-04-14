@@ -71,6 +71,15 @@ do
     ${PYTHON_VERSION} \
     --publish
 
+  status=$?
+  [ $status -ne 0 ] && exit 1
+
   let count++
 
 done
+
+#Report Image build to Slack
+SLACK_DATA=$(jq -n \
+--arg dt "\`Image=${APP_NAME}/${PROC}:${GIT_COMMIT}, ${GIT_TAG}, branch=${GIT_BRANCH}\`" \
+'{"text":$dt}')
+curl -X POST -H 'Content-type: application/json' --data "${SLACK_DATA}" https://hooks.slack.com/services/$SLACK_WORKSPACE_ID/$SLACK_CHANNEL_ID/$SLACK_TOKEN
