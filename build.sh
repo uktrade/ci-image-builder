@@ -1,11 +1,14 @@
 #!/bin/bash
 set -x
 
-#INPUT_BUILDER="public.ecr.aws/uktrade-dev/paketobuildpacks/builder:0.2.263-full"
-INPUT_BUILDER="public.ecr.aws/uktrade-dev/paketobuildpacks/builder:0.2.326-full"
-BUILDER_RUN="public.ecr.aws/uktrade-dev/paketobuildpacks/run:full-cnb"
-LIFECYCLE="public.ecr.aws/uktrade-dev/buildpacksio/lifecycle:0.16.0"
-#DOCKERREG=$(aws ecr-public describe-registries --region us-east-1 |jq -r '."registries"|.[0]|."registryUri"')
+BUILDER_VERSION="0.2.326-full"
+LIFECYCLE_VERSION="0.16.0"
+
+ECR_PATH="public.ecr.aws/uktrade-dev/"
+BUILDPACKS_PATH="${ECR_PATH}paketobuildpacks/"
+INPUT_BUILDER="${BUILDPACKS_PATH}builder:${BUILDER_VERSION}"
+BUILDER_RUN="${BUILDPACKS_PATH}run:full-cnb"
+LIFECYCLE="public.ecr.aws/uktrade-dev/buildpacksio/lifecycle:${LIFECYCLE_VERSION}"
 DOCKERREG=$(aws sts get-caller-identity --query Account --output text).dkr.ecr.eu-west-2.amazonaws.com
 #CACHE_IMAGE="/uktrade/paketo-cache"
 LOG_LEVEL="DEBUG"
@@ -37,7 +40,7 @@ docker pull ${BUILDER_RUN}
 docker tag ${BUILDER_RUN} paketobuildpacks/run:full-cnb
 
 docker pull ${LIFECYCLE}
-docker tag ${LIFECYCLE} buildpacksio/lifecycle:0.16.0
+docker tag ${LIFECYCLE} buildpacksio/lifecycle:${LIFECYCLE_VERSION}
 
 docker images
 
