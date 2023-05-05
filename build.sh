@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 
-BUILDER_VERSION="0.2.326-full"
+BUILDER_VERSION="0.2.390-full"
 LIFECYCLE_VERSION="0.16.0"
 
 ECR_PATH="public.ecr.aws/uktrade-dev/"
