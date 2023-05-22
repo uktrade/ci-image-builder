@@ -10,13 +10,18 @@ INPUT_BUILDER="${BUILDPACKS_PATH}builder:${BUILDER_VERSION}"
 BUILDER_RUN="${BUILDPACKS_PATH}run:full-cnb"
 LIFECYCLE="public.ecr.aws/uktrade-dev/buildpacksio/lifecycle:${LIFECYCLE_VERSION}"
 DOCKERREG=$(aws sts get-caller-identity --query Account --output text).dkr.ecr.eu-west-2.amazonaws.com
-#CACHE_IMAGE="/uktrade/paketo-cache"
 LOG_LEVEL="DEBUG"
 #ACCOUNT_NAME=$(aws iam list-account-aliases |jq -r ".[][]")
 GIT_TAG=$(git describe --tags --abbrev=0)
 GIT_COMMIT=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION |cut -c1-7)
 GIT_BRANCH=$(git branch --show-current)
 #APP_NAME=$(echo $CODEBUILD_SRC_DIR |awk -F / '{print $(NF)}')
+
+if [ codebuild/process.yml ];then
+  BUILDSPEC_PATH="codebuild/process.yml"
+else
+  BUILDSPEC_PATH="copilot/process.yml"
+fi
 
 if [ -f "buildpack.json" ]; then
   count=$(($(jq  '.[]|length' buildpack.json) - 1))
@@ -49,12 +54,12 @@ aws ecr get-login-password --region eu-west-2 | docker login --username AWS --pa
 
 cp Procfile Procfile_tmp
 
-APP_NAME=$(niet ".application.name" copilot/process.yml)
+APP_NAME=$(niet ".application.name" ${BUILDSPEC_PATH})
 
 count=1
 
 # If there are multiple Procfiles loop through them and create multiple OCI images for each instance
-for PROC in $(niet ".application.process" copilot/process.yml)
+for PROC in $(niet ".application.process" ${BUILDSPEC_PATH})
 do
   sed -n "$count p" Procfile_tmp > Procfile
 
