@@ -17,7 +17,7 @@ GIT_COMMIT=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION |cut -c1-7)
 GIT_BRANCH=$(git branch --show-current)
 #APP_NAME=$(echo $CODEBUILD_SRC_DIR |awk -F / '{print $(NF)}')
 
-if [ codebuild/process.yml ];then
+if [ -f "codebuild/process.yml" ]; then
   BUILDSPEC_PATH="codebuild/process.yml"
 else
   BUILDSPEC_PATH="copilot/process.yml"
