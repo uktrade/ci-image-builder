@@ -14,7 +14,8 @@ phases:
     - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
     - IMAGE_TAG=${COMMIT_HASH:=latest}
     - REPOSITORY_URI=public.ecr.aws/uktrade-dev/uktrade/ci-image-builder
-    - GIT_BRANCH=$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}')
+    - if [ -z $CODEBUILD_WEBHOOK_TRIGGER ]; then GIT_BRANCH=$(git branch --show-current); else GIT_BRANCH=$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}'); fi
+    #- GIT_BRANCH=$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}')
   build:
     commands:
     - codebuild-breakpoint

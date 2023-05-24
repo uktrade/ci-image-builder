@@ -14,8 +14,14 @@ LOG_LEVEL="DEBUG"
 #ACCOUNT_NAME=$(aws iam list-account-aliases |jq -r ".[][]")
 GIT_TAG=$(git describe --tags --abbrev=0)
 GIT_COMMIT=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION |cut -c1-7)
+
+if [ -z $CODEBUILD_WEBHOOK_TRIGGER ]; then
+  GIT_BRANCH=$(git branch --show-current)
+else
+  GIT_BRANCH=$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}')
+fi
 #GIT_BRANCH=$(git branch --show-current)
-GIT_BRANCH=$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}')
+#GIT_BRANCH=$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}')
 #APP_NAME=$(echo $CODEBUILD_SRC_DIR |awk -F / '{print $(NF)}')
 
 if [ -f "codebuild/process.yml" ]; then
