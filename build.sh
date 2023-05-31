@@ -31,9 +31,13 @@ else
 fi
 
 if [ -f "buildpack.json" ]; then
-  count=$(($(jq  '.[]|length' buildpack.json) - 1))
-  for i in $(seq 0 $count); do
-      BUILDPACKS+=" --buildpack $(jq -r ".[][$i]|keys[]" buildpack.json)/$(jq -r ".[][$i]|values[]" buildpack.json)"
+  count=$(jq '.buildpacks | length' buildpack.json)
+
+  for i in $(seq 0 $((count - 1))); do
+    KEY=$(jq -r ".buildpacks[$i] | keys[]" buildpack.json)
+    VALUE=$(jq -r ".buildpacks[$i] | values[]" buildpack.json)
+
+    BUILDPACKS+=" --buildpack $KEY/$VALUE"
   done
 else
   BUILDPACKS=""
