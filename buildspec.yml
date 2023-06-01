@@ -17,7 +17,6 @@ phases:
     - if [ -z $CODEBUILD_WEBHOOK_TRIGGER ]; then GIT_BRANCH=$(git branch --show-current); else GIT_BRANCH=$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}'); fi
   build:
     commands:
-    - codebuild-breakpoint
     - echo Build started on `date`
     - echo Building the Docker image...
     - docker build -t $REPOSITORY_URI .
