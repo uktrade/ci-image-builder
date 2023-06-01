@@ -1,14 +1,17 @@
 #!/bin/bash
+
 set -x
+
+ECR_PATH="public.ecr.aws/uktrade"
 
 BUILDER_VERSION="0.2.326-full"
 LIFECYCLE_VERSION="0.16.0"
+RUN_VERSION="full-cnb"
 
-ECR_PATH="public.ecr.aws/uktrade-dev/"
-BUILDPACKS_PATH="${ECR_PATH}paketobuildpacks/"
-INPUT_BUILDER="${BUILDPACKS_PATH}builder:${BUILDER_VERSION}"
-BUILDER_RUN="${BUILDPACKS_PATH}run:full-cnb"
-LIFECYCLE="public.ecr.aws/uktrade-dev/buildpacksio/lifecycle:${LIFECYCLE_VERSION}"
+BUILDPACKS_PATH="${ECR_PATH}/paketobuildpacks"
+INPUT_BUILDER="${BUILDPACKS_PATH}/builder:${BUILDER_VERSION}"
+BUILDER_RUN="${BUILDPACKS_PATH}/run:${RUN_VERSION}"
+LIFECYCLE="${ECR_PATH}/buildpacksio/lifecycle:${LIFECYCLE_VERSION}"
 DOCKERREG=$(aws sts get-caller-identity --query Account --output text).dkr.ecr.eu-west-2.amazonaws.com
 LOG_LEVEL="DEBUG"
 #ACCOUNT_NAME=$(aws iam list-account-aliases |jq -r ".[][]")
@@ -53,7 +56,7 @@ nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127
 timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
 
 docker pull ${BUILDER_RUN}
-docker tag ${BUILDER_RUN} paketobuildpacks/run:full-cnb
+docker tag ${BUILDER_RUN} paketobuildpacks/run:${RUN_VERSION}
 
 docker pull ${LIFECYCLE}
 docker tag ${LIFECYCLE} buildpacksio/lifecycle:${LIFECYCLE_VERSION}
