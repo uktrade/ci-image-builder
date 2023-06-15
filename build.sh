@@ -4,7 +4,7 @@ set -x
 
 ECR_PATH="public.ecr.aws/uktrade"
 
-BUILDER_VERSION="${BUILDER_VERSION:-0.2.326-full}"
+BUILDER_VERSION="${BUILDER_VERSION:=0.2.326-full}"
 LIFECYCLE_VERSION="0.16.0"
 RUN_VERSION="full-cnb"
 
