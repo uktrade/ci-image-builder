@@ -75,7 +75,7 @@ do
   # If ECR repo does not exist create it
   aws ecr describe-repositories --repository-names "${APP_NAME}"/"${PROC}" --region eu-west-2 >/dev/null
   status=$?
-  [ $status -ne 0 ] && aws ecr create-repository --repository-name "${APP_NAME}"/"${PROC}" --region eu-west-2
+  [ $status -ne 0 ] && aws ecr create-repository --repository-name "${APP_NAME}"/"${PROC}" --region eu-west-2 --image-scanning-configuration scanOnPush=true
 
   # Build image and push to ECR
   IMAGE="${DOCKERREG}"/"${APP_NAME}"/"${PROC}"
