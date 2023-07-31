@@ -84,9 +84,9 @@ do
     --tag "$IMAGE":"${GIT_COMMIT}" \
     --tag "$IMAGE":"${GIT_BRANCH}" \
     --builder ${INPUT_BUILDER} \
-    "${BUILDPACKS}" \
+    ${BUILDPACKS} \
     --env BP_LOG_LEVEL=${LOG_LEVEL} \
-    "${PYTHON_VERSION}" \
+    ${PYTHON_VERSION} \
     --publish
 
   status=$?
