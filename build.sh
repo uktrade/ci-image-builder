@@ -29,15 +29,21 @@ else
   BUILDSPEC_PATH="copilot/process.yml"
 fi
 
-if [ -f "buildpack.json" ]; then
-  count=$(jq '.buildpacks | length' buildpack.json)
+BUILDPACK_JSON="buildpack.json"
 
-  for i in $(seq 0 $((count - 1))); do
-    KEY=$(jq -r ".buildpacks[$i] | keys[]" buildpack.json)
-    VALUE=$(jq -r ".buildpacks[$i] | values[]" buildpack.json)
+if [ -f $BUILDPACK_JSON ]; then
+  if [[ $(jq '.buildpacks' $BUILDPACK_JSON) != "null" ]]; then
+    count=$(jq '.buildpacks | length' $BUILDPACK_JSON)
 
-    BUILDPACKS+=" --buildpack $KEY/$VALUE"
-  done
+    for i in $(seq 0 $((count - 1))); do
+      KEY=$(jq -r ".buildpacks[$i] | keys[]" $BUILDPACK_JSON)
+      VALUE=$(jq -r ".buildpacks[$i] | values[]" $BUILDPACK_JSON)
+
+      BUILDPACKS+=" --buildpack $KEY/$VALUE"
+    done
+  else
+    echo "Ensure your \"$BUILDPACK_JSON\" file contains the \"buildpacks\" property."
+  fi
 else
   BUILDPACKS=""
 fi
