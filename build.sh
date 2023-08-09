@@ -2,6 +2,8 @@
 
 set -x
 
+ECR_VISIBILITY="${ECR_VISIBILITY:=PRIVATE}"
+
 ECR_PATH="public.ecr.aws/uktrade"
 
 BUILDER_VERSION="${BUILDER_VERSION:=0.2.326-full}"
@@ -12,7 +14,7 @@ BUILDPACKS_PATH="${ECR_PATH}/paketobuildpacks"
 INPUT_BUILDER="${BUILDPACKS_PATH}/builder:${BUILDER_VERSION}"
 BUILDER_RUN="${BUILDPACKS_PATH}/run:${RUN_VERSION}"
 LIFECYCLE="${ECR_PATH}/buildpacksio/lifecycle:${LIFECYCLE_VERSION}"
-DOCKERREG=$(aws sts get-caller-identity --query Account --output text).dkr.ecr.eu-west-2.amazonaws.com
+
 LOG_LEVEL="DEBUG"
 GIT_TAG=$(git describe --tags --abbrev=0)
 GIT_COMMIT=$(echo "$CODEBUILD_RESOLVED_SOURCE_VERSION" | cut -c1-7)
@@ -65,8 +67,6 @@ docker tag ${LIFECYCLE} buildpacksio/lifecycle:${LIFECYCLE_VERSION}
 
 docker images
 
-aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin "${DOCKERREG}"
-
 cp Procfile Procfile_tmp
 
 APP_NAME=$(niet ".application.name" ${BUILDSPEC_PATH})
@@ -78,13 +78,32 @@ for PROC in $(niet ".application.process" ${BUILDSPEC_PATH})
 do
   sed -n "$count p" Procfile_tmp > Procfile
 
-  # If ECR repo does not exist create it
-  aws ecr describe-repositories --repository-names "${APP_NAME}"/"${PROC}" --region eu-west-2 >/dev/null
-  status=$?
-  [ $status -ne 0 ] && aws ecr create-repository --repository-name "${APP_NAME}"/"${PROC}" --region eu-west-2 --image-scanning-configuration scanOnPush=true --image-tag-mutability IMMUTABLE
+  if [ $PROC == "False" ]; then
+    IMAGE_NAME="${APP_NAME}"
+  else
+    IMAGE_NAME="${APP_NAME}/${PROC}"
+  fi
+
+  if [ $ECR_VISIBILITY == "PRIVATE" ]; then
+    DOCKERREG=$(aws sts get-caller-identity --query Account --output text).dkr.ecr.eu-west-2.amazonaws.com
+    aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin "${DOCKERREG}"
+
+    aws ecr describe-repositories --repository-names "${IMAGE_NAME}" --region eu-west-2 >/dev/null
+    status=$?
+    [ $status -ne 0 ] && aws ecr create-repository --repository-name "${IMAGE_NAME}" --region eu-west-2 --image-scanning-configuration scanOnPush=true --image-tag-mutability IMMUTABLE
+  else
+    aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
+    REG_ALIAS=$(aws ecr-public describe-registries --region us-east-1 |jq '.registries[]|.aliases[0]|.name' | xargs)
+    DOCKERREG="public.ecr.aws/${REG_ALIAS}"
+
+    aws ecr-public describe-repositories --repository-names "${IMAGE_NAME}" --region eu-west-2 >/dev/null
+    status=$?
+    [ $status -ne 0 ] && aws ecr-public create-repository --repository-name "${IMAGE_NAME}" --region us-east-1
+
+  fi
 
   # Build image and push to ECR
-  IMAGE="${DOCKERREG}"/"${APP_NAME}"/"${PROC}"
+  IMAGE="${DOCKERREG}"/"${IMAGE_NAME}"
   pack build "$IMAGE" \
     --tag "$IMAGE":"${GIT_TAG}" \
     --tag "$IMAGE":"${GIT_COMMIT}" \
@@ -102,6 +121,6 @@ do
 done
 
 # Report image build to Slack
-SLACK_DATA=$(jq -n --arg dt "\`Image=${APP_NAME}/${PROC}:${GIT_COMMIT}, ${GIT_TAG}, branch=${GIT_BRANCH}\`" '{"text":$dt}')
+SLACK_DATA=$(jq -n --arg dt "\`Image=${IMAGE_NAME}:${GIT_COMMIT}, ${GIT_TAG}, branch=${GIT_BRANCH}\`" '{"text":$dt}')
 SLACK_WEBHOOK="https://hooks.slack.com/services/$SLACK_WORKSPACE_ID/$SLACK_CHANNEL_ID/$SLACK_TOKEN"
 curl -X POST -H 'Content-type: application/json' --data "${SLACK_DATA}" "$SLACK_WEBHOOK"
