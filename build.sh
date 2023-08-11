@@ -33,7 +33,7 @@ else
   BUILDSPEC_PATH="copilot/process.yml"
 fi
 
-# Create a list of Buidpack
+# Create a list of Buildpacks
 if [ -f $BUILDPACK_JSON ]; then
   if [[ $(jq '.buildpacks' $BUILDPACK_JSON) != "null" ]]; then
     count=$(jq '.buildpacks | length' $BUILDPACK_JSON)
