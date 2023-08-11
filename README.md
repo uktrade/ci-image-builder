@@ -27,8 +27,6 @@ env:
     ECR_VISIBILITY: {PRIVATE/PUBLIC}
 
 phases:
-  # install:
-
   pre_build:
     commands:
       - codebuild-breakpoint
