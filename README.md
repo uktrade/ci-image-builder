@@ -54,7 +54,7 @@ Under `pre-build` we suggest including a breakpoint, this can be useful for trou
 
 Finally, under build, the path to the `ci-image-builder`'s `build.sh` script is defined.  
 
-## Instructions to Deploy a public image
+## Instructions to deploy a public image
 
 In order to deploy a public image rather than the default private image do the following.
 
