@@ -8,7 +8,7 @@ This is designed to be used by AWS CodeBuild projects
 
 1. Environment image, update this to the location of your uploaded Docker image of the `ci-image-builder`.
 
-2. Buildspec, this will normally point to the location of your source codes buildspec.yml file.  
+2. Buildspec, this will normally point to the location of your source codes `buildspec.yml` file.  
 
 
 AWS Reference:  https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html
