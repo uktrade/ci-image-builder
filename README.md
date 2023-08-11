@@ -53,3 +53,45 @@ If you need to install additional packages into the image you can add that to th
 Under pre-build we suggest including a breakpoint, this can be useful for troubleshooting the container.  Which can be enabled when you `start build with overrides`, in the aws console.
 
 Finally, under build, the path to the `ci-image-builders build.sh` script is defined.  
+
+## Instructions to Deploy a public image
+
+In order to deploy a public image rather than the default private image do the following.
+
+In your `buildspec.yml` file add set the variable `ECR_VISIBILITY: PUBLIC`
+
+In your codes repo `process.yml` specify your public image name.
+
+```yml
+application:
+  name: image_name
+  process:
+    - False
+```
+
+Setting the process to `False` will tell the builder to use the image name only. This will produce the following:
+
+`public.ecr.aws/{aws alias}/image_name:latest`
+
+If you want to include a sub image name you can specify this in the process name.
+
+```yml
+application:
+  name: image_name
+  process:
+    - app_name
+```
+
+This will produce:
+
+`public.ecr.aws/{aws alias}/image_name/app_name:latest`
+
+### Using copilot-tools to build images
+
+Finally to have Codebuild watch you application repo and deploy an OCI image on changes run the following commands:
+
+```
+aws sso login --profile profile-name && export AWS_PROFILE=profile-name
+
+copilot-helper codebuild codedeploy --project-profile <profile_name> --name <application_name> --desc <desciption> --git <git-url>  --branch <branch> --buildspec <location-buildspec.yml>
+```
