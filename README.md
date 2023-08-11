@@ -1,6 +1,6 @@
 # ci-image-builder
 
-Docker image for building oci images using paketo buildpacks and uploading them to aws ecr.
+Docker image for building OCI images using Paketo buildpacks and uploading them to AWS ECR.
 
 ## Usage
 
