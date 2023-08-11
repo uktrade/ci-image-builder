@@ -2,10 +2,12 @@
 
 set -x
 
+LOG_LEVEL="DEBUG"
+
+# Set env VAR to PUBLICfor public images
 ECR_VISIBILITY="${ECR_VISIBILITY:=PRIVATE}"
 
 ECR_PATH="public.ecr.aws/uktrade"
-
 BUILDER_VERSION="${BUILDER_VERSION:=0.2.326-full}"
 LIFECYCLE_VERSION="0.16.0"
 RUN_VERSION="full-cnb"
@@ -14,8 +16,8 @@ BUILDPACKS_PATH="${ECR_PATH}/paketobuildpacks"
 INPUT_BUILDER="${BUILDPACKS_PATH}/builder:${BUILDER_VERSION}"
 BUILDER_RUN="${BUILDPACKS_PATH}/run:${RUN_VERSION}"
 LIFECYCLE="${ECR_PATH}/buildpacksio/lifecycle:${LIFECYCLE_VERSION}"
+BUILDPACK_JSON="buildpack.json"
 
-LOG_LEVEL="DEBUG"
 GIT_TAG=$(git describe --tags --abbrev=0)
 GIT_COMMIT=$(echo "$CODEBUILD_RESOLVED_SOURCE_VERSION" | cut -c1-7)
 
@@ -31,8 +33,7 @@ else
   BUILDSPEC_PATH="copilot/process.yml"
 fi
 
-BUILDPACK_JSON="buildpack.json"
-
+# Create a list of Buidpack
 if [ -f $BUILDPACK_JSON ]; then
   if [[ $(jq '.buildpacks' $BUILDPACK_JSON) != "null" ]]; then
     count=$(jq '.buildpacks | length' $BUILDPACK_JSON)
@@ -56,6 +57,7 @@ else
   PYTHON_VERSION=""
 fi
 
+# Start Docker deamon
 nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
 timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
 
@@ -70,7 +72,6 @@ docker images
 cp Procfile Procfile_tmp
 
 APP_NAME=$(niet ".application.name" ${BUILDSPEC_PATH})
-
 count=1
 
 # If there are multiple processes, loop through them and create multiple OCI images for each instance
@@ -84,6 +85,7 @@ do
     IMAGE_NAME="${APP_NAME}/${PROC}"
   fi
 
+  # Public/Private repos have different commands and targets.
   if [ $ECR_VISIBILITY == "PRIVATE" ]; then
     DOCKERREG=$(aws sts get-caller-identity --query Account --output text).dkr.ecr.eu-west-2.amazonaws.com
     aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin "${DOCKERREG}"
@@ -91,6 +93,7 @@ do
     aws ecr describe-repositories --repository-names "${IMAGE_NAME}" --region eu-west-2 >/dev/null
     status=$?
     [ $status -ne 0 ] && aws ecr create-repository --repository-name "${IMAGE_NAME}" --region eu-west-2 --image-scanning-configuration scanOnPush=true --image-tag-mutability IMMUTABLE
+
   else
     aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
     REG_ALIAS=$(aws ecr-public describe-registries --region us-east-1 |jq '.registries[]|.aliases[0]|.name' | xargs)
