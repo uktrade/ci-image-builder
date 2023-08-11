@@ -52,7 +52,7 @@ If you need to install additional packages into the image you can add that to th
 
 Under `pre-build` we suggest including a breakpoint, this can be useful for troubleshooting the container. This can be enabled when you `Start build with overrides`, in the AWS console.
 
-Finally, under build, the path to the `ci-image-builders build.sh` script is defined.  
+Finally, under build, the path to the `ci-image-builder`'s `build.sh` script is defined.  
 
 ## Instructions to Deploy a public image
 
