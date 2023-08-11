@@ -88,7 +88,7 @@ This will produce:
 
 ### Using copilot-tools to build images
 
-Finally to have Codebuild watch you application repo and deploy an OCI image on changes run the following commands:
+Finally, to have CodeBuild watch your application repo and deploy an OCI image on changes, run the following commands:
 
 ```
 aws sso login --profile profile-name && export AWS_PROFILE=profile-name
