@@ -17,6 +17,7 @@ INPUT_BUILDER="${BUILDPACKS_PATH}/builder:${BUILDER_VERSION}"
 BUILDER_RUN="${BUILDPACKS_PATH}/run:${RUN_VERSION}"
 LIFECYCLE="${ECR_PATH}/buildpacksio/lifecycle:${LIFECYCLE_VERSION}"
 BUILDPACK_JSON="buildpack.json"
+BUILDPACK_POST="fagiani/run@0.1.1"
 
 GIT_TAG=$(git describe --tags --abbrev=0)
 GIT_COMMIT=$(echo "$CODEBUILD_RESOLVED_SOURCE_VERSION" | cut -c1-7)
@@ -71,6 +72,11 @@ docker images
 
 cp Procfile Procfile_tmp
 
+# Check if repo requires post build commands
+echo "#!/bin/bash" > buildpack-run.sh
+chmod +x buildpack-run.sh
+cat /work/builder-post.sh >> buildpack-run.sh
+
 APP_NAME=$(niet ".application.name" ${BUILDSPEC_PATH})
 count=1
 
@@ -104,7 +110,7 @@ do
     [ $status -ne 0 ] && aws ecr-public create-repository --repository-name "${IMAGE_NAME}" --region us-east-1
 
   fi
-
+  
   # Build image and push to ECR
   IMAGE="${DOCKERREG}"/"${IMAGE_NAME}"
   pack build "$IMAGE" \
@@ -113,7 +119,12 @@ do
     --tag "$IMAGE":"${GIT_BRANCH}" \
     --builder ${INPUT_BUILDER} \
     ${BUILDPACKS} \
+    --buildpack ${BUILDPACK_POST} \
     --env BP_LOG_LEVEL=${LOG_LEVEL} \
+    --env CODEBUILD_BUILD_IMAGE=${CODEBUILD_BUILD_IMAGE} \
+    --env BUILDER_VERSION=${BUILDER_VERSION} \
+    --env BUILDPACK_POST=${BUILDPACK_POST} \
+    --env COPILOT_TOOLS_VERSION=${COPILOT_TOOLS_VERSION} \
     ${PYTHON_VERSION} \
     --publish
 

@@ -14,6 +14,7 @@ RUN mkdir /work
 
 RUN mkdir /docker_images
 
-
 COPY build.sh /work/build.sh
 RUN chmod +x /work/build.sh
+
+COPY builder-post.sh /work/builder-post.sh
