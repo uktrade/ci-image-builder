@@ -28,7 +28,6 @@ else
 fi
 
 if [ -f "codebuild/process.yml" ];then
-
   BUILDSPEC_PATH="codebuild/process.yml"
 else
   BUILDSPEC_PATH="copilot/process.yml"
