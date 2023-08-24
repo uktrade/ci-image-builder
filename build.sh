@@ -125,6 +125,9 @@ do
     --env BUILDER_VERSION=${BUILDER_VERSION} \
     --env BUILDPACK_POST=${BUILDPACK_POST} \
     --env COPILOT_TOOLS_VERSION=${COPILOT_TOOLS_VERSION} \
+    --env GIT_TAG=${GIT_TAG} \
+    --env GIT_COMMIT=${GIT_COMMIT} \
+    --env GIT_BRANCH=${GIT_BRANCH} \
     ${PYTHON_VERSION} \
     --publish
 
