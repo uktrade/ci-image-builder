@@ -1,85 +1,117 @@
 #!/bin/bash
+
 set -x
 
-BUILDER_VERSION="0.2.390-full"
-LIFECYCLE_VERSION="0.16.0"
-
-ECR_PATH="public.ecr.aws/uktrade-dev/"
-BUILDPACKS_PATH="${ECR_PATH}paketobuildpacks/"
-INPUT_BUILDER="${BUILDPACKS_PATH}builder:${BUILDER_VERSION}"
-BUILDER_RUN="${BUILDPACKS_PATH}run:full-cnb"
-LIFECYCLE="public.ecr.aws/uktrade-dev/buildpacksio/lifecycle:${LIFECYCLE_VERSION}"
-DOCKERREG=$(aws sts get-caller-identity --query Account --output text).dkr.ecr.eu-west-2.amazonaws.com
 LOG_LEVEL="DEBUG"
-#ACCOUNT_NAME=$(aws iam list-account-aliases |jq -r ".[][]")
-GIT_TAG=$(git describe --tags --abbrev=0)
-GIT_COMMIT=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION |cut -c1-7)
 
-if [ -z $CODEBUILD_WEBHOOK_TRIGGER ]; then
+# Set env VAR to PUBLICfor public images
+ECR_VISIBILITY="${ECR_VISIBILITY:=PRIVATE}"
+
+ECR_PATH="public.ecr.aws/uktrade"
+BUILDER_VERSION="${BUILDER_VERSION:=0.2.326-full}"
+LIFECYCLE_VERSION="0.16.0"
+RUN_VERSION="full-cnb"
+
+BUILDPACKS_PATH="${ECR_PATH}/paketobuildpacks"
+INPUT_BUILDER="${BUILDPACKS_PATH}/builder:${BUILDER_VERSION}"
+BUILDER_RUN="${BUILDPACKS_PATH}/run:${RUN_VERSION}"
+LIFECYCLE="${ECR_PATH}/buildpacksio/lifecycle:${LIFECYCLE_VERSION}"
+BUILDPACK_JSON="buildpack.json"
+
+GIT_TAG=$(git describe --tags --abbrev=0)
+GIT_COMMIT=$(echo "$CODEBUILD_RESOLVED_SOURCE_VERSION" | cut -c1-7)
+
+if [ -z "$CODEBUILD_WEBHOOK_TRIGGER" ]; then
   GIT_BRANCH=$(git branch --show-current)
 else
-  GIT_BRANCH=$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}')
+  GIT_BRANCH=$(echo "$CODEBUILD_WEBHOOK_TRIGGER" | awk -F "/" '{print $2}')
 fi
-#GIT_BRANCH=$(git branch --show-current)
-#GIT_BRANCH=$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}')
-#APP_NAME=$(echo $CODEBUILD_SRC_DIR |awk -F / '{print $(NF)}')
 
-if [ -f "codebuild/process.yml" ]; then
+if [ -f "codebuild/process.yml" ];then
+
   BUILDSPEC_PATH="codebuild/process.yml"
 else
   BUILDSPEC_PATH="copilot/process.yml"
 fi
 
-if [ -f "buildpack.json" ]; then
-  count=$(($(jq  '.[]|length' buildpack.json) - 1))
-  for i in $(seq 0 $count); do
-      BUILDPACKS+=" --buildpack $(jq -r ".[][$i]|keys[]" buildpack.json)/$(jq -r ".[][$i]|values[]" buildpack.json)"
-  done
+# Create a list of Buildpacks
+if [ -f $BUILDPACK_JSON ]; then
+  if [[ $(jq '.buildpacks' $BUILDPACK_JSON) != "null" ]]; then
+    count=$(jq '.buildpacks | length' $BUILDPACK_JSON)
+
+    for i in $(seq 0 $((count - 1))); do
+      KEY=$(jq -r ".buildpacks[$i] | keys[]" $BUILDPACK_JSON)
+      VALUE=$(jq -r ".buildpacks[$i] | values[]" $BUILDPACK_JSON)
+
+      BUILDPACKS+=" --buildpack $KEY/$VALUE"
+    done
+  else
+    echo "Ensure your \"$BUILDPACK_JSON\" file contains the \"buildpacks\" property."
+  fi
 else
   BUILDPACKS=""
 fi
 
 if [ -f "runtime.txt" ]; then
-  PYTHON_VERSION="--env BP_CPYTHON_VERSION=$(cat runtime.txt |awk -F - '{print $2}')"
+  PYTHON_VERSION="--env BP_CPYTHON_VERSION=$(awk -F - '{print $2}' < runtime.txt)"
 else
   PYTHON_VERSION=""
 fi
 
+# Start Docker deamon
 nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
 timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
 
 docker pull ${BUILDER_RUN}
-docker tag ${BUILDER_RUN} paketobuildpacks/run:full-cnb
+docker tag ${BUILDER_RUN} paketobuildpacks/run:${RUN_VERSION}
 
 docker pull ${LIFECYCLE}
 docker tag ${LIFECYCLE} buildpacksio/lifecycle:${LIFECYCLE_VERSION}
 
 docker images
 
-#aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${DOCKERREG}
-aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin ${DOCKERREG}
-
 cp Procfile Procfile_tmp
 
 APP_NAME=$(niet ".application.name" ${BUILDSPEC_PATH})
-
 count=1
 
-# If there are multiple Procfiles loop through them and create multiple OCI images for each instance
+# If there are multiple processes, loop through them and create multiple OCI images for each instance
 for PROC in $(niet ".application.process" ${BUILDSPEC_PATH})
 do
   sed -n "$count p" Procfile_tmp > Procfile
 
-  # If ECR repo does not exist create it
-  aws ecr describe-repositories --repository-names ${APP_NAME}/${PROC} --region eu-west-2 >/dev/null
-  status=$?
-  [ $status -ne 0 ] && aws ecr create-repository --repository-name ${APP_NAME}/${PROC} --region eu-west-2
+  if [ $PROC == "False" ]; then
+    IMAGE_NAME="${APP_NAME}"
+  else
+    IMAGE_NAME="${APP_NAME}/${PROC}"
+  fi
+
+  # Public/Private repos have different commands and targets.
+  if [ $ECR_VISIBILITY == "PRIVATE" ]; then
+    DOCKERREG=$(aws sts get-caller-identity --query Account --output text).dkr.ecr.eu-west-2.amazonaws.com
+    aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin "${DOCKERREG}"
+
+    aws ecr describe-repositories --repository-names "${IMAGE_NAME}" --region eu-west-2 >/dev/null
+    status=$?
+    [ $status -ne 0 ] && aws ecr create-repository --repository-name "${IMAGE_NAME}" --region eu-west-2 --image-scanning-configuration scanOnPush=true --image-tag-mutability IMMUTABLE
+
+  else
+    aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
+    REG_ALIAS=$(aws ecr-public describe-registries --region us-east-1 |jq '.registries[]|.aliases[0]|.name' | xargs)
+    DOCKERREG="public.ecr.aws/${REG_ALIAS}"
+
+    aws ecr-public describe-repositories --repository-names "${IMAGE_NAME}" --region eu-west-2 >/dev/null
+    status=$?
+    [ $status -ne 0 ] && aws ecr-public create-repository --repository-name "${IMAGE_NAME}" --region us-east-1
+
+  fi
 
   # Build image and push to ECR
-  pack build ${DOCKERREG}/${APP_NAME}/${PROC} \
-    --tag ${DOCKERREG}/${APP_NAME}/${PROC}:${GIT_TAG} \
-    --tag ${DOCKERREG}/${APP_NAME}/${PROC}:${GIT_COMMIT} \
-    --tag ${DOCKERREG}/${APP_NAME}/${PROC}:${GIT_BRANCH} \
+  IMAGE="${DOCKERREG}"/"${IMAGE_NAME}"
+  pack build "$IMAGE" \
+    --tag "$IMAGE":"${GIT_TAG}" \
+    --tag "$IMAGE":"${GIT_COMMIT}" \
+    --tag "$IMAGE":"${GIT_BRANCH}" \
     --builder ${INPUT_BUILDER} \
     ${BUILDPACKS} \
     --env BP_LOG_LEVEL=${LOG_LEVEL} \
@@ -89,12 +121,10 @@ do
   status=$?
   [ $status -ne 0 ] && exit 1
 
-  let count++
-
+  (( count++ ))
 done
 
-#Report Image build to Slack
-SLACK_DATA=$(jq -n \
---arg dt "\`Image=${APP_NAME}/${PROC}:${GIT_COMMIT}, ${GIT_TAG}, branch=${GIT_BRANCH}\`" \
-'{"text":$dt}')
-curl -X POST -H 'Content-type: application/json' --data "${SLACK_DATA}" https://hooks.slack.com/services/$SLACK_WORKSPACE_ID/$SLACK_CHANNEL_ID/$SLACK_TOKEN
+# Report image build to Slack
+SLACK_DATA=$(jq -n --arg dt "\`Image=${IMAGE_NAME}:${GIT_COMMIT}, ${GIT_TAG}, branch=${GIT_BRANCH}\`" '{"text":$dt}')
+SLACK_WEBHOOK="https://hooks.slack.com/services/$SLACK_WORKSPACE_ID/$SLACK_CHANNEL_ID/$SLACK_TOKEN"
+curl -X POST -H 'Content-type: application/json' --data "${SLACK_DATA}" "$SLACK_WEBHOOK"

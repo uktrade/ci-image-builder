@@ -10,19 +10,16 @@ phases:
     commands:
     - echo Logging in to Amazon ECR....
     - aws --version
-    - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/uktrade-dev
+    - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/uktrade
     - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
     - IMAGE_TAG=${COMMIT_HASH:=latest}
-    - REPOSITORY_URI=public.ecr.aws/uktrade-dev/uktrade/ci-image-builder
+    - REPOSITORY_URI=public.ecr.aws/uktrade/ci-image-builder
     - if [ -z $CODEBUILD_WEBHOOK_TRIGGER ]; then GIT_BRANCH=$(git branch --show-current); else GIT_BRANCH=$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}'); fi
-    #- GIT_BRANCH=$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}')
   build:
     commands:
-    - codebuild-breakpoint
     - echo Build started on `date`
     - echo Building the Docker image...
     - docker build -t $REPOSITORY_URI .
-    #- if [ $GIT_BRANCH = "main" ]; then docker tag $REPOSITORY_URI $REPOSITORY_URI:latest; fi
     - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
     - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$GIT_BRANCH
   post_build:
