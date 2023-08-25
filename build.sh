@@ -12,10 +12,10 @@ BUILDER_VERSION="${BUILDER_VERSION:=0.2.326-full}"
 LIFECYCLE_VERSION="0.16.0"
 RUN_VERSION="full-cnb"
 
-BUILDPACKS_PATH="${ECR_PATH}/paketobuildpacks"
-INPUT_BUILDER="${BUILDPACKS_PATH}/builder:${BUILDER_VERSION}"
-BUILDER_RUN="${BUILDPACKS_PATH}/run:${RUN_VERSION}"
-LIFECYCLE="${ECR_PATH}/buildpacksio/lifecycle:${LIFECYCLE_VERSION}"
+BUILDPACKS_PATH="$ECR_PATH/paketobuildpacks"
+INPUT_BUILDER="$BUILDPACKS_PATH/builder:$BUILDER_VERSION"
+BUILDER_RUN="$BUILDPACKS_PATH/run:$RUN_VERSION"
+LIFECYCLE="$ECR_PATH/buildpacksio/lifecycle:$LIFECYCLE_VERSION"
 BUILDPACK_JSON="buildpack.json"
 BUILDPACK_POST="fagiani/run@0.1.1"
 
@@ -62,11 +62,11 @@ fi
 nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
 timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
 
-docker pull ${BUILDER_RUN}
-docker tag ${BUILDER_RUN} paketobuildpacks/run:${RUN_VERSION}
+docker pull $BUILDER_RUN
+docker tag $BUILDER_RUN paketobuildpacks/run:$RUN_VERSION
 
-docker pull ${LIFECYCLE}
-docker tag ${LIFECYCLE} buildpacksio/lifecycle:${LIFECYCLE_VERSION}
+docker pull $LIFECYCLE
+docker tag $LIFECYCLE buildpacksio/lifecycle:$LIFECYCLE_VERSION
 
 docker images
 
@@ -81,58 +81,58 @@ if [ -f "user-post.sh" ]; then
   cat user-post.sh >> buildpack-run.sh
 fi
 
-APP_NAME=$(niet ".application.name" ${BUILDSPEC_PATH})
+APP_NAME=$(niet ".application.name" $BUILDSPEC_PATH)
 count=1
 
 # If there are multiple processes, loop through them and create multiple OCI images for each instance
-for PROC in $(niet ".application.process" ${BUILDSPEC_PATH})
+for PROC in $(niet ".application.process" $BUILDSPEC_PATH)
 do
   sed -n "$count p" Procfile_tmp > Procfile
 
   if [ $PROC == "False" ]; then
-    IMAGE_NAME="${APP_NAME}"
+    IMAGE_NAME="$APP_NAME"
   else
-    IMAGE_NAME="${APP_NAME}/${PROC}"
+    IMAGE_NAME="$APP_NAME/$PROC"
   fi
 
   # Public/Private repos have different commands and targets.
   if [ $ECR_VISIBILITY == "PRIVATE" ]; then
     DOCKERREG=$(aws sts get-caller-identity --query Account --output text).dkr.ecr.eu-west-2.amazonaws.com
-    aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin "${DOCKERREG}"
+    aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin "$DOCKERREG"
 
-    aws ecr describe-repositories --repository-names "${IMAGE_NAME}" --region eu-west-2 >/dev/null
+    aws ecr describe-repositories --repository-names "$IMAGE_NAME" --region eu-west-2 >/dev/null
     status=$?
-    [ $status -ne 0 ] && aws ecr create-repository --repository-name "${IMAGE_NAME}" --region eu-west-2 --image-scanning-configuration scanOnPush=true --image-tag-mutability IMMUTABLE
+    [ $status -ne 0 ] && aws ecr create-repository --repository-name "$IMAGE_NAME" --region eu-west-2 --image-scanning-configuration scanOnPush=true --image-tag-mutability IMMUTABLE
 
   else
     aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
     REG_ALIAS=$(aws ecr-public describe-registries --region us-east-1 |jq '.registries[]|.aliases[0]|.name' | xargs)
-    DOCKERREG="public.ecr.aws/${REG_ALIAS}"
+    DOCKERREG="public.ecr.aws/$REG_ALIAS"
 
-    aws ecr-public describe-repositories --repository-names "${IMAGE_NAME}" --region eu-west-2 >/dev/null
+    aws ecr-public describe-repositories --repository-names "$IMAGE_NAME" --region eu-west-2 >/dev/null
     status=$?
-    [ $status -ne 0 ] && aws ecr-public create-repository --repository-name "${IMAGE_NAME}" --region us-east-1
+    [ $status -ne 0 ] && aws ecr-public create-repository --repository-name "$IMAGE_NAME" --region us-east-1
 
   fi
   
   # Build image and push to ECR
-  IMAGE="${DOCKERREG}"/"${IMAGE_NAME}"
+  IMAGE="$DOCKERREG"/"$IMAGE_NAME"
   pack build "$IMAGE" \
-    --tag "$IMAGE":"${GIT_TAG}" \
-    --tag "$IMAGE":"${GIT_COMMIT}" \
-    --tag "$IMAGE":"${GIT_BRANCH}" \
-    --builder ${INPUT_BUILDER} \
-    ${BUILDPACKS} \
-    --buildpack ${BUILDPACK_POST} \
-    --env BP_LOG_LEVEL=${LOG_LEVEL} \
-    --env CODEBUILD_BUILD_IMAGE=${CODEBUILD_BUILD_IMAGE} \
-    --env BUILDER_VERSION=${BUILDER_VERSION} \
-    --env BUILDPACK_POST=${BUILDPACK_POST} \
-    --env COPILOT_TOOLS_VERSION=${COPILOT_TOOLS_VERSION} \
-    --env GIT_TAG=${GIT_TAG} \
-    --env GIT_COMMIT=${GIT_COMMIT} \
-    --env GIT_BRANCH=${GIT_BRANCH} \
-    ${PYTHON_VERSION} \
+    --tag "$IMAGE":"$GIT_TAG" \
+    --tag "$IMAGE":"$GIT_COMMIT" \
+    --tag "$IMAGE":"$GIT_BRANCH" \
+    --builder "$INPUT_BUILDER" \
+    $BUILDPACKS \
+    --buildpack "$BUILDPACK_POST" \
+    --env BP_LOG_LEVEL="$LOG_LEVEL" \
+    --env CODEBUILD_BUILD_IMAGE="$CODEBUILD_BUILD_IMAGE" \
+    --env BUILDER_VERSION="$BUILDER_VERSION" \
+    --env BUILDPACK_POST="$BUILDPACK_POST" \
+    --env COPILOT_TOOLS_VERSION="$COPILOT_TOOLS_VERSION" \
+    --env GIT_TAG="$GIT_TAG" \
+    --env GIT_COMMIT="$GIT_COMMIT" \
+    --env GIT_BRANCH="$GIT_BRANCH" \
+    $PYTHON_VERSION \
     --publish
 
   status=$?
@@ -142,6 +142,6 @@ do
 done
 
 # Report image build to Slack
-SLACK_DATA=$(jq -n --arg dt "\`Image=${IMAGE_NAME}:${GIT_COMMIT}, ${GIT_TAG}, branch=${GIT_BRANCH}\`" '{"text":$dt}')
+SLACK_DATA=$(jq -n --arg dt "\`Image=$IMAGE_NAME:$GIT_COMMIT, $GIT_TAG, branch=$GIT_BRANCH\`" '{"text":$dt}')
 SLACK_WEBHOOK="https://hooks.slack.com/services/$SLACK_WORKSPACE_ID/$SLACK_CHANNEL_ID/$SLACK_TOKEN"
-curl -X POST -H 'Content-type: application/json' --data "${SLACK_DATA}" "$SLACK_WEBHOOK"
+curl -X POST -H 'Content-type: application/json' --data "$SLACK_DATA" "$SLACK_WEBHOOK"
