@@ -73,11 +73,10 @@ docker images
 cp Procfile Procfile_tmp
 
 # Create buildpack-run.sh file which is used by the buildpack post to run commands in the container after build completes
-echo "#!/bin/bash" > buildpack-run.sh
-chmod +x buildpack-run.sh
 cat /work/builder-post.sh >> buildpack-run.sh
+chmod +x buildpack-run.sh
 
-# First check if the application repo already contains user-post.sh with post app commands, if so append to buildpack-run.sh.
+# Check if the application repo already contains user-post.sh with post app commands, if so append to buildpack-run.sh.
 if [ -f "user-post.sh" ]; then
   cat user-post.sh >> buildpack-run.sh
 fi
