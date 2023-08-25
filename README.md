@@ -10,7 +10,7 @@ This is designed to be used by AWS CodeBuild projects
 
 2. Buildspec, this will normally point to the location of your source codes `buildspec.yml` file.  
 
-3. Include 3 environment variables in the project which indicated the versions of binaries and builpacks to use. eg.
+3. Include 3 environment variables in the CodeBuild projects environment section, which indicate the versions of binaries and buildpacks to use. eg.
 
 ```
 PACK_VERSION = v0.28.0
