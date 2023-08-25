@@ -22,6 +22,8 @@ phases:
     - docker build -t $REPOSITORY_URI .
     - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
     - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$GIT_BRANCH
+    - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$BUILDER_VERSION
+
   post_build:
     commands:
     - echo Build completed on `date`
