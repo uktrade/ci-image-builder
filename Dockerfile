@@ -1,6 +1,8 @@
 FROM public.ecr.aws/codebuild/amazonlinux2-x86_64-standard:4.0
 
-ENV PACK_VERSION=v0.28.0
+ARG PACK_VERSION
+ARG BUILDER_VERSION
+ARG LIFECYCLE_VERSION
 
 RUN yum install -y jq
 
@@ -11,10 +13,12 @@ RUN curl -LO https://github.com/buildpacks/pack/releases/download/${PACK_VERSION
 RUN pip install -U niet
 
 RUN mkdir /work
-
 RUN mkdir /docker_images
 
 COPY build.sh /work/build.sh
 RUN chmod +x /work/build.sh
+
+RUN echo ${BUILDER_VERSION} > /work/builder-version.txt
+RUN echo ${LIFECYCLE_VERSION} > /work/lifecycle-version.txt
 
 COPY builder-post.sh /work/builder-post.sh
