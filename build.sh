@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -x
 
@@ -8,7 +8,7 @@ LOG_LEVEL="DEBUG"
 ECR_VISIBILITY="${ECR_VISIBILITY:=PRIVATE}"
 
 ECR_PATH="public.ecr.aws/uktrade"
-BUILDER_VERSION=$(cat /work/builder-version.txt)
+BUILDER_VERSION=${PAKETO_BUILDER_VERSION}
 LIFECYCLE_VERSION=$(cat /work/lifecycle-version.txt)
 RUN_VERSION="full-cnb"
 
