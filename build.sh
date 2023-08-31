@@ -4,6 +4,10 @@ set -x
 
 LOG_LEVEL="DEBUG"
 
+echo ">>> ENVIRONMENT VARIABLES..."
+env
+echo ">>> ENVIRONMENT VARIABLES OUTPUT COMPLETE..."
+
 # Set env VAR to PUBLIC for public images
 ECR_VISIBILITY="${ECR_VISIBILITY:=PRIVATE}"
 
