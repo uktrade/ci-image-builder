@@ -4,7 +4,7 @@ set -x
 
 LOG_LEVEL="DEBUG"
 
-# Set env VAR to PUBLICfor public images
+# Set env VAR to PUBLIC for public images
 ECR_VISIBILITY="${ECR_VISIBILITY:=PRIVATE}"
 
 ECR_PATH="public.ecr.aws/uktrade"
