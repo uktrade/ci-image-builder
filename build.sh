@@ -143,7 +143,7 @@ do
   # Report image build to Slack
   BUILD_RUN_URL="$(echo "$CODEBUILD_BUILD_ARN" | awk -F: -v APP_NAME="$APP_NAME" '{ printf "https://%s.console.aws.amazon.com/codesuite/codebuild/%s/projects/%s/%s%s%s", $4, $5, APP_NAME, $6, "%3A", $7; }')"
   NEW_LINE=$'\n'
-  SLACK_DATA="$(jq -n --arg dt "*Image:* \`$IMAGE_NAME:$GIT_COMMIT\`$NEW_LINE*Tag:* ${GIT_TAG:-none}$NEW_LINE*Branch:* $GIT_BRANCH$NEW_LINE*Builder Version:* $BUILDER_VERSION$NEW_LINE*Lifecycle Version:* $LIFECYCLE_VERSION$NEW_LINE<$BUILD_RUN_URL|:rocket: View Build Run>" '{"text":$dt}')"
+  SLACK_DATA="$(jq -n --arg dt "*Image:* \`$IMAGE_NAME:$GIT_COMMIT\`$NEW_LINE*Tag:* ${GIT_TAG:-none}$NEW_LINE*Branch:* $GIT_BRANCH$NEW_LINE*Builder Version:* $BUILDER_VERSION$NEW_LINE*Lifecycle Version:* $LIFECYCLE_VERSION$NEW_LINE$NEW_LINE<$BUILD_RUN_URL|:rocket: View Build Run>" '{"text":$dt}')"
   SLACK_WEBHOOK="https://hooks.slack.com/services/$SLACK_WORKSPACE_ID/$SLACK_CHANNEL_ID/$SLACK_TOKEN"
   curl -X POST -H 'Content-type: application/json' --data "$SLACK_DATA" "$SLACK_WEBHOOK"
 done
