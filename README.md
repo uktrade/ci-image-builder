@@ -10,7 +10,7 @@ An environment variable for [`Pack CLI version`](https://github.com/buildpacks/p
 
 ## Usage
 
-The guidance below pertains to your application, which means within your application repository. This is designed to be used by AWS CodeBuild projects.
+This guidance pertains to your application, which means within your application repository. This is designed to be used by AWS CodeBuild projects.
 
 ### Prerequisites
 
