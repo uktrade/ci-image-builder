@@ -18,7 +18,4 @@ RUN mkdir /docker_images
 COPY build.sh /work/build.sh
 RUN chmod +x /work/build.sh
 
-RUN echo ${PAKETO_BUILDER_VERSION} > /work/builder-version.txt
-RUN echo ${LIFECYCLE_VERSION} > /work/lifecycle-version.txt
-
 COPY builder-post.sh /work/builder-post.sh
