@@ -14,10 +14,10 @@ This guidance pertains to your application, which means within your application 
 
 ### Prerequisites
 
-- Ensure the environment image is pointing to the location of the `ci-image-builder` ECR image.
-  - _Note: The tag `latest` does not need to be supplied and is optional._
-- Ensure the `buildspec` configuration is correctly configured to point to the source code `buildspec.yml` file.
-  - _Note: This may point to a `buildspec.yml` file in a `codebuild` directory._  
+- The environment image is pointing to the location of the `ci-image-builder` ECR image.
+  - The tag `latest` does not need to be supplied and is optional.
+- The `buildspec` configuration is correctly configured to point to the source code `buildspec.yml` file.
+  - This may point to a `buildspec.yml` file in a `codebuild` directory.
 
 AWS Reference: https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html
 
