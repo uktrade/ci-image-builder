@@ -65,31 +65,30 @@ Finally, under `build`, the path to the `ci-image-builder`'s `build.sh` script i
 
 ## Instructions to deploy a public image
 
-In order to deploy a public image rather than the default private image, do the following.
+Follow these steps to deploy a public image rather than the default private image:
 
-In your `buildspec.yml` file, add and set the variable `ECR_VISIBILITY: PUBLIC`.
+1. In your `buildspec.yml` file, add and set the variable `ECR_VISIBILITY: PUBLIC`.
+2. In your repository, in the `process.yml` file, specify your public image name.
 
-In your repository, in the `process.yml` file, specify your public image name.
+    ```yml
+    application:
+      name: image_name
+      process:
+        - False
+    ```
 
-```yml
-application:
-  name: image_name
-  process:
-    - False
-```
+    Setting the process to `False` will tell the builder to use the image name only. This will produce `public.ecr.aws/{aws alias}/image_name:latest`.
 
-Setting the process to `False` will tell the builder to use the image name only. This will produce `public.ecr.aws/{aws alias}/image_name:latest`.
+3. If you want to include a subdirectory for your image, you can specify this in the `process` section:
 
-If you want to include a subdirectory for your image, you can specify this in the `process` section:
+    ```yml
+    application:
+      name: image_name
+      process:
+        - service_name
+    ```
 
-```yml
-application:
-  name: image_name
-  process:
-    - service_name
-```
-
-This will `public.ecr.aws/{aws alias}/image_name/service_name:latest`.
+    This will produce `public.ecr.aws/{aws alias}/image_name/service_name:latest`.
 
 ### Using `dbt-copilot-tools` to build images
 
