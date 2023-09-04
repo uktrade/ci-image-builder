@@ -19,7 +19,7 @@ phases:
     commands:
     - echo Build started on `date`
     - echo Building the Docker image...
-    - docker build --build-arg PACK_VERSION=${PACK_VERSION} --build-arg PAKETO_BUILDER_VERSION=${PAKETO_BUILDER_VERSION} --build-arg LIFECYCLE_VERSION=${LIFECYCLE_VERSION} -t $REPOSITORY_URI .
+    - docker build --build-arg PACK_VERSION=${PACK_VERSION} -t $REPOSITORY_URI .
     - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
     - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$GIT_BRANCH
     - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$PAKETO_BUILDER_VERSION
