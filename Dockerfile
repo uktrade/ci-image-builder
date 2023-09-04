@@ -1,8 +1,6 @@
 FROM public.ecr.aws/codebuild/amazonlinux2-x86_64-standard:4.0
 
 ARG PACK_VERSION
-ARG PAKETO_BUILDER_VERSION
-ARG LIFECYCLE_VERSION
 
 RUN yum install -y jq
 
