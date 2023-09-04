@@ -14,7 +14,7 @@ This guidance pertains to your application, which means within your application 
 
 ### Prerequisites
 
-- The environment image is pointing to the location of the `ci-image-builder` ECR image.
+- The CodeBuild environment image is pointing to the location of the `ci-image-builder` ECR image.
   - The tag `latest` does not need to be supplied and is optional.
 - The `buildspec` configuration is correctly configured to point to the source code `buildspec.yml` file.
   - This may point to a `buildspec.yml` file in a `codebuild` directory.
