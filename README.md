@@ -4,7 +4,7 @@ Docker image for building OCI images using Paketo buildpacks and uploading them 
 
 ## Build
 
-An environment variable for [`Pack CLI version`](https://github.com/buildpacks/pack/releases) has to be set in the environment settings within the AWS CodeBuild project console, for example:
+An environment variable for [`Pack CLI version`](https://github.com/buildpacks/pack/releases) has to be set in the environment settings within the CI Image Builder AWS CodeBuild project console, for example:
 
     PACK_VERSION = v0.28.0
 
