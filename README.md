@@ -92,10 +92,4 @@ Follow these steps to deploy a public image rather than the default private imag
 
 ### Using `dbt-copilot-tools` to build images
 
-Finally, to have CodeBuild watch your application repo and deploy an OCI image on GitHub changes, run the following commands:
-
-```console
-aws sso login --profile profile-name && export AWS_PROFILE=profile-name
-
-copilot-helper codebuild codedeploy --project-profile <profile_name> --name <application_name> --desc <desciption> --git <git-url>  --branch <branch> --buildspec <location-buildspec.yml>
-```
+To have CodeBuild watch your application repository and deploy an OCI image on GitHub changes, refer to the guide on how to [Add the AWS CodeBuild configuration files to build the application image](https://github.com/uktrade/platform-documentation/blob/main/adding-a-new-application.md#add-the-aws-codebuild-configuration-files-to-build-the-application-image) in the DBT PaaS documentation.
