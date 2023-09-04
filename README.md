@@ -1,22 +1,25 @@
-# ci-image-builder
+# CI Image Builder
 
 Docker image for building OCI images using Paketo buildpacks and uploading them to AWS ECR.
 
+## Build
+
+An environment variable for [`Pack CLI version`](https://github.com/buildpacks/pack/releases) has to be set in the environment settings within the AWS CodeBuild project console, for example:
+
+    ```
+    PACK_VERSION = v0.28.0
+    ```
+
 ## Usage
 
-This is designed to be used by AWS CodeBuild projects.
+The guidance below pertains to your application, which means within your application repository. This is designed to be used by AWS CodeBuild projects.
 
-1. Environment image - update this to the location of your uploaded Docker image of the `ci-image-builder`.
-2. Buildspec - this will normally point to the location of your source codes `buildspec.yml` file.
-3. Include 3 environment variables in the CodeBuild projects environment section, which indicate the versions of binaries and buildpacks to use.
+### Prerequisites
 
-For example...
-
-```
-PACK_VERSION = v0.28.0
-PAKETO_BUILDER_VERSION = 0.2.395-full
-LIFECYCLE_VERSION = 0.16.0
-```
+- Ensure the environment image is pointing to the location of the `ci-image-builder` ECR image.
+  - _Note: The tag `latest` does not need to be supplied and is optional._
+- Ensure the `buildspec` configuration is correctly configured to point to the source code `buildspec.yml` file.
+  - _Note: This may point to a `buildspec.yml` file in a `codebuild` directory._  
 
 AWS Reference: https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html
 
@@ -32,6 +35,8 @@ env:
     SLACK_TOKEN: "/codebuild/slack_api_token"
   variables:
     ECR_VISIBILITY: {PRIVATE/PUBLIC}
+    PAKETO_BUILDER_VERSION: 0.2.326-full
+    LIFECYCLE_VERSION: 0.16.0
 
 phases:
   pre_build:
@@ -43,11 +48,12 @@ phases:
       - /work/build.sh
 ```
 
-#### Environment Variables
+#### Environment variables
 
 `SLACK_*` - Credentials/IDs needed to interact with Slack.
-
 `ECR_VISIBILITY` - If set to `PUBLIC`, then the OCI image will be placed in a public repo in the AWS account, and if not set this will default to PRIVATE.
+`PAKETO_BUILDER_VERSION` - Builder version supported within the [AWS ECR Gallery](https://eu-west-2.console.aws.amazon.com/ecr/repositories/public/763451185160/paketobuildpacks/builder?region=eu-west-2).
+`LIFECYCLE_VERSION` - Lifecycle version supported by the above builder version. More details can be found on [GitHub](https://github.com/paketo-buildpacks/full-builder/releases).
 
 #### Phases
 
@@ -61,9 +67,9 @@ Finally, under `build`, the path to the `ci-image-builder`'s `build.sh` script i
 
 ## Instructions to deploy a public image
 
-In order to deploy a public image rather than the default private image do the following.
+In order to deploy a public image rather than the default private image, do the following.
 
-In your `buildspec.yml` file, add and set the variable `ECR_VISIBILITY: PUBLIC`
+In your `buildspec.yml` file, add and set the variable `ECR_VISIBILITY: PUBLIC`.
 
 In your repository, in the `process.yml` file, specify your public image name.
 
@@ -74,28 +80,24 @@ application:
     - False
 ```
 
-Setting the process to `False` will tell the builder to use the image name only. This will produce the following:
+Setting the process to `False` will tell the builder to use the image name only. This will produce `public.ecr.aws/{aws alias}/image_name:latest`.
 
-`public.ecr.aws/{aws alias}/image_name:latest`
-
-If you want to include a sub image name you can specify this in the process name.
+If you want to include a subdirectory for your image, you can specify this in the `process` section:
 
 ```yml
 application:
   name: image_name
   process:
-    - app_name
+    - service_name
 ```
 
-This will produce:
+This will `public.ecr.aws/{aws alias}/image_name/service_name:latest`.
 
-`public.ecr.aws/{aws alias}/image_name/app_name:latest`
-
-### Using `copilot-tools` to build images
+### Using `dbt-copilot-tools` to build images
 
 Finally, to have CodeBuild watch your application repo and deploy an OCI image on GitHub changes, run the following commands:
 
-```
+```console
 aws sso login --profile profile-name && export AWS_PROFILE=profile-name
 
 copilot-helper codebuild codedeploy --project-profile <profile_name> --name <application_name> --desc <desciption> --git <git-url>  --branch <branch> --buildspec <location-buildspec.yml>
