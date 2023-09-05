@@ -50,7 +50,7 @@ phases:
 
 - `SLACK_*` - Credentials/IDs needed to interact with Slack.
 - `ECR_VISIBILITY` - If set to `PUBLIC`, then the OCI image will be placed in a public repo in the AWS account, and if not set this will default to `PRIVATE`.
-- `PAKETO_BUILDER_VERSION` - Builder version supported within the [AWS ECR Gallery](https://eu-west-2.console.aws.amazon.com/ecr/repositories/public/763451185160/paketobuildpacks/builder?region=eu-west-2).
+- `PAKETO_BUILDER_VERSION` - Builder version supported within the [AWS ECR Gallery](https://gallery.ecr.aws/uktrade/paketobuildpacks/builder).
 - `LIFECYCLE_VERSION` - Lifecycle version supported by the specified Paketo builder version. More details can be found on [Paketo’s GitHub Releases](https://github.com/paketo-buildpacks/full-builder/releases) page.
 
 #### Phases
