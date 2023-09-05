@@ -18,6 +18,7 @@ BUILDER_RUN="$BUILDPACKS_PATH/run:$RUN_VERSION"
 LIFECYCLE="$ECR_PATH/buildpacksio/lifecycle:$LIFECYCLE_VERSION"
 BUILDPACK_JSON="buildpack.json"
 BUILDPACK_POST="fagiani/run@0.1.1"
+BUILDPACKS=""
 
 GIT_TAG=$(git describe --tags --abbrev=0)
 GIT_COMMIT=$(echo "$CODEBUILD_RESOLVED_SOURCE_VERSION" | cut -c1-7)
@@ -45,12 +46,11 @@ if [ -f $BUILDPACK_JSON ]; then
 
       BUILDPACKS+=" --buildpack $KEY/$VALUE"
     done
-  else
-    echo "Your \"$BUILDPACK_JSON\" file contains no buildpacks, check the \"buildpacks\" property."
-    exit 1
   fi
-else
-  echo "No \"$BULDPACK_JSON\" file found, exiting..."
+fi
+
+if [ -z "$BUILDPACKS" ]; then
+  echo "Your \"$BUILDPACK_JSON\" file contains no build packs, you must add at least one."
   exit 1
 fi
 
