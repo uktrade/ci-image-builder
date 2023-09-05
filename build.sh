@@ -47,9 +47,11 @@ if [ -f $BUILDPACK_JSON ]; then
     done
   else
     echo "Your \"$BUILDPACK_JSON\" file contains no buildpacks, check the \"buildpacks\" property."
+    exit 1
   fi
 else
-  BUILDPACKS=""
+  echo "No \"$BULDPACK_JSON\" file found, exiting..."
+  exit 1
 fi
 
 if [ -f "runtime.txt" ]; then
