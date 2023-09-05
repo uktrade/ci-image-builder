@@ -46,7 +46,7 @@ if [ -f $BUILDPACK_JSON ]; then
       BUILDPACKS+=" --buildpack $KEY/$VALUE"
     done
   else
-    echo "Ensure your \"$BUILDPACK_JSON\" file contains the \"buildpacks\" property."
+    echo "Your \"$BUILDPACK_JSON\" file contains no buildpacks, check the \"buildpacks\" property."
   fi
 else
   BUILDPACKS=""
