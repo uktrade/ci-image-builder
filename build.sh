@@ -50,7 +50,7 @@ if [ -f $BUILDPACK_JSON ]; then
 fi
 
 if [ -z "$BUILDPACKS" ]; then
-  echo "Your \"$BUILDPACK_JSON\" file contains no build packs, you must add at least one."
+  echo "Found no build packs in file \"$BUILDPACK_JSON\", you must add at least one."
   exit 1
 fi
 
