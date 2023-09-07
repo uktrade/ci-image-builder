@@ -1,4 +1,9 @@
 version: 0.2
+
+env:
+  variables:
+    PACK_VERSION: v0.28.0
+
 phases:
   install:
     runtime-versions:
