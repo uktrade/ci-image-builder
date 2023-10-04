@@ -21,7 +21,7 @@ BUILDPACK_POST="fagiani/run@0.1.1"
 BUILDPACKS=""
 
 GIT_TAG=$(git describe --tags --abbrev=0)
-GIT_COMMIT=$(echo "$CODEBUILD_RESOLVED_SOURCE_VERSION" | cut -c1-7)
+GIT_COMMIT=$(git rev-parse --short HEAD)
 GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%B)
 
 if [ -z "$CODEBUILD_WEBHOOK_TRIGGER" ]; then
@@ -122,8 +122,8 @@ do
   IMAGE="$DOCKERREG"/"$IMAGE_NAME"
   pack build "$IMAGE" \
     --tag "$IMAGE":"$GIT_TAG" \
-    --tag "$IMAGE":"$GIT_COMMIT" \
-    --tag "$IMAGE":"$GIT_BRANCH" \
+    --tag "$IMAGE":"commit-$GIT_COMMIT" \
+    --tag "$IMAGE":"branch-$GIT_BRANCH" \
     --builder "$INPUT_BUILDER" \
     $BUILDPACKS \
     --buildpack "$BUILDPACK_POST" \
