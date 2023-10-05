@@ -20,8 +20,8 @@ BUILDPACK_JSON="buildpack.json"
 BUILDPACK_POST="fagiani/run@0.1.1"
 BUILDPACKS=""
 
-GIT_TAG=$(git describe --tags --abbrev=0)
-GIT_COMMIT=$(git rev-parse --short HEAD)
+GIT_COMMIT="$(git rev-parse --short HEAD)"
+GIT_TAG="$(git show-ref --tags | grep "$GIT_COMMIT" | awk '{print substr($2, 11)}')"
 GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%B)
 
 if [ -z "$CODEBUILD_WEBHOOK_TRIGGER" ]; then
@@ -119,24 +119,28 @@ do
   fi
 
   # Build image and push to ECR
-  IMAGE="$DOCKERREG"/"$IMAGE_NAME"
-  pack build "$IMAGE" \
-    --tag "$IMAGE":"$GIT_TAG" \
-    --tag "$IMAGE":"commit-$GIT_COMMIT" \
-    --tag "$IMAGE":"branch-$GIT_BRANCH" \
-    --builder "$INPUT_BUILDER" \
-    $BUILDPACKS \
-    --buildpack "$BUILDPACK_POST" \
-    --env BP_LOG_LEVEL="$LOG_LEVEL" \
-    --env CODEBUILD_BUILD_IMAGE="$CODEBUILD_BUILD_IMAGE" \
-    --env BUILDER_VERSION="$BUILDER_VERSION" \
-    --env BUILDPACK_POST="$BUILDPACK_POST" \
-    --env COPILOT_TOOLS_VERSION="$COPILOT_TOOLS_VERSION" \
-    --env GIT_TAG="$GIT_TAG" \
-    --env GIT_COMMIT="$GIT_COMMIT" \
-    --env GIT_BRANCH="$GIT_BRANCH" \
-    $PYTHON_VERSION \
-    --publish
+  IMAGE="$DOCKERREG/$IMAGE_NAME"
+
+  PACK_COMMAND="pack build $IMAGE \
+                  --builder $INPUT_BUILDER \
+                  $BUILDPACKS \
+                  --buildpack $BUILDPACK_POST \
+                  --env BP_LOG_LEVEL=$LOG_LEVEL \
+                  --env CODEBUILD_BUILD_IMAGE=$CODEBUILD_BUILD_IMAGE \
+                  --env BUILDER_VERSION=$BUILDER_VERSION \
+                  --env BUILDPACK_POST=$BUILDPACK_POST \
+                  --env COPILOT_TOOLS_VERSION=$COPILOT_TOOLS_VERSION \
+                  --env GIT_TAG=$GIT_TAG \
+                  --env GIT_COMMIT=$GIT_COMMIT \
+                  --env GIT_BRANCH=$GIT_BRANCH \
+                  $PYTHON_VERSION"
+
+    [ -n "$GIT_TAG" ] && PACK_COMMAND="$PACK_COMMAND --tag $IMAGE:$GIT_TAG"
+    [ -n "$GIT_BRANCH" ] && PACK_COMMAND="$PACK_COMMAND --tag $IMAGE:branch-$GIT_BRANCH"
+
+    PACK_COMMAND="$PACK_COMMAND --tag $IMAGE:commit-$GIT_COMMIT --publish"
+
+    $PACK_COMMAND
 
   status=$?
   [ $status -ne 0 ] && exit 1
