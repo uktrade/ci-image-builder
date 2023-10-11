@@ -1,4 +1,4 @@
-FROM public.ecr.aws/codebuild/amazonlinux2-x86_64-standard:4.0
+FROM public.ecr.aws/codebuild/amazonlinux2023-x86_64-standard:4.0
 
 ARG PACK_VERSION
 
