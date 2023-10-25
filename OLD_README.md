@@ -1,5 +1,9 @@
 # CI Image Builder
 
+> [!NOTE]
+> If you are using the new image builder (your `buildspec.yml` will have `/work/cli build` in it),
+> see the documentation for that [here](./README.md).
+
 Docker image for building OCI images using Paketo buildpacks and uploading them to AWS ECR.
 
 ## Build
