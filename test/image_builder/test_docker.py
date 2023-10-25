@@ -31,7 +31,7 @@ class TestDocker(unittest.TestCase):
         run.assert_called_with("docker ps", stdout=subprocess.PIPE, shell=True)
         popen.assert_called_with(
             "nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock "
-            "--host=tcp://127.0.0.1:2375 --storage-driver=overlay2&",
+            "--host=tcp://127.0.0.1:2375 --storage-driver=overlay2",
             shell=True,
         )
         sleep.assert_called_with(1)
@@ -57,7 +57,7 @@ class TestDocker(unittest.TestCase):
         run.assert_called_with("docker ps", stdout=subprocess.PIPE, shell=True)
         popen.assert_called_with(
             "nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock "
-            "--host=tcp://127.0.0.1:2375 --storage-driver=overlay2&",
+            "--host=tcp://127.0.0.1:2375 --storage-driver=overlay2",
             shell=True,
         )
-        sleep.assert_has_calls([call(1)] * 20)
+        sleep.assert_has_calls([call(1)] * 60)

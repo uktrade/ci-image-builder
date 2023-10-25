@@ -20,14 +20,14 @@ class Docker:
         if not Docker.running():
             subprocess.Popen(
                 "nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock "
-                "--host=tcp://127.0.0.1:2375 --storage-driver=overlay2&",
+                "--host=tcp://127.0.0.1:2375 --storage-driver=overlay2",
                 shell=True,
             )
 
         counter = 0
         while not Docker.running():
             counter += 1
-            if counter > 20:
+            if counter > 60:
                 raise DockerStartTimeoutError()
             time.sleep(1)
 
