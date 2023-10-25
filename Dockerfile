@@ -20,7 +20,7 @@ RUN chmod +x /work/build.sh
 COPY builder-post.sh /work/builder-post.sh
 # CAN REMOVE SECTION ONCE OVER TO PYTHON BASED BUILDER
 
-COPY ./image_builder /work/
+COPY ./image_builder /work/image_builder
 COPY cli /work/
 COPY ./requirements.txt /work/
 RUN cd /work && pip install -r requirements.txt
