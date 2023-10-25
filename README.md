@@ -1,6 +1,6 @@
 # CI Image Builder
 
-Docker image and python application for building OCI images using Paketo buildpacks and uploading
+Docker image and Python application for building [OCI](https://opencontainers.org/) images using [Paketo](https://paketo.io/) buildpacks and uploading
 them to AWS ECR.
 
 > [!NOTE]
@@ -74,7 +74,7 @@ phases:
 
 ### `.copilot/config.yml`
 
-This file configures the image builder telling it which [paketo](https://paketo.io/) builder and
+This file configures the image builder telling it which [Paketo](https://paketo.io/) builder and
 buildpacks to use when building your application image.
 
 ```yaml
@@ -91,7 +91,7 @@ packages:
 | `repository`      | string      | The ECR repository the image is pushed to.<br>To enable caching another repository at `{repository}-cache` must exist.                                                                                               |
 | `builder.name`    | string      | The builder image used to create your image. See [paketo builders](https://github.com/paketo-buildpacks?q=builder&type=all) for a full list.                                                                         |
 | `builder.version` | string      | The version of the builder to use, see the releases page of your builder image and the [list of builders](./image_builder/configuration/builder_configuration.yml) for details on supported and deprecated builders. |
-| `packages`        | string list | A list of APT packages to install prior to building your application. For example, `libpg-dev` required to compile the python package `psycopg2`.                                                                    |
+| `packages`        | string list | A list of APT packages to install prior to building your application. For example, `libpg-dev` required to compile the Python package `psycopg2`.                                                                    |
 
 ### `.copilot/image_build_run.sh` (Optional)
 
@@ -139,7 +139,7 @@ aws ecr describe-image-scan-findings --repository-name demodjano/application --i
 
 ## Building an Image
 
-In common usage images are built by CodeBuild when a push to a branch or tag of your repository matches a given pattern.
+Images are built by CodeBuild when a push to a branch or tag of your repository matches a given pattern.
 
 > [!NOTE]
 > Setup for this is not developed yet and will be part of the `dbt-copilot-tools` package.

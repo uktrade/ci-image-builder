@@ -23,7 +23,7 @@ class TestBuilderConfiguration(unittest.TestCase):
 
     def setUp(self):
         self.builder_config_path = (
-            Path(".").joinpath("test/fixtures/builder/config.yml").resolve()
+            Path(__file__).joinpath("../../../fixtures/builder/config.yml").resolve()
         )
 
     def test_loads_build_configurations(self):
