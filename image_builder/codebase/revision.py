@@ -30,7 +30,7 @@ class Revision:
             raise CodebaseRevisionMissingDataError
 
     def get_repository_name(self) -> str:
-        match = re.search(r"[0-9a-zA-Z-_]+/[0-9a-zA-Z-_]+", self.remote)
+        match = re.search(r"[^:/.]+/[^:/.]+", self.remote)
         return match.group(0)
 
     def get_repository_url(self) -> str:
