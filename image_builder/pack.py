@@ -39,25 +39,15 @@ class Pack:
     def get_command(self, publish=False):
         buildpacks = " ".join([f"--buildpack {p}" for p in self.get_buildpacks()])
         environment = " ".join([f"--env {e}" for e in self.get_environment()])
-        tags = " ".join(
-            [
-                f"--tag {self.codebase.build.repository}:{t}"
-                for t in self.get_additional_tags()
-            ]
-        )
-
-        _, _, _, region, account, _, _ = os.environ["CODEBUILD_BUILD_ARN"].split(":")
-        repository = (
-            f"{account}.dkr.ecr.{region}.amazonaws.com/{self.codebase.build.repository}"
-        )
+        tags = " ".join([f"--tag {self.get_repository()}:{t}" for t in self.get_tags()])
         command = (
-            f"pack build {repository}:{self.get_main_tag()} "
+            f"pack build {self.get_repository()} "
             f"--builder {self.codebase.build.builder.name}:{self.codebase.build.builder.version} "
             f"{tags} {environment} {buildpacks} "
         )
 
         if publish:
-            command += f"--publish --cache-image {repository}-cache"
+            command += f"--publish --cache-image {self.get_repository()}-cache"
         return command
 
     def get_buildpacks(self):
@@ -100,11 +90,8 @@ class Pack:
 
         return environment
 
-    def get_main_tag(self):
-        return f"commit-{self.codebase.revision.commit}"
-
-    def get_additional_tags(self):
-        tags = []
+    def get_tags(self):
+        tags = [f"commit-{self.codebase.revision.commit}"]
         if self.codebase.revision.tag:
             tags.append(f"tag-{self.codebase.revision.tag}")
 
@@ -112,3 +99,9 @@ class Pack:
             tags.append(f"branch-{self.codebase.revision.branch}")
 
         return tags
+
+    def get_repository(self):
+        _, _, _, region, account, _, _ = os.environ["CODEBUILD_BUILD_ARN"].split(":")
+        return (
+            f"{account}.dkr.ecr.{region}.amazonaws.com/{self.codebase.build.repository}"
+        )
