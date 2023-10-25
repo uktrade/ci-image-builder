@@ -78,7 +78,7 @@ This file configures the image builder telling it which [paketo](https://paketo.
 buildpacks to use when building your application image.
 
 ```yaml
-repository: xxxxxxxxxx.dkr.ecr.eu-west-2.amazonaws.com/demodjango/application
+repository: demodjango/application
 builder:
   name: paketobuildpacks/builder-jammy-base
   version: 0.4.240

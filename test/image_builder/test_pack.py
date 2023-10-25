@@ -1,3 +1,4 @@
+import os
 import subprocess
 from pathlib import Path
 from test.doubles.codebase import load_codebase_languages_double
@@ -262,6 +263,9 @@ class TestCommand(TestCase):
                 .resolve()
             ]
         )
+        os.environ[
+            "CODEBUILD_BUILD_ARN"
+        ] = "arn:aws:codebuild:region:000000000000:build/project:example-build-id"
 
     def test_get_command(
         self,
@@ -274,7 +278,7 @@ class TestCommand(TestCase):
         pack = Pack(codebase)
         self.assertEqual(
             pack.get_command(),
-            "pack build ecr/repos:commit-shorthash "
+            "pack build 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:commit-shorthash "
             "--builder paketobuildpacks/builder-jammy-full:0.3.288 "
             "--tag ecr/repos:tag-v2.4.6 "
             "--tag ecr/repos:branch-main "
@@ -301,7 +305,7 @@ class TestCommand(TestCase):
         pack = Pack(codebase)
         self.assertEqual(
             pack.get_command(True),
-            "pack build ecr/repos:commit-shorthash "
+            "pack build 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:commit-shorthash "
             "--builder paketobuildpacks/builder-jammy-full:0.3.288 "
             "--tag ecr/repos:tag-v2.4.6 "
             "--tag ecr/repos:branch-main "
@@ -315,7 +319,7 @@ class TestCommand(TestCase):
             "--buildpack paketo-buildpacks/python "
             "--buildpack paketo-buildpacks/nodejs "
             "--buildpack fagiani/run "
-            "--publish --cache-image ecr/repos-cache",
+            "--publish --cache-image 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos-cache",
         )
 
     def test_build(
@@ -329,7 +333,7 @@ class TestCommand(TestCase):
         pack = Pack(codebase)
         pack.build()
         subprocess_popen.assert_called_with(
-            "pack build ecr/repos:commit-shorthash "
+            "pack build 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:commit-shorthash "
             "--builder paketobuildpacks/builder-jammy-full:0.3.288 "
             "--tag ecr/repos:tag-v2.4.6 "
             "--tag ecr/repos:branch-main "

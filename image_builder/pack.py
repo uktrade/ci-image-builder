@@ -1,3 +1,4 @@
+import os
 import subprocess
 from typing import Callable
 
@@ -45,14 +46,18 @@ class Pack:
             ]
         )
 
+        _, _, _, region, account, _, _ = os.environ["CODEBUILD_BUILD_ARN"].split(":")
+        repository = (
+            f"{account}.dkr.ecr.{region}.amazonaws.com/{self.codebase.build.repository}"
+        )
         command = (
-            f"pack build {self.codebase.build.repository}:{self.get_main_tag()} "
+            f"pack build {repository}:{self.get_main_tag()} "
             f"--builder {self.codebase.build.builder.name}:{self.codebase.build.builder.version} "
             f"{tags} {environment} {buildpacks} "
         )
 
         if publish:
-            command += f"--publish --cache-image {self.codebase.build.repository}-cache"
+            command += f"--publish --cache-image {repository}-cache"
         return command
 
     def get_buildpacks(self):
