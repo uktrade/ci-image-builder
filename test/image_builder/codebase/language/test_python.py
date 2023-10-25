@@ -29,6 +29,7 @@ class TestCodebaseLanguagePython(TestCase):
             ("3.11", "3.11"),
             ("^3.11", "3.11"),
             ("3.11.8", "3.11"),
+            ("3.12.1", "3.12"),
         ]
     )
     def test_getting_version_from_pyproject(self, input_version, output_version):
