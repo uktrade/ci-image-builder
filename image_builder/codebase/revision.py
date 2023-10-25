@@ -30,8 +30,8 @@ class Revision:
             raise CodebaseRevisionMissingDataError
 
     def get_repository_name(self) -> str:
-        match = re.search(r"[^:/.]+/[^:/.]+", self.remote)
-        return match.group(0)
+        match = re.search(r"([^:/.]+/[^:/.]+)(?:\.git)?$", self.remote)
+        return match.group(1)
 
     def get_repository_url(self) -> str:
         return f"https://github.com/{self.get_repository_name()}"

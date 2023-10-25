@@ -25,11 +25,25 @@ def get_git_revision_data(command, shell=None, stdout=None):
         """
         )
     if command == "git ls-remote --get-url origin":
+        return StubbedProcess(stdout=b"git@github.com:org/repo.git")
+
+
+def get_git_revision_data_https(command, shell=None, stdout=None):
+    if command == "git rev-parse --short HEAD":
+        return StubbedProcess(stdout=b"shorthash\n")
+    if command == "git branch --show-current":
+        return StubbedProcess(stdout=b"main\n")
+    if command == "git rev-parse HEAD":
+        return StubbedProcess(stdout=b"longhash\n")
+    if command == "git show-ref --tags":
         return StubbedProcess(
             stdout=b"""
-        git@github.com:org/repo.git
+        longhash refs/tags/2.0.0
+        otherhash refs/tags/1.0.0
         """
         )
+    if command == "git ls-remote --get-url origin":
+        return StubbedProcess(stdout=b"https://github.com/org/repo.git")
 
 
 class TestCodebaseRevision(TestCase):
@@ -38,6 +52,17 @@ class TestCodebaseRevision(TestCase):
 
     @patch("subprocess.run", wraps=get_git_revision_data)
     def test_loading_revision_information(self, run):
+        self.fs.create_dir(".git")
+        revision = load_codebase_revision(Path("."))
+
+        self.assertEqual(revision.commit, "shorthash")
+        self.assertEqual(revision.branch, "main")
+        self.assertEqual(revision.tag, "2.0.0")
+        self.assertEqual(revision.get_repository_name(), "org/repo")
+        self.assertEqual(revision.get_repository_url(), "https://github.com/org/repo")
+
+    @patch("subprocess.run", wraps=get_git_revision_data_https)
+    def test_loading_revision_information_https(self, run):
         self.fs.create_dir(".git")
         revision = load_codebase_revision(Path("."))
 
