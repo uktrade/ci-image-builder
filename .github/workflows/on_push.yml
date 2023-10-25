@@ -10,7 +10,7 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
       - run: pip install -r requirements.txt
-      - run: pre-commit
+      - run: pre-commit run --all
 
   test:
     runs-on: ubuntu-latest
