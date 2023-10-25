@@ -9,33 +9,8 @@ import pytest
 from parameterized import parameterized
 from slack_sdk.models import blocks
 
-from image_builder.notify import JobState
 from image_builder.notify import Notify
-from image_builder.notify import Phase
-from image_builder.notify import PhaseState
 from image_builder.progress import Progress
-
-
-class TestJobState(unittest.TestCase):
-    def test_initial_job_state(self):
-        job_state = JobState()
-        self.assertEqual(job_state[Phase.SETUP], PhaseState.PENDING)
-        self.assertEqual(job_state[Phase.BUILD], PhaseState.PENDING)
-        self.assertEqual(job_state[Phase.PUBLISH], PhaseState.PENDING)
-        self.assertEqual(job_state[Phase.DONE], PhaseState.PENDING)
-
-    @parameterized.expand(
-        [
-            (Phase.SETUP,),
-            (Phase.BUILD,),
-            (Phase.PUBLISH,),
-            (Phase.DONE,),
-        ]
-    )
-    def test_getting_current_phase(self, phase):
-        job_state = JobState()
-        job_state[phase] = PhaseState.RUNNING
-        self.assertEqual(job_state.get_current_phase(), phase)
 
 
 @patch("builtins.round", return_value=15)

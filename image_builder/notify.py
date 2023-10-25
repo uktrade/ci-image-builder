@@ -1,43 +1,10 @@
 import os
-from enum import Enum
 
 from slack_sdk import WebClient
 from slack_sdk.models import blocks
 
 from image_builder.codebase.codebase import Codebase
 from image_builder.progress import Progress
-
-
-class JobState(dict):
-    def __init__(self):
-        super().__init__()
-        self[Phase.SETUP] = PhaseState.PENDING
-        self[Phase.BUILD] = PhaseState.PENDING
-        self[Phase.PUBLISH] = PhaseState.PENDING
-        self[Phase.DONE] = PhaseState.PENDING
-
-    def get_current_phase(self):
-        if self[Phase.SETUP] == PhaseState.RUNNING:
-            return Phase.SETUP
-        if self[Phase.BUILD] == PhaseState.RUNNING:
-            return Phase.BUILD
-        if self[Phase.PUBLISH] == PhaseState.RUNNING:
-            return Phase.PUBLISH
-        return Phase.DONE
-
-
-class PhaseState(Enum):
-    PENDING = "pending :large_blue_circle:"
-    RUNNING = "running :hourglass_flowing_sand:"
-    SUCCESS = "success :large_green_circle:"
-    FAILURE = "failure :red_circle:"
-
-
-class Phase(Enum):
-    SETUP = "setup"
-    BUILD = "build"
-    PUBLISH = "publish"
-    DONE = "done"
 
 
 class Settings:
@@ -49,11 +16,9 @@ class Settings:
 class Notify:
     codebase: Codebase
     reference: str
-    state: JobState
     settings: Settings
 
     def __init__(self, codebase: Codebase):
-        self.state = JobState()
         self.settings = Settings()
         self.codebase = codebase
         try:

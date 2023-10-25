@@ -3,11 +3,8 @@ import click
 from image_builder.codebase.codebase import Codebase
 from image_builder.docker import Docker
 from image_builder.notify import Notify
-from image_builder.notify import Phase
 from image_builder.pack import Pack
 from image_builder.progress import Progress
-
-current_phase = Phase.SETUP
 
 
 @click.command("build", help="Build an image")
