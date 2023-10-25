@@ -1,3 +1,4 @@
+import os
 import subprocess
 import unittest
 from test.doubles.process import StubbedProcess
@@ -12,13 +13,27 @@ from image_builder.docker import DockerStartTimeoutError
 
 
 class TestDocker(unittest.TestCase):
+    def setUp(self):
+        os.environ[
+            "CODEBUILD_BUILD_ARN"
+        ] = "arn:aws:codebuild:region:000000000000:build/project:example-build-id"
+
     @patch("subprocess.Popen", return_value=None)
     @patch("subprocess.run", return_value=StubbedProcess())
     @patch("time.sleep", return_value=None)
     def test_starting_docker_when_already_running(self, sleep, run, popen):
         Docker.start()
 
-        run.assert_called_with("docker ps", stdout=subprocess.PIPE, shell=True)
+        run.assert_has_calls(
+            [
+                call("docker ps", stdout=subprocess.PIPE, shell=True),
+                call(
+                    "aws ecr get-login-password --region region | docker login --username AWS --password-stdin 000000000000.dkr.ecr.region.amazonaws.com",
+                    stdout=subprocess.PIPE,
+                    shell=True,
+                ),
+            ]
+        )
         popen.assert_not_called()
         sleep.assert_not_called()
 
@@ -28,7 +43,16 @@ class TestDocker(unittest.TestCase):
     def test_starting_docker_when_not_running(self, sleep, run, popen):
         Docker.start()
 
-        run.assert_called_with("docker ps", stdout=subprocess.PIPE, shell=True)
+        run.assert_has_calls(
+            [
+                call("docker ps", stdout=subprocess.PIPE, shell=True),
+                call(
+                    "aws ecr get-login-password --region region | docker login --username AWS --password-stdin 000000000000.dkr.ecr.region.amazonaws.com",
+                    stdout=subprocess.PIPE,
+                    shell=True,
+                ),
+            ]
+        )
         popen.assert_called_with(
             "nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock "
             "--host=tcp://127.0.0.1:2375 --storage-driver=overlay2",

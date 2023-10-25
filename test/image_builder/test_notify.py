@@ -19,9 +19,9 @@ class TestNotify(unittest.TestCase):
     def setUp(self):
         os.environ["SLACK_TOKEN"] = "slack-token"
         os.environ["SLACK_CHANNEL_ID"] = "channel-id"
-        os.environ["CODEBUILD_BUILD_ARN"] = (
-            "arn:aws:codebuild:region:000000000000:build/project" ":example-build-id"
-        )
+        os.environ[
+            "CODEBUILD_BUILD_ARN"
+        ] = "arn:aws:codebuild:region:000000000000:build/project:example-build-id"
         self.codebase = MagicMock()
         self.codebase.revision.commit = "commit-sha"
         self.codebase.revision.get_repository_name.return_value = "org/repo"

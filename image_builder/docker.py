@@ -1,3 +1,4 @@
+import os
 import subprocess
 import time
 
@@ -30,6 +31,13 @@ class Docker:
             if counter > 60:
                 raise DockerStartTimeoutError()
             time.sleep(1)
+
+        _, _, _, region, account, _, _ = os.environ["CODEBUILD_BUILD_ARN"].split(":")
+        subprocess.run(
+            f"aws ecr get-login-password --region {region} | docker login --username AWS --password-stdin {account}.dkr.ecr.{region}.amazonaws.com",
+            stdout=subprocess.PIPE,
+            shell=True,
+        )
 
     @staticmethod
     def running() -> bool:
