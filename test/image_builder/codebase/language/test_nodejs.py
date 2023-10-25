@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 from test.doubles.end_of_life import get_versions
+from test.helpers.files import create_nodejs_indicator
 from unittest.mock import patch
 
 import pytest
@@ -21,16 +22,7 @@ class TestCodebaseLanguageNodeJS(TestCase):
 
     @patch("requests.get", wraps=get_versions)
     def test_with_nodejs_application_present(self, requests_get):
-        self.fs.create_file(
-            "package.json",
-            contents=json.dumps(
-                {
-                    "engines": {
-                        "node": "18.4.2",
-                    },
-                }
-            ),
-        )
+        create_nodejs_indicator(self.fs, "18.4.2")
 
         NodeJSLanguage.load(Path("."))
 
@@ -46,16 +38,7 @@ class TestCodebaseLanguageNodeJS(TestCase):
     def test_getting_nodejs_version_when_engines_present(
         self, input_version, output_version, eol, requests_get
     ):
-        self.fs.create_file(
-            "package.json",
-            contents=json.dumps(
-                {
-                    "engines": {
-                        "node": input_version,
-                    },
-                }
-            ),
-        )
+        create_nodejs_indicator(self.fs, input_version)
 
         language = NodeJSLanguage.load(Path("."))
 

@@ -1,6 +1,7 @@
-import json
 from pathlib import Path
 from test.doubles.end_of_life import get_versions
+from test.helpers.files import create_nodejs_indicator
+from test.helpers.files import create_python_indicator
 from unittest.mock import patch
 
 import pytest
@@ -16,7 +17,7 @@ class TestDetectingCodebaseLanguages(TestCase):
 
     @patch("requests.get", wraps=get_versions)
     def test_only_python(self, requests_get):
-        self.fs.create_file("runtime.txt", contents="python-3.11.x")
+        create_python_indicator(self.fs, "3.11.x", "runtime")
 
         languages = load_codebase_languages(Path("."))
 
@@ -27,16 +28,7 @@ class TestDetectingCodebaseLanguages(TestCase):
 
     @patch("requests.get", wraps=get_versions)
     def test_only_nodejs(self, requests_get):
-        self.fs.create_file(
-            "package.json",
-            contents=json.dumps(
-                {
-                    "engines": {
-                        "node": "18.4.2",
-                    },
-                }
-            ),
-        )
+        create_nodejs_indicator(self.fs, "18.4.2")
 
         languages = load_codebase_languages(Path("."))
 
@@ -47,23 +39,16 @@ class TestDetectingCodebaseLanguages(TestCase):
 
     @patch("requests.get", wraps=get_versions)
     def test_all_languages(self, requests_get):
-        self.fs.create_file("runtime.txt", contents="python-3.11.x")
-        self.fs.create_file(
-            "package.json",
-            contents=json.dumps(
-                {
-                    "engines": {
-                        "node": "18.4.2",
-                    },
-                }
-            ),
-        )
+        create_python_indicator(self.fs, "3.11.x", "runtime")
+        create_nodejs_indicator(self.fs, "18.4.2")
+
         languages = load_codebase_languages(Path("."))
 
         self.assertEqual(languages["python"].name, "python")
         self.assertEqual(languages["python"].version, "3.11")
         self.assertEqual(languages["python"].end_of_life, False)
         requests_get.assert_called_with("https://endoflife.date/api/python.json")
+
         self.assertEqual(languages["nodejs"].name, "nodejs")
         self.assertEqual(languages["nodejs"].version, "18")
         self.assertEqual(languages["nodejs"].end_of_life, False)

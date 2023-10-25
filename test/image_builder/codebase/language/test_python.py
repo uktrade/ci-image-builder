@@ -1,5 +1,6 @@
 from pathlib import Path
 from test.doubles.end_of_life import EndOfLifeResponse
+from test.helpers.files import create_python_indicator
 from unittest.mock import patch
 
 import pytest
@@ -33,10 +34,7 @@ class TestCodebaseLanguagePython(TestCase):
         ]
     )
     def test_getting_version_from_pyproject(self, input_version, output_version):
-        self.fs.create_file(
-            "pyproject.toml",
-            contents=f'[tool.poetry.dependencies]\npython = "{input_version}"',
-        )
+        create_python_indicator(self.fs, input_version)
 
         language = PythonLanguage.load(Path("."))
 
@@ -57,10 +55,7 @@ class TestCodebaseLanguagePython(TestCase):
         ]
     )
     def test_getting_version_from_runtime(self, input_version, output_version):
-        self.fs.create_file(
-            "runtime.txt",
-            contents=f"python-{input_version}",
-        )
+        create_python_indicator(self.fs, input_version, "runtime")
 
         language = PythonLanguage.load(Path("."))
 
