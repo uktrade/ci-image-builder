@@ -47,7 +47,7 @@ class Pack:
         )
 
         if publish:
-            command += f"--publish --cache-image {self.get_repository()}-cache"
+            command += f"--publish --cache-image {self.get_repository()}:cache"
         return command
 
     def get_buildpacks(self):

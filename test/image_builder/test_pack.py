@@ -315,7 +315,7 @@ class TestCommand(TestCase):
             "--buildpack paketo-buildpacks/python "
             "--buildpack paketo-buildpacks/nodejs "
             "--buildpack fagiani/run "
-            "--publish --cache-image 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos-cache",
+            "--publish --cache-image 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:cache",
         )
 
     def test_build(
