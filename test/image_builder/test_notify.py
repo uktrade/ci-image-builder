@@ -93,37 +93,7 @@ class TestNotify(unittest.TestCase):
 
         notify.slack.chat_postMessage.assert_called_with(
             channel="channel-id",
-            blocks=[
-                ANY,
-                blocks.ContextBlock(
-                    elements=[
-                        blocks.TextObject(
-                            type="mrkdwn",
-                            text=f"*Repository*: <https://github.com/org/repo|org/repo>",
-                        ),
-                        blocks.TextObject(
-                            type="mrkdwn",
-                            text=f"*Revision*: <https://github.com/org/repo/commit/commit-sha|commit-sha>",
-                        ),
-                    ]
-                ),
-                blocks.SectionBlock(
-                    text=blocks.TextObject(
-                        type="mrkdwn", text=f"*setup*: running :hourglass_flowing_sand:"
-                    )
-                ),
-                blocks.SectionBlock(
-                    text=blocks.TextObject(
-                        type="mrkdwn", text=f"*build*: pending :large_blue_circle:"
-                    )
-                ),
-                blocks.SectionBlock(
-                    text=blocks.TextObject(
-                        type="mrkdwn", text=f"*publish*: pending :large_blue_circle:"
-                    )
-                ),
-                ANY,
-            ],
+            blocks=get_expected_message_blocks(),
             text="Building: org/repo@commit-sha",
             unfurl_links=False,
             unfurl_media=False,
@@ -138,38 +108,7 @@ class TestNotify(unittest.TestCase):
         notify.slack.chat_update.assert_called_with(
             channel="channel-id",
             ts="first-message",
-            blocks=[
-                ANY,
-                blocks.ContextBlock(
-                    elements=[
-                        blocks.TextObject(
-                            type="mrkdwn",
-                            text=f"*Repository*: <https://github.com/org/repo|org/repo>",
-                        ),
-                        blocks.TextObject(
-                            type="mrkdwn",
-                            text=f"*Revision*: <https://github.com/org/repo/commit/commit-sha|commit-sha>",
-                        ),
-                    ]
-                ),
-                blocks.SectionBlock(
-                    text=blocks.TextObject(
-                        type="mrkdwn",
-                        text=f"*setup*: success :large_green_circle: - took 15 seconds",
-                    )
-                ),
-                blocks.SectionBlock(
-                    text=blocks.TextObject(
-                        type="mrkdwn", text=f"*build*: running :hourglass_flowing_sand:"
-                    )
-                ),
-                blocks.SectionBlock(
-                    text=blocks.TextObject(
-                        type="mrkdwn", text=f"*publish*: pending :large_blue_circle:"
-                    )
-                ),
-                ANY,
-            ],
+            blocks=get_expected_message_blocks(setup="success", build="running"),
             text="Building: org/repo@commit-sha",
             unfurl_links=False,
             unfurl_media=False,
@@ -184,40 +123,9 @@ class TestNotify(unittest.TestCase):
         notify.slack.chat_update.assert_called_with(
             channel="channel-id",
             ts="updated-message",
-            blocks=[
-                ANY,
-                blocks.ContextBlock(
-                    elements=[
-                        blocks.TextObject(
-                            type="mrkdwn",
-                            text=f"*Repository*: <https://github.com/org/repo|org/repo>",
-                        ),
-                        blocks.TextObject(
-                            type="mrkdwn",
-                            text=f"*Revision*: <https://github.com/org/repo/commit/commit-sha|commit-sha>",
-                        ),
-                    ]
-                ),
-                blocks.SectionBlock(
-                    text=blocks.TextObject(
-                        type="mrkdwn",
-                        text=f"*setup*: success :large_green_circle: - took 15 seconds",
-                    )
-                ),
-                blocks.SectionBlock(
-                    text=blocks.TextObject(
-                        type="mrkdwn",
-                        text=f"*build*: success :large_green_circle: - took 15 seconds",
-                    )
-                ),
-                blocks.SectionBlock(
-                    text=blocks.TextObject(
-                        type="mrkdwn",
-                        text=f"*publish*: running :hourglass_flowing_sand:",
-                    )
-                ),
-                ANY,
-            ],
+            blocks=get_expected_message_blocks(
+                setup="success", build="success", publish="running"
+            ),
             text="Building: org/repo@commit-sha",
             unfurl_links=False,
             unfurl_media=False,
@@ -230,40 +138,9 @@ class TestNotify(unittest.TestCase):
         notify.slack.chat_update.assert_called_with(
             channel="channel-id",
             ts="updated-message",
-            blocks=[
-                ANY,
-                blocks.ContextBlock(
-                    elements=[
-                        blocks.TextObject(
-                            type="mrkdwn",
-                            text=f"*Repository*: <https://github.com/org/repo|org/repo>",
-                        ),
-                        blocks.TextObject(
-                            type="mrkdwn",
-                            text=f"*Revision*: <https://github.com/org/repo/commit/commit-sha|commit-sha>",
-                        ),
-                    ]
-                ),
-                blocks.SectionBlock(
-                    text=blocks.TextObject(
-                        type="mrkdwn",
-                        text=f"*setup*: success :large_green_circle: - took 15 seconds",
-                    )
-                ),
-                blocks.SectionBlock(
-                    text=blocks.TextObject(
-                        type="mrkdwn",
-                        text=f"*build*: success :large_green_circle: - took 15 seconds",
-                    )
-                ),
-                blocks.SectionBlock(
-                    text=blocks.TextObject(
-                        type="mrkdwn",
-                        text=f"*publish*: success :large_green_circle: - took 15 seconds",
-                    )
-                ),
-                ANY,
-            ],
+            blocks=get_expected_message_blocks(
+                setup="success", build="success", publish="success"
+            ),
             text="Building: org/repo@commit-sha",
             unfurl_links=False,
             unfurl_media=False,
@@ -279,39 +156,49 @@ class TestNotify(unittest.TestCase):
 
         notify.slack.chat_postMessage.assert_called_with(
             channel="channel-id",
-            blocks=[
-                ANY,
-                blocks.ContextBlock(
-                    elements=[
-                        blocks.TextObject(
-                            type="mrkdwn",
-                            text=f"*Repository*: <https://github.com/org/repo|org/repo>",
-                        ),
-                        blocks.TextObject(
-                            type="mrkdwn",
-                            text=f"*Revision*: <https://github.com/org/repo/commit/commit-sha|commit-sha>",
-                        ),
-                    ]
-                ),
-                blocks.SectionBlock(
-                    text=blocks.TextObject(
-                        type="mrkdwn",
-                        text=f"*setup*: failure :red_circle: - took 15 seconds",
-                    )
-                ),
-                blocks.SectionBlock(
-                    text=blocks.TextObject(
-                        type="mrkdwn", text=f"*build*: pending :large_blue_circle:"
-                    )
-                ),
-                blocks.SectionBlock(
-                    text=blocks.TextObject(
-                        type="mrkdwn", text=f"*publish*: pending :large_blue_circle:"
-                    )
-                ),
-                ANY,
-            ],
+            blocks=get_expected_message_blocks("failure"),
             text="Building: org/repo@commit-sha",
             unfurl_links=False,
             unfurl_media=False,
         )
+
+
+def get_expected_message_blocks(setup="running", build="pending", publish="pending"):
+    phase_messages = {
+        "pending": "pending :large_blue_circle:",
+        "running": "running :hourglass_flowing_sand:",
+        "success": "success :large_green_circle: - took 15 seconds",
+        "failure": "failure :red_circle: - took 15 seconds",
+    }
+
+    return [
+        ANY,
+        blocks.ContextBlock(
+            elements=[
+                blocks.TextObject(
+                    type="mrkdwn",
+                    text=f"*Repository*: <https://github.com/org/repo|org/repo>",
+                ),
+                blocks.TextObject(
+                    type="mrkdwn",
+                    text=f"*Revision*: <https://github.com/org/repo/commit/commit-sha|commit-sha>",
+                ),
+            ]
+        ),
+        blocks.SectionBlock(
+            text=blocks.TextObject(
+                type="mrkdwn", text=f"*setup*: {phase_messages[setup]}"
+            )
+        ),
+        blocks.SectionBlock(
+            text=blocks.TextObject(
+                type="mrkdwn", text=f"*build*: {phase_messages[build]}"
+            )
+        ),
+        blocks.SectionBlock(
+            text=blocks.TextObject(
+                type="mrkdwn", text=f"*publish*: {phase_messages[publish]}"
+            )
+        ),
+        ANY,
+    ]
