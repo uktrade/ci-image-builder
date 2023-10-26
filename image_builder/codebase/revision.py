@@ -1,3 +1,4 @@
+import os
 import re
 import subprocess
 from pathlib import Path
@@ -58,6 +59,13 @@ def load_codebase_revision(path: Path):
     else:
         branch = None
 
+    if (
+        branch is None
+        and "CODEBUILD_WEBHOOK_TRIGGER" in os.environ
+        and "branch" in os.environ["CODEBUILD_WEBHOOK_TRIGGER"]
+    ):
+        branch = os.environ["CODEBUILD_WEBHOOK_TRIGGER"].replace("branch/", "")
+
     tag = None
     long_commit = subprocess.run(
         "git rev-parse HEAD", shell=True, stdout=subprocess.PIPE
@@ -73,6 +81,13 @@ def load_codebase_revision(path: Path):
                     tag = possible_tag.split(" ")[1]
                     tag = tag.replace("refs/tags/", "")
                     break
+
+    if (
+        tag is None
+        and "CODEBUILD_WEBHOOK_TRIGGER" in os.environ
+        and "tag" in os.environ["CODEBUILD_WEBHOOK_TRIGGER"]
+    ):
+        tag = os.environ["CODEBUILD_WEBHOOK_TRIGGER"].replace("tag/", "")
 
     remote_url = subprocess.run(
         "git ls-remote --get-url origin", shell=True, stdout=subprocess.PIPE
