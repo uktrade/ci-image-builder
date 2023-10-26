@@ -44,7 +44,7 @@ class TestBuildCommand(unittest.TestCase):
 
         self.assertIn("Docker is running, continuing with build...", result.output)
         self.assertIn(
-            "Found revision: repository=org/repo, commit=shorthash, branch=main, "
+            "Found revision: repository=org/repo, commit=shorthash, branch=feat/tests, "
             "tag=v2.4.6",
             result.output,
         )

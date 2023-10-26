@@ -28,5 +28,5 @@ def load_codebase_processes_double(path):
 
 def load_codebase_revision_double(path) -> Revision:
     return Revision(
-        "git@github.com:org/repo.git", "shorthash", branch="main", tag="v2.4.6"
+        "git@github.com:org/repo.git", "shorthash", branch="feat/tests", tag="v2.4.6"
     )

@@ -96,7 +96,7 @@ class Pack:
             tags.append(f"tag-{self.codebase.revision.tag}")
 
         if self.codebase.revision.branch:
-            tags.append(f"branch-{self.codebase.revision.branch}")
+            tags.append(f"branch-{self.codebase.revision.branch.replace('/', '-')}")
 
         return tags
 

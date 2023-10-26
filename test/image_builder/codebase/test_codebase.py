@@ -62,7 +62,7 @@ class TestCodebase(TestCase):
         get_codebase_languages.assert_called_with(Path("."))
 
         self.assertEqual(codebase.revision.commit, "shorthash")
-        self.assertEqual(codebase.revision.branch, "main")
+        self.assertEqual(codebase.revision.branch, "feat/tests")
         self.assertEqual(codebase.revision.tag, "v2.4.6")
 
         self.assertEqual(codebase.languages["python"].version, "3.11")
