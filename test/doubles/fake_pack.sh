@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+echo "Running fake pack command"
+echo "===> BUILDING"
+echo "."
+echo "."
+echo "."
+echo "."
+echo "."
+echo "."
+echo "===> EXPORTING"
+echo "."
+echo "."
+echo "."
+echo "."
+echo "."
+echo "done"

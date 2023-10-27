@@ -1,0 +1,7 @@
+repository: ecr/repos
+builder:
+  name: paketobuildpacks/builder
+  version: 0.2.443-full
+packs:
+  - paketo-buildpacks/python
+  - paketo-buildpacks/nodejs

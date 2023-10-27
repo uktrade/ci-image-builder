@@ -1,0 +1,9 @@
+repository: ecr/repos
+builder:
+  name: paketobuildpacks/builder-jammy-full
+  version: 0.3.288
+packs:
+  - paketo-buildpacks/python
+  - paketo-buildpacks/nodejs
+packages:
+  - libpq-dev

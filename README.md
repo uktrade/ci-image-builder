@@ -1,95 +1,147 @@
 # CI Image Builder
 
-Docker image for building OCI images using Paketo buildpacks and uploading them to AWS ECR.
+Docker image and Python application for building [OCI](https://opencontainers.org/) images using [Paketo](https://paketo.io/) buildpacks and uploading
+them to AWS ECR.
 
-## Build
+> [!NOTE]
+> If you are using the old image builder (your `buildspec.yml` will have `/work/build.sh` in it),
+> see the documentation for that [here](./OLD_README.md).
 
-An environment variable for the [`Pack CLI version`](https://github.com/buildpacks/pack/releases) has to be set in the [`buildspec.yml`](buildspec.yml) file.
+## Configuration
 
-The CodeBuild project for the `ci-image-builder` is managed via Terraform in the `terraform-tools` GitLab repository.
+To configure your application repository for use with this image use the following folder structure:
 
-## Usage
+```console
+.
+└── .copilot
+    ├── buildspec.yml
+    ├── config.yml
+    ├── image_build_run.sh
+    └── phases
+        ├── build.sh
+        ├── install.sh
+        ├── post_build.sh
+        └── pre_build.sh
+```
 
-This guidance pertains to your application, which means within your application repository. This is designed to be used by AWS CodeBuild projects.
+### `.copilot/buildspec.yml`
 
-### Prerequisites
+The file responsible for configuring the CodeBuild job that builds your application image. This file
+should require no edits after it is first created.
 
-- The CodeBuild environment image is pointing to the location of the `ci-image-builder` ECR image.
-  - The tag `latest` does not need to be supplied and is optional.
-- The `buildspec` configuration is correctly configured to point to the source code `buildspec.yml` file.
-  - This may point to a `buildspec.yml` file in a `codebuild` directory.
+<details>
+<summary><code>.copilot/buildspec.yml</code> contents</summary>
 
-AWS Reference: https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html
-
-### `buildspec.yml`
-
-```yml
+```yaml
 version: 0.2
-
 env:
   parameter-store:
-    SLACK_WORKSPACE_ID: "/codebuild/slack_workspace_id"
     SLACK_CHANNEL_ID: "/codebuild/slack_channel_id"
     SLACK_TOKEN: "/codebuild/slack_api_token"
-  variables:
-    ECR_VISIBILITY: {PRIVATE/PUBLIC}
-    PAKETO_BUILDER_VERSION: 0.2.326-full
-    LIFECYCLE_VERSION: 0.16.0
 
 phases:
+  install:
+    commands:
+      - |
+        if [ -f .copilot/phases/install.sh ]; then
+          bash .copilot/phases/install.sh
+        fi
+
   pre_build:
     commands:
-      - codebuild-breakpoint
+      - |
+        if [ -f .copilot/phases/pre_build.sh ]; then
+          bash .copilot/phases/pre_build.sh
+        fi
 
   build:
     commands:
-      - /work/build.sh
+      - |
+        if [ -f .copilot/phases/build.sh ]; then
+          bash .copilot/phases/build.sh
+        fi
+      - /work/cli build --publish
+
+  post_build:
+    commands:
+      - |
+        if [ -f .copilot/phases/post_build.sh ]; then
+          bash .copilot/phases/post_build.sh
+        fi
 ```
 
-#### Environment variables
+</details>
 
-- `SLACK_*` - Credentials/IDs needed to interact with Slack.
-- `ECR_VISIBILITY` - If set to `PUBLIC`, then the OCI image will be placed in a public repo in the AWS account, and if not set this will default to `PRIVATE`.
-- `PAKETO_BUILDER_VERSION` - Builder version supported within the [AWS ECR Gallery](https://gallery.ecr.aws/uktrade/paketobuildpacks/builder).
-- `LIFECYCLE_VERSION` - Lifecycle version supported by the specified Paketo builder version. More details can be found on [Paketo’s GitHub Releases](https://github.com/paketo-buildpacks/full-builder/releases) page.
+### `.copilot/config.yml`
 
-#### Phases
+This file configures the image builder telling it which [Paketo](https://paketo.io/) builder and
+buildpacks to use when building your application image.
 
-It is possible to run multiple phases for your build, but in most cases, the example above will be sufficient.
+```yaml
+repository: demodjango/application
+builder:
+  name: paketobuildpacks/builder-jammy-base
+  version: 0.4.240
+packages:
+  - libpq-dev
+```
 
-If you need to install additional packages into the image, you can add that to the `install` section. Refer to the AWS reference for more details.
+| field             | type        | description                                                                                                                                                                                                          |
+|-------------------|-------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `repository`      | string      | The ECR repository the image is pushed to.<br>To enable caching another repository at `{repository}-cache` must exist.                                                                                               |
+| `builder.name`    | string      | The builder image used to create your image. See [paketo builders](https://github.com/paketo-buildpacks?q=builder&type=all) for a full list.                                                                         |
+| `builder.version` | string      | The version of the builder to use, see the releases page of your builder image and the [list of builders](./image_builder/configuration/builder_configuration.yml) for details on supported and deprecated builders. |
+| `packages`        | string list | A list of APT packages to install prior to building your application. For example, `libpg-dev` required to compile the Python package `psycopg2`.                                                                    |
 
-Under `pre-build`, we suggest including a breakpoint, this can be useful for troubleshooting the container. This can be enabled when you `Start build with overrides`, in the AWS console.
+### `.copilot/image_build_run.sh` (Optional)
 
-Finally, under `build`, the path to the `ci-image-builder`'s `build.sh` script is defined.  
+This file is executed inside the built container after all other build actions have completed. Use this to run commands like `python manage.py collectstatic`.
 
-## Instructions to deploy a public image
+An example of this could be:
 
-Follow these steps to deploy a public image rather than the default private image:
+```bash
+#!/usr/bin/env bash
 
-1. In your `buildspec.yml` file, add and set the variable `ECR_VISIBILITY: PUBLIC`.
-2. In your repository, in the `process.yml` file, specify your public image name.
+# Exit early if something goes wrong
+set -e
 
-    ```yml
-    application:
-      name: image_name
-      process:
-        - False
-    ```
+echo "Running post build script"
+cd src
+echo "Running collectstatic"
+python manage.py collectstatic --settings=config.settings.build --noinput
+```
 
-    Setting the process to `False` will tell the builder to use the image name only. This will produce `public.ecr.aws/{aws alias}/image_name:latest`.
+### `.copilot/phases/*.sh` (Optional)
 
-3. If you want to include a subdirectory for your image, you can specify this in the `process` section:
+These files are executed outside the container by CodeBuild in each phase. They are entirely optional.
 
-    ```yml
-    application:
-      name: image_name
-      process:
-        - service_name
-    ```
+CodeBuild phases:
 
-    This will produce `public.ecr.aws/{aws alias}/image_name/service_name:latest`.
+- `install`
+- `pre_build`
+- `build`
+- `post_build`
 
-### Using `dbt-copilot-tools` to build images
+An example use of these scripts could be to scan an image for image vulnerabilities in the `post_build` phase, as follows:
 
-To have CodeBuild watch your application repository and deploy an OCI image on GitHub changes, refer to the guide on how to [Add the AWS CodeBuild configuration files to build the application image](https://github.com/uktrade/platform-documentation/blob/main/adding-a-new-application.md#add-the-aws-codebuild-configuration-files-to-build-the-application-image) in the DBT PaaS documentation.
+`.copilot/phases/post_build.sh`
+```bash
+#!/usr/bin/env bash
+
+# Exit early if something goes wrong
+set -e
+
+GIT_COMMIT=$(git rev-parse --short HEAD)
+aws ecr start-image-scan --repository-name demodjano/application --image-id "imageTag=commit-$GIT_COMMIT" --region eu-west-2
+
+aws ecr describe-image-scan-findings --repository-name demodjano/application --image-id "imageTag=commit-$GIT_COMMIT" --region eu-west-2
+```
+
+## Building an Image
+
+Images are built by CodeBuild when a push to a branch or tag of your repository matches a given pattern.
+
+> [!NOTE]
+> Setup for this is not developed yet and will be part of the `dbt-copilot-tools` package.
+
+<!-- TODO: build out configuration command in dbt-copilot-tools to configure a codebase to use the new builder -->
