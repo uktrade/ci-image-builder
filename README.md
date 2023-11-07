@@ -9,12 +9,17 @@ them to AWS ECR.
 
 ## Configuration
 
-To configure your application repository for use with this image use the following folder structure:
+To configure your application repository for use with this image, run the following command:
+
+```shell
+copilot-helper codebase prepare
+```
+
+Alternatively, you can create or use the following folder structure:
 
 ```console
 .
 └── .copilot
-    ├── buildspec.yml
     ├── config.yml
     ├── image_build_run.sh
     └── phases
@@ -23,54 +28,6 @@ To configure your application repository for use with this image use the followi
         ├── post_build.sh
         └── pre_build.sh
 ```
-
-### `.copilot/buildspec.yml`
-
-The file responsible for configuring the CodeBuild job that builds your application image. This file
-should require no edits after it is first created.
-
-<details>
-<summary><code>.copilot/buildspec.yml</code> contents</summary>
-
-```yaml
-version: 0.2
-env:
-  parameter-store:
-    SLACK_CHANNEL_ID: "/codebuild/slack_channel_id"
-    SLACK_TOKEN: "/codebuild/slack_api_token"
-
-phases:
-  install:
-    commands:
-      - |
-        if [ -f .copilot/phases/install.sh ]; then
-          bash .copilot/phases/install.sh
-        fi
-
-  pre_build:
-    commands:
-      - |
-        if [ -f .copilot/phases/pre_build.sh ]; then
-          bash .copilot/phases/pre_build.sh
-        fi
-
-  build:
-    commands:
-      - |
-        if [ -f .copilot/phases/build.sh ]; then
-          bash .copilot/phases/build.sh
-        fi
-      - /work/cli build --publish
-
-  post_build:
-    commands:
-      - |
-        if [ -f .copilot/phases/post_build.sh ]; then
-          bash .copilot/phases/post_build.sh
-        fi
-```
-
-</details>
 
 ### `.copilot/config.yml`
 
