@@ -207,7 +207,8 @@ class TestPackTags(TestCase):
         pack = Pack(codebase)
 
         self.assertEqual(
-            pack.get_tags(), ["commit-shorthash", "tag-v2.4.6", "branch-feat-tests"]
+            pack.get_tags(),
+            ["commit-shorthash", "tag-v2.4.6", "tag-latest", "branch-feat-tests"],
         )
 
 
@@ -276,6 +277,7 @@ class TestCommand(TestCase):
             "--builder paketobuildpacks/builder-jammy-full:0.3.288 "
             "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:commit-shorthash "
             "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:tag-v2.4.6 "
+            "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:tag-latest "
             "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:branch-feat-tests "
             "--env BP_CPYTHON_VERSION=3.11 "
             "--env BP_NODE_VERSION=20.7 "
@@ -304,6 +306,7 @@ class TestCommand(TestCase):
             "--builder paketobuildpacks/builder-jammy-full:0.3.288 "
             "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:commit-shorthash "
             "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:tag-v2.4.6 "
+            "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:tag-latest "
             "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:branch-feat-tests "
             "--env BP_CPYTHON_VERSION=3.11 "
             "--env BP_NODE_VERSION=20.7 "
@@ -333,6 +336,7 @@ class TestCommand(TestCase):
             "--builder paketobuildpacks/builder-jammy-full:0.3.288 "
             "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:commit-shorthash "
             "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:tag-v2.4.6 "
+            "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:tag-latest "
             "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:branch-feat-tests "
             "--env BP_CPYTHON_VERSION=3.11 "
             "--env BP_NODE_VERSION=20.7 "

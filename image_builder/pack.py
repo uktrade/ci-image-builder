@@ -94,6 +94,7 @@ class Pack:
         tags = [f"commit-{self.codebase.revision.commit}"]
         if self.codebase.revision.tag:
             tags.append(f"tag-{self.codebase.revision.tag}")
+            tags.append(f"tag-latest")
 
         if self.codebase.revision.branch:
             tags.append(f"branch-{self.codebase.revision.branch.replace('/', '-')}")
