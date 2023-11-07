@@ -163,6 +163,7 @@ class TestPackEnvironment(TestCase):
                 "BP_OCI_VERSION=shorthash",
                 "GIT_BRANCH=feat/tests",
                 "BP_OCI_REF_NAME=ecr/repos",
+                "BP_OCI_SOURCE=https://github.com/org/repo",
             ],
         )
 
@@ -292,6 +293,7 @@ class TestCommand(TestCase):
             "--env BP_OCI_VERSION=shorthash "
             "--env GIT_BRANCH=feat/tests "
             "--env BP_OCI_REF_NAME=ecr/repos "
+            "--env BP_OCI_SOURCE=https://github.com/org/repo "
             "--buildpack fagiani/apt "
             "--buildpack paketo-buildpacks/git "
             "--buildpack paketo-buildpacks/python "
@@ -325,6 +327,7 @@ class TestCommand(TestCase):
             "--env BP_OCI_VERSION=shorthash "
             "--env GIT_BRANCH=feat/tests "
             "--env BP_OCI_REF_NAME=ecr/repos "
+            "--env BP_OCI_SOURCE=https://github.com/org/repo "
             "--buildpack fagiani/apt "
             "--buildpack paketo-buildpacks/git "
             "--buildpack paketo-buildpacks/python "
@@ -359,6 +362,7 @@ class TestCommand(TestCase):
             "--env BP_OCI_VERSION=shorthash "
             "--env GIT_BRANCH=feat/tests "
             "--env BP_OCI_REF_NAME=ecr/repos "
+            "--env BP_OCI_SOURCE=https://github.com/org/repo "
             "--buildpack fagiani/apt "
             "--buildpack paketo-buildpacks/git "
             "--buildpack paketo-buildpacks/python "
