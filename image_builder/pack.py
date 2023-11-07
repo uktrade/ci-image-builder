@@ -65,6 +65,7 @@ class Pack:
                 buildpacks.append("paketo-buildpacks/nodejs")
 
         buildpacks.append("fagiani/run")
+        buildpacks.append("gcr.io/paketo-buildpacks/image-labels")
 
         return buildpacks
 
@@ -84,9 +85,13 @@ class Pack:
 
         if self.codebase.revision.commit:
             environment.append(f"GIT_COMMIT={self.codebase.revision.commit}")
+            environment.append(f"BP_OCI_REVISION={self.codebase.revision.commit}")
+            environment.append(f"BP_OCI_VERSION={self.codebase.revision.commit}")
 
         if self.codebase.revision.branch:
             environment.append(f"GIT_BRANCH={self.codebase.revision.branch}")
+
+        environment.append(f"BP_OCI_REF_NAME={self.codebase.build.repository}")
 
         return environment
 

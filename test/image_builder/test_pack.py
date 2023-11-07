@@ -70,6 +70,7 @@ class TestPackBuildpacks(TestCase):
                 "paketo-buildpacks/python",
                 "paketo-buildpacks/nodejs",
                 "fagiani/run",
+                "gcr.io/paketo-buildpacks/image-labels",
             ],
         )
 
@@ -101,6 +102,7 @@ class TestPackBuildpacks(TestCase):
                 "paketo-buildpacks/python",
                 "paketo-buildpacks/nodejs",
                 "fagiani/run",
+                "gcr.io/paketo-buildpacks/image-labels",
             ],
         )
 
@@ -157,7 +159,10 @@ class TestPackEnvironment(TestCase):
                 "BP_NODE_VERSION=20.7",
                 "GIT_TAG=v2.4.6",
                 "GIT_COMMIT=shorthash",
+                "BP_OCI_REVISION=shorthash",
+                "BP_OCI_VERSION=shorthash",
                 "GIT_BRANCH=feat/tests",
+                "BP_OCI_REF_NAME=ecr/repos",
             ],
         )
 
@@ -283,12 +288,16 @@ class TestCommand(TestCase):
             "--env BP_NODE_VERSION=20.7 "
             "--env GIT_TAG=v2.4.6 "
             "--env GIT_COMMIT=shorthash "
+            "--env BP_OCI_REVISION=shorthash "
+            "--env BP_OCI_VERSION=shorthash "
             "--env GIT_BRANCH=feat/tests "
+            "--env BP_OCI_REF_NAME=ecr/repos "
             "--buildpack fagiani/apt "
             "--buildpack paketo-buildpacks/git "
             "--buildpack paketo-buildpacks/python "
             "--buildpack paketo-buildpacks/nodejs "
-            "--buildpack fagiani/run ",
+            "--buildpack fagiani/run "
+            "--buildpack gcr.io/paketo-buildpacks/image-labels ",
         )
 
     def test_get_command_with_publish(
@@ -312,12 +321,16 @@ class TestCommand(TestCase):
             "--env BP_NODE_VERSION=20.7 "
             "--env GIT_TAG=v2.4.6 "
             "--env GIT_COMMIT=shorthash "
+            "--env BP_OCI_REVISION=shorthash "
+            "--env BP_OCI_VERSION=shorthash "
             "--env GIT_BRANCH=feat/tests "
+            "--env BP_OCI_REF_NAME=ecr/repos "
             "--buildpack fagiani/apt "
             "--buildpack paketo-buildpacks/git "
             "--buildpack paketo-buildpacks/python "
             "--buildpack paketo-buildpacks/nodejs "
             "--buildpack fagiani/run "
+            "--buildpack gcr.io/paketo-buildpacks/image-labels "
             "--publish --cache-image 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:cache",
         )
 
@@ -342,12 +355,16 @@ class TestCommand(TestCase):
             "--env BP_NODE_VERSION=20.7 "
             "--env GIT_TAG=v2.4.6 "
             "--env GIT_COMMIT=shorthash "
+            "--env BP_OCI_REVISION=shorthash "
+            "--env BP_OCI_VERSION=shorthash "
             "--env GIT_BRANCH=feat/tests "
+            "--env BP_OCI_REF_NAME=ecr/repos "
             "--buildpack fagiani/apt "
             "--buildpack paketo-buildpacks/git "
             "--buildpack paketo-buildpacks/python "
             "--buildpack paketo-buildpacks/nodejs "
-            "--buildpack fagiani/run ",
+            "--buildpack fagiani/run "
+            "--buildpack gcr.io/paketo-buildpacks/image-labels ",
             shell=True,
             stdout=subprocess.PIPE,
         )
