@@ -35,7 +35,7 @@ class TestBuildCommand(unittest.TestCase):
 
     def run_build(self):
         runner = CliRunner()
-        result = runner.invoke(build)
+        result = runner.invoke(build, ["--send-notifications"])
         return result
 
     def test_perfect_build(self, pack, docker, codebase, notify, progress):

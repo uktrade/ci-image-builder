@@ -33,6 +33,7 @@ class Pack:
                 on_building()
             if on_exporting is not None and "===> EXPORTING" in output:
                 on_exporting()
+
         if proc.returncode != 0:
             raise PackCommandFailedError
 
@@ -110,7 +111,10 @@ class Pack:
         return tags
 
     def get_repository(self):
-        _, _, _, region, account, _, _ = os.environ["CODEBUILD_BUILD_ARN"].split(":")
-        return (
-            f"{account}.dkr.ecr.{region}.amazonaws.com/{self.codebase.build.repository}"
-        )
+        if "CODEBUILD_BUILD_ARN" in os.environ:
+            _, _, _, region, account, _, _ = os.environ["CODEBUILD_BUILD_ARN"].split(
+                ":"
+            )
+            return f"{account}.dkr.ecr.{region}.amazonaws.com/{self.codebase.build.repository}"
+
+        return self.codebase.build.repository
