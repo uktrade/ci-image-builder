@@ -84,6 +84,12 @@ class TestNotify(unittest.TestCase):
             unfurl_media=False,
         )
 
+    def test_sending_progress_updates_when_notifications_off(self, webclient, time):
+        notify = Notify(self.codebase, False)
+        progress = Progress()
+        notify.post_progress(progress)
+        self.assertFalse(hasattr(notify, "slack"))
+
     def test_sending_all_build_stages_successful(self, webclient, time):
         notify = Notify(self.codebase)
         progress = Progress()

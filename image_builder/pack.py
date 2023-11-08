@@ -15,9 +15,11 @@ class PackCommandFailedError(PackError):
 
 class Pack:
     codebase: Codebase
+    build_timestamp: str
 
-    def __init__(self, codebase: Codebase):
+    def __init__(self, codebase: Codebase, build_timestamp: str = None):
         self.codebase = codebase
+        self.build_timestamp = build_timestamp
 
     def build(
         self, publish=False, on_building: Callable = None, on_exporting: Callable = None
@@ -33,6 +35,7 @@ class Pack:
                 on_building()
             if on_exporting is not None and "===> EXPORTING" in output:
                 on_exporting()
+
         if proc.returncode != 0:
             raise PackCommandFailedError
 
@@ -65,6 +68,7 @@ class Pack:
                 buildpacks.append("paketo-buildpacks/nodejs")
 
         buildpacks.append("fagiani/run")
+        buildpacks.append("gcr.io/paketo-buildpacks/image-labels")
 
         return buildpacks
 
@@ -84,9 +88,27 @@ class Pack:
 
         if self.codebase.revision.commit:
             environment.append(f"GIT_COMMIT={self.codebase.revision.commit}")
+            environment.append(f"BP_OCI_REVISION={self.codebase.revision.commit}")
+            environment.append(f"BP_OCI_VERSION={self.codebase.revision.commit}")
 
         if self.codebase.revision.branch:
             environment.append(f"GIT_BRANCH={self.codebase.revision.branch}")
+
+        environment.append(f"BP_OCI_REF_NAME={self.codebase.build.repository}")
+        environment.append(
+            f"BP_OCI_SOURCE={self.codebase.revision.get_repository_url()}"
+        )
+
+        additional_labels = []
+
+        if self.build_timestamp is not None:
+            additional_labels.append(
+                f"uk.gov.trade.digital.build.timestamp={self.build_timestamp}"
+            )
+
+        if additional_labels:
+            additional_labels = " ".join(additional_labels)
+            environment.append(f'BP_IMAGE_LABELS="{additional_labels}"')
 
         return environment
 
@@ -102,7 +124,10 @@ class Pack:
         return tags
 
     def get_repository(self):
-        _, _, _, region, account, _, _ = os.environ["CODEBUILD_BUILD_ARN"].split(":")
-        return (
-            f"{account}.dkr.ecr.{region}.amazonaws.com/{self.codebase.build.repository}"
-        )
+        if "CODEBUILD_BUILD_ARN" in os.environ:
+            _, _, _, region, account, _, _ = os.environ["CODEBUILD_BUILD_ARN"].split(
+                ":"
+            )
+            return f"{account}.dkr.ecr.{region}.amazonaws.com/{self.codebase.build.repository}"
+
+        return self.codebase.build.repository

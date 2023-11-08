@@ -9,13 +9,16 @@ from image_builder.progress import Progress
 
 @click.command("build", help="Build an image")
 @click.option("--publish", is_flag=True, default=False, help="Publish the built image")
-def build(publish):
+@click.option(
+    "--send-notifications", is_flag=True, default=False, help="Send slack notifications"
+)
+def build(publish, send_notifications):
     codebase = Codebase(".")
-    notify = Notify(codebase)
+    notify = Notify(codebase, send_notifications)
     progress = Progress()
-    pack = Pack(codebase)
     progress.current_phase_running()
     notify.post_progress(progress)
+    pack = Pack(codebase, notify.reference)
 
     try:
         if not Docker.running():
