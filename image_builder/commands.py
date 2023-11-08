@@ -16,9 +16,9 @@ def build(publish, send_notifications):
     codebase = Codebase(".")
     notify = Notify(codebase, send_notifications)
     progress = Progress()
-    pack = Pack(codebase)
     progress.current_phase_running()
     notify.post_progress(progress)
+    pack = Pack(codebase, notify.reference)
 
     try:
         if not Docker.running():

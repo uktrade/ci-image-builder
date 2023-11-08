@@ -15,9 +15,11 @@ class PackCommandFailedError(PackError):
 
 class Pack:
     codebase: Codebase
+    build_timestamp: str
 
-    def __init__(self, codebase: Codebase):
+    def __init__(self, codebase: Codebase, build_timestamp: str = None):
         self.codebase = codebase
+        self.build_timestamp = build_timestamp
 
     def build(
         self, publish=False, on_building: Callable = None, on_exporting: Callable = None
@@ -96,6 +98,17 @@ class Pack:
         environment.append(
             f"BP_OCI_SOURCE={self.codebase.revision.get_repository_url()}"
         )
+
+        additional_labels = []
+
+        if self.build_timestamp is not None:
+            additional_labels.append(
+                f"uk.gov.trade.digital.build.timestamp={self.build_timestamp}"
+            )
+
+        if additional_labels:
+            additional_labels = " ".join(additional_labels)
+            environment.append(f'BP_IMAGE_LABELS="{additional_labels}"')
 
         return environment
 

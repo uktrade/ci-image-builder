@@ -15,13 +15,14 @@ class Settings:
 
 class Notify:
     codebase: Codebase
-    reference: str
+    reference: str | None
     settings: Settings
 
     def __init__(self, codebase: Codebase, send_notifications: bool = True):
         self.settings = Settings()
         self.codebase = codebase
         self.send_notifications = send_notifications
+        self.reference = None
 
         if self.send_notifications:
             try:
@@ -78,20 +79,20 @@ class Notify:
                     ]
                 ),
             ]
-            if hasattr(self, "reference"):
-                response = self.slack.chat_update(
+            if self.reference is None:
+                response = self.slack.chat_postMessage(
                     channel=os.environ["SLACK_CHANNEL_ID"],
                     blocks=message_blocks,
-                    ts=self.reference,
                     text=f"Building: {self.codebase.revision.get_repository_name()}@{self.codebase.revision.commit}",
                     unfurl_links=False,
                     unfurl_media=False,
                 )
                 self.reference = response["ts"]
             else:
-                response = self.slack.chat_postMessage(
+                response = self.slack.chat_update(
                     channel=os.environ["SLACK_CHANNEL_ID"],
                     blocks=message_blocks,
+                    ts=self.reference,
                     text=f"Building: {self.codebase.revision.get_repository_name()}@{self.codebase.revision.commit}",
                     unfurl_links=False,
                     unfurl_media=False,

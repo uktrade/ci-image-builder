@@ -150,7 +150,7 @@ class TestPackEnvironment(TestCase):
         )
 
         codebase = Codebase(Path("."))
-        pack = Pack(codebase)
+        pack = Pack(codebase, "timestamp")
 
         self.assertEqual(
             pack.get_environment(),
@@ -164,6 +164,7 @@ class TestPackEnvironment(TestCase):
                 "GIT_BRANCH=feat/tests",
                 "BP_OCI_REF_NAME=ecr/repos",
                 "BP_OCI_SOURCE=https://github.com/org/repo",
+                'BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp"',
             ],
         )
 
@@ -276,7 +277,7 @@ class TestCommand(TestCase):
         load_codebase_languages,
     ):
         codebase = Codebase(Path("."))
-        pack = Pack(codebase)
+        pack = Pack(codebase, "timestamp")
         self.assertEqual(
             pack.get_command(),
             "pack build 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
@@ -294,6 +295,7 @@ class TestCommand(TestCase):
             "--env GIT_BRANCH=feat/tests "
             "--env BP_OCI_REF_NAME=ecr/repos "
             "--env BP_OCI_SOURCE=https://github.com/org/repo "
+            '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
             "--buildpack fagiani/apt "
             "--buildpack paketo-buildpacks/git "
             "--buildpack paketo-buildpacks/python "
@@ -310,7 +312,7 @@ class TestCommand(TestCase):
         load_codebase_languages,
     ):
         codebase = Codebase(Path("."))
-        pack = Pack(codebase)
+        pack = Pack(codebase, "timestamp")
         self.assertEqual(
             pack.get_command(True),
             "pack build 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
@@ -328,6 +330,7 @@ class TestCommand(TestCase):
             "--env GIT_BRANCH=feat/tests "
             "--env BP_OCI_REF_NAME=ecr/repos "
             "--env BP_OCI_SOURCE=https://github.com/org/repo "
+            '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
             "--buildpack fagiani/apt "
             "--buildpack paketo-buildpacks/git "
             "--buildpack paketo-buildpacks/python "
@@ -345,7 +348,7 @@ class TestCommand(TestCase):
         load_codebase_languages,
     ):
         codebase = Codebase(Path("."))
-        pack = Pack(codebase)
+        pack = Pack(codebase, "timestamp")
         pack.build()
         subprocess_popen.assert_called_with(
             "pack build 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
@@ -363,6 +366,7 @@ class TestCommand(TestCase):
             "--env GIT_BRANCH=feat/tests "
             "--env BP_OCI_REF_NAME=ecr/repos "
             "--env BP_OCI_SOURCE=https://github.com/org/repo "
+            '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
             "--buildpack fagiani/apt "
             "--buildpack paketo-buildpacks/git "
             "--buildpack paketo-buildpacks/python "
