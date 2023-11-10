@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import click
 
-from image_builder.commands import build
+from image_builder.commands.build import build
 
 
 @click.group()

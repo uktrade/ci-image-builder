@@ -9,14 +9,14 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from image_builder.commands import build
+from image_builder.commands.build import build
 
 
-@patch("image_builder.commands.Progress")
-@patch("image_builder.commands.Notify")
-@patch("image_builder.commands.Codebase")
-@patch("image_builder.commands.Docker")
-@patch("image_builder.commands.Pack")
+@patch("image_builder.commands.build.Progress")
+@patch("image_builder.commands.build.Notify")
+@patch("image_builder.commands.build.Codebase")
+@patch("image_builder.commands.build.Docker")
+@patch("image_builder.commands.build.Pack")
 class TestBuildCommand(unittest.TestCase):
     @staticmethod
     def setup_mocks(pack, docker, codebase, notify, progress):
