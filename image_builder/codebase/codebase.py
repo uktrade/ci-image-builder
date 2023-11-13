@@ -20,7 +20,7 @@ class Codebase:
     languages: Languages
     original_files: dict
 
-    def __init__(self, path):
+    def __init__(self, path: str | Path = None):
         self.path = Path(path)
         self.build = load_codebase_configuration(
             self.path.joinpath(".copilot/config.yml")
@@ -50,8 +50,8 @@ class Codebase:
                     'if [ -f "./.copilot/image_build_run.sh" ]; then',
                     "    bash ./.copilot/image_build_run.sh",
                     "fi",
-                ]
-            )
+                ],
+            ),
         )
         self.path.joinpath("buildpack-run.sh").chmod(
             stat.S_IRWXO | stat.S_IRWXG | stat.S_IRWXU

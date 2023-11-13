@@ -57,8 +57,8 @@ class TestNotify(unittest.TestCase):
     def test_sending_progress_updates(self, webclient, time):
         notify = Notify(self.codebase)
         progress = Progress()
-        notify.post_progress(progress)
-        notify.post_progress(progress)
+        notify.post_build_progress(progress, self.codebase)
+        notify.post_build_progress(progress, self.codebase)
         notify.slack.chat_postMessage.assert_called_with(
             channel="channel-id",
             blocks=ANY,
@@ -74,7 +74,7 @@ class TestNotify(unittest.TestCase):
             unfurl_links=False,
             unfurl_media=False,
         )
-        notify.post_progress(progress)
+        notify.post_build_progress(progress, self.codebase)
         notify.slack.chat_update.assert_called_with(
             channel="channel-id",
             blocks=ANY,
@@ -85,17 +85,17 @@ class TestNotify(unittest.TestCase):
         )
 
     def test_sending_progress_updates_when_notifications_off(self, webclient, time):
-        notify = Notify(self.codebase, False)
+        notify = Notify(False)
         progress = Progress()
-        notify.post_progress(progress)
+        notify.post_build_progress(progress, self.codebase)
         self.assertFalse(hasattr(notify, "slack"))
 
     def test_sending_all_build_stages_successful(self, webclient, time):
-        notify = Notify(self.codebase)
+        notify = Notify()
         progress = Progress()
 
         progress.current_phase_running()
-        notify.post_progress(progress)
+        notify.post_build_progress(progress, self.codebase)
 
         notify.slack.chat_postMessage.assert_called_with(
             channel="channel-id",
@@ -109,7 +109,7 @@ class TestNotify(unittest.TestCase):
         progress.current_phase_success()
         progress.set_current_phase("build")
         progress.current_phase_running()
-        notify.post_progress(progress)
+        notify.post_build_progress(progress, self.codebase)
 
         notify.slack.chat_update.assert_called_with(
             channel="channel-id",
@@ -124,7 +124,7 @@ class TestNotify(unittest.TestCase):
         progress.current_phase_success()
         progress.set_current_phase("publish")
         progress.current_phase_running()
-        notify.post_progress(progress)
+        notify.post_build_progress(progress, self.codebase)
 
         notify.slack.chat_update.assert_called_with(
             channel="channel-id",
@@ -139,7 +139,7 @@ class TestNotify(unittest.TestCase):
 
         # set state to done
         progress.current_phase_success()
-        notify.post_progress(progress)
+        notify.post_build_progress(progress, self.codebase)
 
         notify.slack.chat_update.assert_called_with(
             channel="channel-id",
@@ -153,12 +153,12 @@ class TestNotify(unittest.TestCase):
         )
 
     def test_sending_a_failure_update(self, webclient, time):
-        notify = Notify(self.codebase)
+        notify = Notify()
         progress = Progress()
 
         progress.current_phase_running()
         progress.current_phase_failure()
-        notify.post_progress(progress)
+        notify.post_build_progress(progress, self.codebase)
 
         notify.slack.chat_postMessage.assert_called_with(
             channel="channel-id",

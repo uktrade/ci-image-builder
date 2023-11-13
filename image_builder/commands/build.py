@@ -17,7 +17,7 @@ def build(publish, send_notifications):
     notify = Notify(codebase, send_notifications)
     progress = Progress()
     progress.current_phase_running()
-    notify.post_progress(progress)
+    notify.post_build_progress(progress)
     pack = Pack(codebase, notify.reference)
 
     try:
@@ -45,6 +45,7 @@ def build(publish, send_notifications):
         buildpacks = ", ".join(pack.get_buildpacks())
         processes = ", ".join(p.name for p in pack.codebase.processes)
         notify.post_job_comment(
+            f"Build: {pack.codebase.revision.get_repository_name()}@{pack.codebase.revision.commit} update",
             [
                 f"*Repository*: {pack.codebase.revision.get_repository_name()}",
                 f"*Commit*: {pack.codebase.revision.commit} "
@@ -54,7 +55,7 @@ def build(publish, send_notifications):
                 f"*Languages*: {pack.codebase.languages}",
                 f"*Builder*: {pack.codebase.build.builder.name}@{pack.codebase.build.builder.version}",
                 f"*Buildpacks*: {buildpacks}",
-            ]
+            ],
         )
 
         pack.codebase.setup()
@@ -64,13 +65,14 @@ def build(publish, send_notifications):
         )
 
         progress.current_phase_success()
-        notify.post_progress(progress)
+        notify.post_build_progress(progress)
 
     except (Exception, KeyboardInterrupt) as e:
         progress.current_phase_failure()
-        notify.post_progress(progress)
+        notify.post_build_progress(progress)
         notify.post_job_comment(
-            [f"Build was cancelled: {e.__class__.__name__}", str(e)]
+            f"Build: {pack.codebase.revision.get_repository_name()}@{pack.codebase.revision.commit} cancelled",
+            [f"Build was cancelled: {e.__class__.__name__}", str(e)],
         )
         exit(1)
 
@@ -83,7 +85,7 @@ def on_building(notify, progress):
         progress.current_phase_success()
         progress.set_current_phase("build")
         progress.current_phase_running()
-        notify.post_progress(progress)
+        notify.post_build_progress(progress)
 
     return on_building_callback
 
@@ -93,6 +95,6 @@ def on_publishing(notify, progress):
         progress.current_phase_success()
         progress.set_current_phase("publish")
         progress.current_phase_running()
-        notify.post_progress(progress)
+        notify.post_build_progress(progress)
 
     return on_publishing_callback

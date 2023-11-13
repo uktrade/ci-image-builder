@@ -60,7 +60,7 @@ class TestBuildCommand(unittest.TestCase):
         pack().build.assert_called()
         pack().codebase.setup.assert_called()
         progress().set_current_phase.assert_has_calls([])
-        notify().post_progress.assert_has_calls([call(ANY)] * 2)
+        notify().post_build_progress.assert_has_calls([call(ANY)] * 2)
 
     def test_when_setup_fails(self, pack, docker, codebase, notify, progress):
         self.setup_mocks(pack, docker, codebase, notify, progress)
@@ -69,7 +69,7 @@ class TestBuildCommand(unittest.TestCase):
 
         pack().codebase.setup.assert_called()
         pack().build.assert_not_called()
-        notify().post_progress.assert_has_calls([call(ANY)] * 2)
+        notify().post_build_progress.assert_has_calls([call(ANY)] * 2)
         self.assertEqual(result.exit_code, 1)
 
     def test_when_build_fails(self, pack, docker, codebase, notify, progress):
@@ -79,7 +79,7 @@ class TestBuildCommand(unittest.TestCase):
 
         pack().codebase.setup.assert_called()
         pack().build.assert_called()
-        notify().post_progress.assert_has_calls([call(ANY)] * 2)
+        notify().post_build_progress.assert_has_calls([call(ANY)] * 2)
         self.assertEqual(result.exit_code, 1)
 
     def test_perfect_build_when_docker_is_not_started(
