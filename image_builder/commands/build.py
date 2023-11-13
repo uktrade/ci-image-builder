@@ -7,17 +7,20 @@ from image_builder.pack import Pack
 from image_builder.progress import Progress
 
 
-@click.command("build", help="Build an image")
-@click.option("--publish", is_flag=True, default=False, help="Publish the built image")
+@click.command("build", help="Build an image.")
+@click.option("--publish", is_flag=True, default=False, help="Publish the built image.")
 @click.option(
-    "--send-notifications", is_flag=True, default=False, help="Send slack notifications"
+    "--send-notifications",
+    is_flag=True,
+    default=False,
+    help="Send slack notifications.",
 )
 def build(publish, send_notifications):
     codebase = Codebase(".")
-    notify = Notify(codebase, send_notifications)
+    notify = Notify(send_notifications)
     progress = Progress()
     progress.current_phase_running()
-    notify.post_progress(progress)
+    notify.post_build_progress(progress, codebase)
     pack = Pack(codebase, notify.reference)
 
     try:
@@ -45,6 +48,7 @@ def build(publish, send_notifications):
         buildpacks = ", ".join(pack.get_buildpacks())
         processes = ", ".join(p.name for p in pack.codebase.processes)
         notify.post_job_comment(
+            f"Build: {pack.codebase.revision.get_repository_name()}@{pack.codebase.revision.commit} update",
             [
                 f"*Repository*: {pack.codebase.revision.get_repository_name()}",
                 f"*Commit*: {pack.codebase.revision.commit} "
@@ -54,23 +58,26 @@ def build(publish, send_notifications):
                 f"*Languages*: {pack.codebase.languages}",
                 f"*Builder*: {pack.codebase.build.builder.name}@{pack.codebase.build.builder.version}",
                 f"*Buildpacks*: {buildpacks}",
-            ]
+            ],
         )
 
         pack.codebase.setup()
 
         pack.build(
-            publish, on_building(notify, progress), on_publishing(notify, progress)
+            publish,
+            on_building(notify, progress, codebase),
+            on_publishing(notify, progress, codebase),
         )
 
         progress.current_phase_success()
-        notify.post_progress(progress)
+        notify.post_build_progress(progress, codebase)
 
     except (Exception, KeyboardInterrupt) as e:
         progress.current_phase_failure()
-        notify.post_progress(progress)
+        notify.post_build_progress(progress, codebase)
         notify.post_job_comment(
-            [f"Build was cancelled: {e.__class__.__name__}", str(e)]
+            f"Build: {pack.codebase.revision.get_repository_name()}@{pack.codebase.revision.commit} cancelled",
+            [f"Build was cancelled: {e.__class__.__name__}", str(e)],
         )
         exit(1)
 
@@ -78,21 +85,21 @@ def build(publish, send_notifications):
         codebase.teardown()
 
 
-def on_building(notify, progress):
+def on_building(notify, progress, codebase):
     def on_building_callback():
         progress.current_phase_success()
         progress.set_current_phase("build")
         progress.current_phase_running()
-        notify.post_progress(progress)
+        notify.post_build_progress(progress, codebase)
 
     return on_building_callback
 
 
-def on_publishing(notify, progress):
+def on_publishing(notify, progress, codebase):
     def on_publishing_callback():
         progress.current_phase_success()
         progress.set_current_phase("publish")
         progress.current_phase_running()
-        notify.post_progress(progress)
+        notify.post_build_progress(progress, codebase)
 
     return on_publishing_callback

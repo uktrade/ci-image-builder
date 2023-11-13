@@ -1,4 +1,5 @@
 import os
+from typing import List
 
 from slack_sdk import WebClient
 from slack_sdk.models import blocks
@@ -18,33 +19,32 @@ class Notify:
     reference: str | None
     settings: Settings
 
-    def __init__(self, codebase: Codebase, send_notifications: bool = True):
+    def __init__(self, send_notifications: bool = True):
         self.settings = Settings()
-        self.codebase = codebase
         self.send_notifications = send_notifications
         self.reference = None
 
         if self.send_notifications:
             try:
+                self.settings.build_arn = os.environ["CODEBUILD_BUILD_ARN"]
                 self.slack = WebClient(token=os.environ["SLACK_TOKEN"])
                 self.settings.channel = os.environ["SLACK_CHANNEL_ID"]
-                self.settings.build_arn = os.environ["CODEBUILD_BUILD_ARN"]
             except KeyError as e:
                 raise ValueError(f"{e} environment variable must be set")
 
-    def post_progress(self, progress: Progress):
+    def post_build_progress(self, progress: Progress, codebase: Codebase):
         if self.send_notifications:
             message_headline = (
-                f"*Building {self.codebase.revision.get_repository_name()}@"
-                f"{self.codebase.revision.commit}*"
+                f"*Building {codebase.revision.get_repository_name()}@"
+                f"{codebase.revision.commit}*"
             )
             message_repository = (
-                f"*Repository*: <{self.codebase.revision.get_repository_url()}|"
-                f"{self.codebase.revision.get_repository_name()}>"
+                f"*Repository*: <{codebase.revision.get_repository_url()}|"
+                f"{codebase.revision.get_repository_name()}>"
             )
             message_revision = (
-                f"*Revision*: <{self.codebase.revision.get_repository_url()}/commit/"
-                f"{self.codebase.revision.commit}|{self.codebase.revision.commit}>"
+                f"*Revision*: <{codebase.revision.get_repository_url()}/commit/"
+                f"{codebase.revision.commit}|{codebase.revision.commit}>"
             )
             message_build_logs = f"<{self.get_build_url()}|Build Logs>"
 
@@ -83,7 +83,7 @@ class Notify:
                 response = self.slack.chat_postMessage(
                     channel=os.environ["SLACK_CHANNEL_ID"],
                     blocks=message_blocks,
-                    text=f"Building: {self.codebase.revision.get_repository_name()}@{self.codebase.revision.commit}",
+                    text=f"Building: {codebase.revision.get_repository_name()}@{codebase.revision.commit}",
                     unfurl_links=False,
                     unfurl_media=False,
                 )
@@ -93,15 +93,17 @@ class Notify:
                     channel=os.environ["SLACK_CHANNEL_ID"],
                     blocks=message_blocks,
                     ts=self.reference,
-                    text=f"Building: {self.codebase.revision.get_repository_name()}@{self.codebase.revision.commit}",
+                    text=f"Building: {codebase.revision.get_repository_name()}@{codebase.revision.commit}",
                     unfurl_links=False,
                     unfurl_media=False,
                 )
                 self.reference = response["ts"]
 
-    def post_job_comment(self, message):
+    def post_job_comment(
+        self, title: str, message: List[str], send_to_main_channel=False
+    ):
         if self.send_notifications:
-            self.slack.chat_postMessage(
+            response = self.slack.chat_postMessage(
                 channel=os.environ["SLACK_CHANNEL_ID"],
                 blocks=[
                     blocks.SectionBlock(
@@ -110,22 +112,27 @@ class Notify:
                     for line in message
                     if line
                 ],
-                text=f"Build: {self.codebase.revision.get_repository_name()}@{self.codebase.revision.commit} update",
+                text=title,
+                reply_broadcast=send_to_main_channel,
                 unfurl_links=False,
                 unfurl_media=False,
                 thread_ts=self.reference,
             )
+            return response["ts"]
 
     def get_build_url(self):
-        build_arn = self.settings.build_arn
-        _, _, _, region, account, project, build_id = build_arn.split(":")
-        url = (
-            "https://{region}.console.aws.amazon.com/codesuite/codebuild/{account}/projects/{"
-            "project}/build/{project}%3A{build_id}"
-        )
-        return url.format(
-            region=region,
-            account=account,
-            project=project.replace("build/", ""),
-            build_id=build_id,
-        )
+        try:
+            build_arn = self.settings.build_arn
+            _, _, _, region, account, project, build_id = build_arn.split(":")
+            url = (
+                "https://{region}.console.aws.amazon.com/codesuite/codebuild/{account}/projects/{"
+                "project}/build/{project}%3A{build_id}"
+            )
+            return url.format(
+                region=region,
+                account=account,
+                project=project.replace("build/", ""),
+                build_id=build_id,
+            )
+        except ValueError:
+            return ""
