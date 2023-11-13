@@ -186,7 +186,6 @@ class TestDeployCommand(TestCase):
 
         result = self.run_deploy()
 
-        # Clone deploy repository
         self.assertIn(
             "Cloning repository organisation/repository-deploy", result.output
         )
@@ -215,7 +214,6 @@ class TestDeployCommand(TestCase):
 
         result = self.run_deploy()
 
-        # Clone deploy repository
         self.assertIn(
             "CannotCloneDeployRepositoryDeployError: Cannot clone deploy repository if AWS_REGION, AWS_ACCOUNT_ID, "
             "CODESTAR_CONNECTION_ID and DEPLOY_REPOSITORY environment variables not "
@@ -309,7 +307,6 @@ class TestDeployCommand(TestCase):
 
         result = self.run_deploy()
 
-        # Clone deploy repository
         self.assertIn(
             "MissingConfigurationDeployError: AWS_ACCOUNT_ID, AWS_REGION and "
             "ECR_REPOSITORY must be set",

@@ -94,7 +94,7 @@ def get_image_repository_url() -> str:
     ecr_repository = os.getenv("ECR_REPOSITORY")
     if not (account_id and region and ecr_repository):
         raise MissingConfigurationDeployError(
-            "AWS_ACCOUNT_ID, AWS_REGION and ECR_REPOSITORY must " "be set"
+            "AWS_ACCOUNT_ID, AWS_REGION and ECR_REPOSITORY must be set"
         )
 
     repository_url = f"{account_id}.dkr.ecr.{region}.amazonaws.com/{ecr_repository}"
