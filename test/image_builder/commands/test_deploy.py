@@ -159,8 +159,8 @@ class TestDeployCommand(TestCase):
                     [
                         "Deploying web, worker to dev",
                         "*Image*: repository/application:commit-99999",
-                        "*Commit*: <organisation/repository@99999|https://github.com/organisation/repository/commit/99999>",
-                        "<Build Log|https://example.com/build_url>",
+                        "*Commit*: <https://github.com/organisation/repository/commit/99999|organisation/repository@99999>",
+                        "<https://example.com/build_url|Build Log>",
                     ],
                     True,
                 ),
@@ -169,8 +169,8 @@ class TestDeployCommand(TestCase):
                     [
                         "Deployment of web, worker to dev complete",
                         "*Image*: repository/application:commit-99999",
-                        "*Commit*: <organisation/repository@99999|https://github.com/organisation/repository/commit/99999>",
-                        "<Build Log|https://example.com/build_url>",
+                        "*Commit*: <https://github.com/organisation/repository/commit/99999|organisation/repository@99999>",
+                        "<https://example.com/build_url|Build Log>",
                     ],
                     True,
                 ),
