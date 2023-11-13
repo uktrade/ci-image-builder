@@ -26,9 +26,9 @@ class Notify:
 
         if self.send_notifications:
             try:
+                self.settings.build_arn = os.environ["CODEBUILD_BUILD_ARN"]
                 self.slack = WebClient(token=os.environ["SLACK_TOKEN"])
                 self.settings.channel = os.environ["SLACK_CHANNEL_ID"]
-                self.settings.build_arn = os.environ["CODEBUILD_BUILD_ARN"]
             except KeyError as e:
                 raise ValueError(f"{e} environment variable must be set")
 
@@ -99,9 +99,11 @@ class Notify:
                 )
                 self.reference = response["ts"]
 
-    def post_job_comment(self, title: str, message: List[str]):
+    def post_job_comment(
+        self, title: str, message: List[str], send_to_main_channel=False
+    ):
         if self.send_notifications:
-            self.slack.chat_postMessage(
+            response = self.slack.chat_postMessage(
                 channel=os.environ["SLACK_CHANNEL_ID"],
                 blocks=[
                     blocks.SectionBlock(
@@ -111,21 +113,26 @@ class Notify:
                     if line
                 ],
                 text=title,
+                reply_broadcast=send_to_main_channel,
                 unfurl_links=False,
                 unfurl_media=False,
                 thread_ts=self.reference,
             )
+            return response["ts"]
 
     def get_build_url(self):
-        build_arn = self.settings.build_arn
-        _, _, _, region, account, project, build_id = build_arn.split(":")
-        url = (
-            "https://{region}.console.aws.amazon.com/codesuite/codebuild/{account}/projects/{"
-            "project}/build/{project}%3A{build_id}"
-        )
-        return url.format(
-            region=region,
-            account=account,
-            project=project.replace("build/", ""),
-            build_id=build_id,
-        )
+        try:
+            build_arn = self.settings.build_arn
+            _, _, _, region, account, project, build_id = build_arn.split(":")
+            url = (
+                "https://{region}.console.aws.amazon.com/codesuite/codebuild/{account}/projects/{"
+                "project}/build/{project}%3A{build_id}"
+            )
+            return url.format(
+                region=region,
+                account=account,
+                project=project.replace("build/", ""),
+                build_id=build_id,
+            )
+        except ValueError:
+            return ""

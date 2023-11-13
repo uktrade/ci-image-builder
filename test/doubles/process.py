@@ -6,11 +6,12 @@ class StubbedProcess:
     _returncodes: List[int]
     _returncode_pointer: int
 
-    def __init__(self, returncode=0, returncodes=None, stdout=None):
+    def __init__(self, returncode=0, returncodes=None, stdout=None, stderr=None):
         self._returncode = returncode
         self._returncodes = returncodes
         self._returncode_pointer = 0
         self.stdout = stdout
+        self.stderr = stderr
 
     @property
     def returncode(self):
