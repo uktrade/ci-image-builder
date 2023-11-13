@@ -42,6 +42,8 @@ def deploy(send_notifications):
     try:
         clone_deployment_repository()
         tag = get_image_tag_for_deployment()
+        os.environ["IMAGE_TAG"] = tag
+
         repository = get_image_repository_url()
         timestamp = get_deployment_reference(repository, tag)
         notify = Notify(send_notifications)
@@ -70,13 +72,17 @@ def deploy(send_notifications):
         for service in copilot_services:
             deploy_command += f" --name {service}/1"
 
-        subprocess.run(
+        result = subprocess.run(
             deploy_command, stdout=subprocess.PIPE, shell=True, cwd=Path("./deploy")
         )
+
+        if result.returncode != 0:
+            raise DeployError("Failed to deploy")
 
         notify.post_job_comment(
             f'Deployment of {", ".join(copilot_services)} to {copilot_environment} complete',
             [
+                f'Deployment of {", ".join(copilot_services)} to {copilot_environment} complete',
                 f"*Image*: {ecr_repository}:{tag}",
                 f"*Commit*: <{codebase_repository}@{commit_hash}|https://github.com/{codebase_repository}/commit/{commit_hash}>",
                 f"<Build Log|{notify.get_build_url()}>",
