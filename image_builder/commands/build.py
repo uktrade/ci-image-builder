@@ -7,10 +7,13 @@ from image_builder.pack import Pack
 from image_builder.progress import Progress
 
 
-@click.command("build", help="Build an image")
-@click.option("--publish", is_flag=True, default=False, help="Publish the built image")
+@click.command("build", help="Build an image.")
+@click.option("--publish", is_flag=True, default=False, help="Publish the built image.")
 @click.option(
-    "--send-notifications", is_flag=True, default=False, help="Send slack notifications"
+    "--send-notifications",
+    is_flag=True,
+    default=False,
+    help="Send slack notifications.",
 )
 def build(publish, send_notifications):
     codebase = Codebase(".")

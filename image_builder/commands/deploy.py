@@ -26,9 +26,12 @@ class CannotCloneDeployRepositoryDeployError(DeployError):
     pass
 
 
-@click.command("deploy", help="Deploy an image to a list of services")
+@click.command("deploy", help="Deploy an image to a list of services.")
 @click.option(
-    "--send-notifications", is_flag=True, default=False, help="Send slack notifications"
+    "--send-notifications",
+    is_flag=True,
+    default=False,
+    help="Send slack notifications.",
 )
 def deploy(send_notifications):
     if not Docker.running():
