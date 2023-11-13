@@ -17,10 +17,10 @@ from image_builder.progress import Progress
 )
 def build(publish, send_notifications):
     codebase = Codebase(".")
-    notify = Notify(codebase, send_notifications)
+    notify = Notify(send_notifications)
     progress = Progress()
     progress.current_phase_running()
-    notify.post_build_progress(progress)
+    notify.post_build_progress(progress, codebase)
     pack = Pack(codebase, notify.reference)
 
     try:
@@ -64,15 +64,17 @@ def build(publish, send_notifications):
         pack.codebase.setup()
 
         pack.build(
-            publish, on_building(notify, progress), on_publishing(notify, progress)
+            publish,
+            on_building(notify, progress, codebase),
+            on_publishing(notify, progress, codebase),
         )
 
         progress.current_phase_success()
-        notify.post_build_progress(progress)
+        notify.post_build_progress(progress, codebase)
 
     except (Exception, KeyboardInterrupt) as e:
         progress.current_phase_failure()
-        notify.post_build_progress(progress)
+        notify.post_build_progress(progress, codebase)
         notify.post_job_comment(
             f"Build: {pack.codebase.revision.get_repository_name()}@{pack.codebase.revision.commit} cancelled",
             [f"Build was cancelled: {e.__class__.__name__}", str(e)],
@@ -83,21 +85,21 @@ def build(publish, send_notifications):
         codebase.teardown()
 
 
-def on_building(notify, progress):
+def on_building(notify, progress, codebase):
     def on_building_callback():
         progress.current_phase_success()
         progress.set_current_phase("build")
         progress.current_phase_running()
-        notify.post_build_progress(progress)
+        notify.post_build_progress(progress, codebase)
 
     return on_building_callback
 
 
-def on_publishing(notify, progress):
+def on_publishing(notify, progress, codebase):
     def on_publishing_callback():
         progress.current_phase_success()
         progress.set_current_phase("publish")
         progress.current_phase_running()
-        notify.post_build_progress(progress)
+        notify.post_build_progress(progress, codebase)
 
     return on_publishing_callback
