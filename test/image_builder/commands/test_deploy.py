@@ -25,6 +25,7 @@ COMMAND_PATTERNS = {
         )
     ),
     "git clone": StubbedProcess(returncode=0),
+    "copilot deploy": StubbedProcess(returncode=0),
 }
 
 
@@ -158,17 +159,18 @@ class TestDeployCommand(TestCase):
                     [
                         "Deploying web, worker to dev",
                         "*Image*: repository/application:commit-99999",
-                        "*Commit*: <organisation/repository@99999|https://github.com/organisation/repository/commit/99999>",
-                        "<Build Log|https://example.com/build_url>",
+                        "*Commit*: <https://github.com/organisation/repository/commit/99999|organisation/repository@99999>",
+                        "<https://example.com/build_url|Build Log>",
                     ],
                     True,
                 ),
                 call(
                     "Deployment of web, worker to dev complete",
                     [
+                        "Deployment of web, worker to dev complete",
                         "*Image*: repository/application:commit-99999",
-                        "*Commit*: <organisation/repository@99999|https://github.com/organisation/repository/commit/99999>",
-                        "<Build Log|https://example.com/build_url>",
+                        "*Commit*: <https://github.com/organisation/repository/commit/99999|organisation/repository@99999>",
+                        "<https://example.com/build_url|Build Log>",
                     ],
                     True,
                 ),
