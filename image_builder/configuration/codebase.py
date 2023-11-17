@@ -39,7 +39,7 @@ def load_codebase_configuration(path) -> CodebaseConfiguration:
         build = CodebaseConfiguration()
         build.builder.name = config["builder"]["name"]
         build.builder.version = config["builder"]["version"]
-        build.repository = config["repository"]
+        build.repository = config["repository"] if "repository" in config else None
 
         if "packs" in config:
             for pack_name in config["packs"]:
