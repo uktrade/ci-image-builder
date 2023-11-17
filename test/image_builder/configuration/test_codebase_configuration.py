@@ -26,6 +26,13 @@ class TestSupportedBuildConfiguration(unittest.TestCase):
         self.assertEqual(config.packs[0].name, "paketo-buildpacks/python")
         self.assertEqual(config.packs[1].name, "paketo-buildpacks/nodejs")
 
+    def test_loading_a_codebase_configuration_without_repository_set(self):
+        config = load_codebase_configuration(
+            self.get_codebase_path("missing-repository")
+        )
+
+        self.assertEqual(config.repository, None)
+
     def test_loading_an_invalid_codebase_configuration(self):
         with pytest.raises(CodebaseConfigurationLoadError):
             load_codebase_configuration(self.get_codebase_path("invalid"))

@@ -128,6 +128,6 @@ class Pack:
             _, _, _, region, account, _, _ = os.environ["CODEBUILD_BUILD_ARN"].split(
                 ":"
             )
-            return f"{account}.dkr.ecr.{region}.amazonaws.com/{self.codebase.build.repository}"
+            return f"{account}.dkr.ecr.{region}.amazonaws.com/{os.getenv('ECR_REPOSITORY', self.codebase.build.repository)}"
 
         return self.codebase.build.repository
