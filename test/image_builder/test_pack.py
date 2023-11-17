@@ -269,6 +269,36 @@ class TestCommand(TestCase):
             "CODEBUILD_BUILD_ARN"
         ] = "arn:aws:codebuild:region:000000000000:build/project:example-build-id"
 
+    def test_get_repository_url_from_config(
+        self,
+        subprocess_popen,
+        load_codebase_revision,
+        load_codebase_processes,
+        load_codebase_languages,
+    ):
+        codebase = Codebase(Path("."))
+        pack = Pack(codebase, "timestamp")
+
+        self.assertEqual(
+            pack.get_repository(), "000000000000.dkr.ecr.region.amazonaws.com/ecr/repos"
+        )
+
+    def test_get_repository_url_from_environment(
+        self,
+        subprocess_popen,
+        load_codebase_revision,
+        load_codebase_processes,
+        load_codebase_languages,
+    ):
+        codebase = Codebase(Path("."))
+        pack = Pack(codebase, "timestamp")
+        os.environ["ECR_REPOSITORY"] = "ecr/environment-repo"
+
+        self.assertEqual(
+            pack.get_repository(),
+            "000000000000.dkr.ecr.region.amazonaws.com/ecr/environment-repo",
+        )
+
     def test_get_command(
         self,
         subprocess_popen,
