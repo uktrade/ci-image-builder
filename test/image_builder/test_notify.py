@@ -171,10 +171,10 @@ class TestNotify(unittest.TestCase):
 
 def get_expected_message_blocks(setup="running", build="pending", publish="pending"):
     phase_messages = {
-        "pending": "pending :large_blue_circle:",
-        "running": "running :hourglass_flowing_sand:",
-        "success": "success :large_green_circle: - took 15 seconds",
-        "failure": "failure :red_circle: - took 15 seconds",
+        "pending": "Pending :large_blue_circle:",
+        "running": "Running :hourglass_flowing_sand:",
+        "success": "Success :large_green_circle: (15 s)",
+        "failure": "Failure :red_circle: (15 s)",
     }
 
     return [
@@ -189,22 +189,27 @@ def get_expected_message_blocks(setup="running", build="pending", publish="pendi
                     type="mrkdwn",
                     text=f"*Revision*: <https://github.com/org/repo/commit/commit-sha|commit-sha>",
                 ),
+                blocks.TextObject(
+                    type="mrkdwn",
+                    text=f"<https://region.console.aws.amazon.com/codesuite/codebuild/000000000000"
+                    f"/projects/project/build/project%3Aexample-build-id|Build Logs>",
+                ),
             ]
         ),
-        blocks.SectionBlock(
-            text=blocks.TextObject(
-                type="mrkdwn", text=f"*setup*: {phase_messages[setup]}"
-            )
+        blocks.ContextBlock(
+            elements=[
+                blocks.TextObject(
+                    type="mrkdwn",
+                    text=f"*Setup*: {phase_messages[setup]}",
+                ),
+                blocks.TextObject(
+                    type="mrkdwn",
+                    text=f"*Build*: {phase_messages[build]}",
+                ),
+                blocks.TextObject(
+                    type="mrkdwn",
+                    text=f"*Publish*: {phase_messages[publish]}",
+                ),
+            ]
         ),
-        blocks.SectionBlock(
-            text=blocks.TextObject(
-                type="mrkdwn", text=f"*build*: {phase_messages[build]}"
-            )
-        ),
-        blocks.SectionBlock(
-            text=blocks.TextObject(
-                type="mrkdwn", text=f"*publish*: {phase_messages[publish]}"
-            )
-        ),
-        ANY,
     ]

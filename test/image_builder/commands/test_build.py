@@ -1,3 +1,4 @@
+import os
 import unittest
 from pathlib import Path
 from test.doubles.codebase import load_codebase_languages_double
@@ -20,6 +21,8 @@ from image_builder.commands.build import build
 class TestBuildCommand(unittest.TestCase):
     @staticmethod
     def setup_mocks(pack, docker, codebase, notify, progress):
+        os.environ["ECR_REPOSITORY"] = "ecr/test-repository"
+
         docker.running.return_value = True
         codebase().revision = load_codebase_revision_double(Path("."))
         codebase().processes = load_codebase_processes_double(Path("."))
@@ -48,6 +51,7 @@ class TestBuildCommand(unittest.TestCase):
             "tag=v2.4.6",
             result.output,
         )
+        self.assertIn("Using ECR repository: ecr/test-repository", result.output)
         self.assertIn("Found processes: ['web']", result.output)
         self.assertIn("Found languages: python@3.11, nodejs@20.7", result.output)
         self.assertIn("Using builder: test-builder@0000000", result.output)

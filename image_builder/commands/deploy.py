@@ -51,17 +51,15 @@ def deploy(send_notifications):
 
         copilot_environment = os.getenv("COPILOT_ENVIRONMENT")
         copilot_services = os.getenv("COPILOT_SERVICES", "").split(" ")
-        ecr_repository = os.getenv("ECR_REPOSITORY")
         codebase_repository = os.getenv("CODEBASE_REPOSITORY")
         commit_hash = tag.replace("commit-", "")
 
         notify.post_job_comment(
             f'Deploying {", ".join(copilot_services)} to {copilot_environment}',
             [
-                f'Deploying {", ".join(copilot_services)} to {copilot_environment}',
-                f"*Image*: {ecr_repository}:{tag}",
-                f"*Commit*: <https://github.com/{codebase_repository}/commit/{commit_hash}|{codebase_repository}@{commit_hash}>",
-                f"<{notify.get_build_url()}|Build Log>",
+                f'Deploying `{", ".join(copilot_services)}` to `{copilot_environment}` | Commit: '
+                f"<https://github.com/{codebase_repository}/commit/{commit_hash}|{codebase_repository}@{commit_hash}> "
+                f"| <{notify.get_build_url()}|Build Log>",
             ],
             True,
         )
@@ -82,10 +80,9 @@ def deploy(send_notifications):
         notify.post_job_comment(
             f'Deployment of {", ".join(copilot_services)} to {copilot_environment} complete',
             [
-                f'Deployment of {", ".join(copilot_services)} to {copilot_environment} complete',
-                f"*Image*: {ecr_repository}:{tag}",
-                f"*Commit*: <https://github.com/{codebase_repository}/commit/{commit_hash}|{codebase_repository}@{commit_hash}>",
-                f"<{notify.get_build_url()}|Build Log>",
+                f'Deployment of `{", ".join(copilot_services)}` to `{copilot_environment}` complete | Commit: '
+                f"<https://github.com/{codebase_repository}/commit/{commit_hash}|{codebase_repository}@{commit_hash}> "
+                f"| <{notify.get_build_url()}|Build Log>",
             ],
             True,
         )
