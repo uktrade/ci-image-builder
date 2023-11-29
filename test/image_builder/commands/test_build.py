@@ -1,3 +1,4 @@
+import os
 import unittest
 from pathlib import Path
 from test.doubles.codebase import load_codebase_languages_double
@@ -20,11 +21,12 @@ from image_builder.commands.build import build
 class TestBuildCommand(unittest.TestCase):
     @staticmethod
     def setup_mocks(pack, docker, codebase, notify, progress):
+        os.environ["ECR_REPOSITORY"] = "ecr/test-repository"
+
         docker.running.return_value = True
         codebase().revision = load_codebase_revision_double(Path("."))
         codebase().processes = load_codebase_processes_double(Path("."))
         codebase().languages = load_codebase_languages_double(Path("."))
-        codebase().build.repository = "ecr/test-repository"
         codebase().build.builder.name = "test-builder"
         codebase().build.builder.version = "0000000"
         pack().get_buildpacks.return_value = [

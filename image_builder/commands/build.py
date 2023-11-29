@@ -1,3 +1,5 @@
+import os
+
 import click
 
 from image_builder.codebase.codebase import Codebase
@@ -22,6 +24,7 @@ def build(publish, send_notifications):
     progress.current_phase_running()
     notify.post_build_progress(progress, codebase)
     pack = Pack(codebase, notify.reference)
+    ecr_repository = os.getenv("ECR_REPOSITORY", codebase.build.repository)
 
     try:
         if not Docker.running():
@@ -38,7 +41,7 @@ def build(publish, send_notifications):
             f"tag={codebase.revision.tag}"
         )
 
-        click.echo(f"Using ECR repository: {codebase.build.repository}")
+        click.echo(f"Using ECR repository: {ecr_repository}")
         click.echo(f"Found processes: {[p.name for p in codebase.processes]}")
         click.echo(f"Found languages: {codebase.languages}")
         click.echo(
@@ -55,7 +58,7 @@ def build(publish, send_notifications):
                 f"*Commit*: {pack.codebase.revision.commit} "
                 f"*Branch*: {pack.codebase.revision.branch} "
                 f"*Tag*: {pack.codebase.revision.tag}",
-                f"*ECR Image*: {pack.codebase.build.repository}:commit-{pack.codebase.revision.commit}",
+                f"*ECR Image*: {ecr_repository}:commit-{pack.codebase.revision.commit}",
                 f"*Processes*: {processes}",
                 f"*Languages*: {pack.codebase.languages}",
                 f"*Builder*: {pack.codebase.build.builder.name}@{pack.codebase.build.builder.version}",
