@@ -171,10 +171,10 @@ class TestNotify(unittest.TestCase):
 
 def get_expected_message_blocks(setup="running", build="pending", publish="pending"):
     phase_messages = {
-        "pending": "pending :large_blue_circle:",
-        "running": "running :hourglass_flowing_sand:",
-        "success": "success :large_green_circle: (15 s)",
-        "failure": "failure :red_circle: (15 s)",
+        "pending": "Pending :large_blue_circle:",
+        "running": "Running :hourglass_flowing_sand:",
+        "success": "Success :large_green_circle: (15 s)",
+        "failure": "Failure :red_circle: (15 s)",
     }
 
     return [
@@ -191,7 +191,7 @@ def get_expected_message_blocks(setup="running", build="pending", publish="pendi
                 ),
                 blocks.TextObject(
                     type="mrkdwn",
-                    text=f"*Build Logs*: <https://region.console.aws.amazon.com/codesuite/codebuild/000000000000"
+                    text=f"<https://region.console.aws.amazon.com/codesuite/codebuild/000000000000"
                     f"/projects/project/build/project%3Aexample-build-id|Build Logs>",
                 ),
             ]

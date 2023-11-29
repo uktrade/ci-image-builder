@@ -46,7 +46,7 @@ class Notify:
                 f"*Revision*: <{codebase.revision.get_repository_url()}/commit/"
                 f"{codebase.revision.commit}|{codebase.revision.commit}>"
             )
-            message_build_logs = f"*Build Logs*: <{self.get_build_url()}|Build Logs>"
+            message_build_logs = f"<{self.get_build_url()}|Build Logs>"
 
             message_blocks = [
                 blocks.SectionBlock(

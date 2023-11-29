@@ -7,7 +7,7 @@ class Status:
     emoji: str
 
     def __str__(self):
-        return f"{self.name} {self.emoji}"
+        return f"{self.name.capitalize()} {self.emoji}"
 
 
 class PendingStatus(Status):
