@@ -61,9 +61,15 @@ class Notify:
                 ),
                 blocks.ContextBlock(
                     elements=[
-                        blocks.TextObject(type="mrkdwn", text=f'{progress.get_phase("setup")}'),
-                        blocks.TextObject(type="mrkdwn", text=f'{progress.get_phase("build")}'),
-                        blocks.TextObject(type="mrkdwn", text=f'{progress.get_phase("publish")}'),
+                        blocks.TextObject(
+                            type="mrkdwn", text=f'{progress.get_phase("setup")}'
+                        ),
+                        blocks.TextObject(
+                            type="mrkdwn", text=f'{progress.get_phase("build")}'
+                        ),
+                        blocks.TextObject(
+                            type="mrkdwn", text=f'{progress.get_phase("publish")}'
+                        ),
                     ]
                 ),
             ]

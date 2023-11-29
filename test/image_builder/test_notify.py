@@ -192,7 +192,7 @@ def get_expected_message_blocks(setup="running", build="pending", publish="pendi
                 blocks.TextObject(
                     type="mrkdwn",
                     text=f"*Build Logs*: <https://region.console.aws.amazon.com/codesuite/codebuild/000000000000"
-                         f"/projects/project/build/project%3Aexample-build-id|Build Logs>",
+                    f"/projects/project/build/project%3Aexample-build-id|Build Logs>",
                 ),
             ]
         ),
