@@ -46,7 +46,7 @@ class Notify:
                 f"*Revision*: <{codebase.revision.get_repository_url()}/commit/"
                 f"{codebase.revision.commit}|{codebase.revision.commit}>"
             )
-            message_build_logs = f"<{self.get_build_url()}|Build Logs>"
+            message_build_logs = f"*Build Logs*: <{self.get_build_url()}|Build Logs>"
 
             message_blocks = [
                 blocks.SectionBlock(
@@ -56,29 +56,18 @@ class Notify:
                     elements=[
                         blocks.TextObject(type="mrkdwn", text=message_repository),
                         blocks.TextObject(type="mrkdwn", text=message_revision),
-                    ]
-                ),
-                blocks.SectionBlock(
-                    text=blocks.TextObject(
-                        type="mrkdwn", text=f'{progress.get_phase("setup")}'
-                    )
-                ),
-                blocks.SectionBlock(
-                    text=blocks.TextObject(
-                        type="mrkdwn", text=f'{progress.get_phase("build")}'
-                    )
-                ),
-                blocks.SectionBlock(
-                    text=blocks.TextObject(
-                        type="mrkdwn", text=f'{progress.get_phase("publish")}'
-                    )
-                ),
-                blocks.ContextBlock(
-                    elements=[
                         blocks.TextObject(type="mrkdwn", text=message_build_logs),
                     ]
                 ),
+                blocks.ContextBlock(
+                    elements=[
+                        blocks.TextObject(type="mrkdwn", text=f'{progress.get_phase("setup")}'),
+                        blocks.TextObject(type="mrkdwn", text=f'{progress.get_phase("build")}'),
+                        blocks.TextObject(type="mrkdwn", text=f'{progress.get_phase("publish")}'),
+                    ]
+                ),
             ]
+
             if self.reference is None:
                 response = self.slack.chat_postMessage(
                     channel=os.environ["SLACK_CHANNEL_ID"],
