@@ -24,6 +24,7 @@ class TestBuildCommand(unittest.TestCase):
         codebase().revision = load_codebase_revision_double(Path("."))
         codebase().processes = load_codebase_processes_double(Path("."))
         codebase().languages = load_codebase_languages_double(Path("."))
+        codebase().build.repository = "ecr/test-repository"
         codebase().build.builder.name = "test-builder"
         codebase().build.builder.version = "0000000"
         pack().get_buildpacks.return_value = [
@@ -48,6 +49,7 @@ class TestBuildCommand(unittest.TestCase):
             "tag=v2.4.6",
             result.output,
         )
+        self.assertIn("Using ECR repository: ecr/test-repository", result.output)
         self.assertIn("Found processes: ['web']", result.output)
         self.assertIn("Found languages: python@3.11, nodejs@20.7", result.output)
         self.assertIn("Using builder: test-builder@0000000", result.output)
