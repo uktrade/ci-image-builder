@@ -14,20 +14,22 @@ from image_builder.codebase.revision import load_codebase_revision
 def git_revision_command(
     short_commit="shorthash",
     long_commit="longhash",
-    branch="main",
+    branch: str | None = "main",
     repository="git@github.com:org/repo.git",
-    tag="2.0.0",
+    tag: str | None = "2.0.0",
 ):
     def get_git_revision_data(command, shell=None, stdout=None):
         if command == "git rev-parse --short HEAD":
             return StubbedProcess(stdout=f"{short_commit}\n".encode())
-        if command == "git branch --show-current" and branch is not None:
-            return StubbedProcess(stdout=f"{branch}\n".encode())
         if command == "git rev-parse HEAD":
             return StubbedProcess(stdout=f"{long_commit}\n".encode())
         if command == "git show-ref --tags" and tag is not None:
             return StubbedProcess(
                 stdout=f"longhash refs/tags/{tag}\notherhash refs/tags/1.0.0".encode()
+            )
+        if command == "git show-ref --heads" and branch is not None:
+            return StubbedProcess(
+                stdout=f"longhash refs/heads/{branch}\notherhash refs/heads/other".encode()
             )
         if command == "git ls-remote --get-url origin":
             return StubbedProcess(stdout=f"{repository}\n".encode())
@@ -72,7 +74,7 @@ class TestCodebaseRevision(TestCase):
         self.assertEqual(revision.get_repository_name(), "org/repo")
         self.assertEqual(revision.get_repository_url(), "https://github.com/org/repo")
 
-    @patch("subprocess.run", wraps=git_revision_command(branch="", tag=None))
+    @patch("subprocess.run", wraps=git_revision_command(branch=None, tag=None))
     def test_loading_revision_information_codebuild_branch(self, run):
         self.fs.create_dir(".git")
         os.environ["CODEBUILD_WEBHOOK_TRIGGER"] = "branch/feat/tests"
@@ -81,7 +83,7 @@ class TestCodebaseRevision(TestCase):
         self.assertEqual(revision.tag, None)
         del os.environ["CODEBUILD_WEBHOOK_TRIGGER"]
 
-    @patch("subprocess.run", wraps=git_revision_command(branch="", tag=None))
+    @patch("subprocess.run", wraps=git_revision_command(branch=None, tag=None))
     def test_loading_revision_information_codebuild_tag(self, run):
         self.fs.create_dir(".git")
         os.environ["CODEBUILD_WEBHOOK_TRIGGER"] = "tag/1.0.0"
