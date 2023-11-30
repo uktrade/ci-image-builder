@@ -50,14 +50,24 @@ def load_codebase_revision(path: Path):
     else:
         commit = None
 
-    branch = subprocess.run(
-        "git branch --show-current", shell=True, stdout=subprocess.PIPE
+    branch = None
+
+    long_commit = subprocess.run(
+        "git rev-parse HEAD", shell=True, stdout=subprocess.PIPE
     )
-    if branch.returncode == 0:
-        output = branch.stdout.strip().decode()
-        branch = output if output else None
-    else:
-        branch = None
+    if long_commit.returncode == 0:
+        long_commit = long_commit.stdout.strip().decode()
+        branches = subprocess.run(
+            "git show-ref --heads", shell=True, stdout=subprocess.PIPE
+        )
+        if branches.returncode == 0:
+            branches = branches.stdout.strip().decode().split("\n")
+
+            for possible_branch in branches:
+                if possible_branch.startswith(long_commit):
+                    branch = possible_branch.split(" ")[1]
+                    branch = branch.replace("refs/heads/", "")
+                    break
 
     if (
         branch is None
@@ -67,6 +77,7 @@ def load_codebase_revision(path: Path):
         branch = os.environ["CODEBUILD_WEBHOOK_TRIGGER"].replace("branch/", "")
 
     tag = None
+
     long_commit = subprocess.run(
         "git rev-parse HEAD", shell=True, stdout=subprocess.PIPE
     )
