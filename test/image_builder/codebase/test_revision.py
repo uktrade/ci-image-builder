@@ -29,7 +29,7 @@ def git_revision_command(
             )
         if command == "git show-ref --heads" and branch is not None:
             return StubbedProcess(
-                stdout=f"longhash refs/heads/{branch}\notherhash refs/tags/1.0.0".encode()
+                stdout=f"longhash refs/heads/{branch}\notherhash refs/heads/other".encode()
             )
         if command == "git ls-remote --get-url origin":
             return StubbedProcess(stdout=f"{repository}\n".encode())
