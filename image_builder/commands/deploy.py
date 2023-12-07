@@ -58,7 +58,7 @@ def deploy(send_notifications):
             f'Deploying {", ".join(copilot_services)} to {copilot_environment}',
             [
                 f'Deploying `{", ".join(copilot_services)}` to `{copilot_environment}` | Commit: '
-                f"<https://github.com/{codebase_repository}/commit/{commit_hash}|{codebase_repository}@{commit_hash}> "
+                f"<https://github.com/{codebase_repository}/commit/{commit_hash}|{commit_hash}> "
                 f"| <{notify.get_build_url()}|Build Log>",
             ],
         )
@@ -80,7 +80,7 @@ def deploy(send_notifications):
             f'Deployment of {", ".join(copilot_services)} to {copilot_environment} complete',
             [
                 f'Deployment of `{", ".join(copilot_services)}` to `{copilot_environment}` complete | Commit: '
-                f"<https://github.com/{codebase_repository}/commit/{commit_hash}|{codebase_repository}@{commit_hash}> "
+                f"<https://github.com/{codebase_repository}/commit/{commit_hash}|{commit_hash}> "
                 f"| <{notify.get_build_url()}|Build Log>",
             ],
             True,
