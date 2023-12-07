@@ -66,8 +66,8 @@ def deploy(send_notifications):
         deploy_command = (
             f"copilot deploy --env {copilot_environment} --deploy-env=false --force"
         )
-        for service in copilot_services:
-            deploy_command += f" --name {service}/1"
+        for i, service in enumerate(copilot_services):
+            deploy_command += f" --name {service}/{i + 1}"
 
         result = subprocess.run(
             deploy_command, stdout=subprocess.PIPE, shell=True, cwd=Path("./deploy")

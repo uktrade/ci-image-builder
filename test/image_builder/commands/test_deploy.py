@@ -143,7 +143,7 @@ class TestDeployCommand(TestCase):
                     shell=True,
                 ),
                 call(
-                    "copilot deploy --env dev --deploy-env=false --force --name web/1 --name worker/1",
+                    "copilot deploy --env dev --deploy-env=false --force --name web/1 --name worker/2",
                     stdout=subprocess.PIPE,
                     shell=True,
                     cwd=Path("deploy"),
