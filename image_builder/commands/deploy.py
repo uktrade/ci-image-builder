@@ -61,7 +61,6 @@ def deploy(send_notifications):
                 f"<https://github.com/{codebase_repository}/commit/{commit_hash}|{codebase_repository}@{commit_hash}> "
                 f"| <{notify.get_build_url()}|Build Log>",
             ],
-            True,
         )
 
         deploy_command = (
