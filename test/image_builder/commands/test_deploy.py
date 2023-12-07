@@ -155,19 +155,19 @@ class TestDeployCommand(TestCase):
         notify().post_job_comment.assert_has_calls(
             [
                 call(
-                    "Deploying web, worker to dev",
+                    "organisation/repository@99999 deploying to dev",
                     [
-                        "Deploying `web, worker` to `dev` | Commit: "
-                        "<https://github.com/organisation/repository/commit/99999|99999> | "
-                        "<https://example.com/build_url|Build Log>",
+                        "<https://github.com/organisation/repository/commit/99999|organisation/"
+                        "repository@99999> deploying to `dev` | <https://example.com/build_url"
+                        "|Build Log>",
                     ],
                 ),
                 call(
-                    "Deployment of web, worker to dev complete",
+                    "organisation/repository@99999 deployed to dev",
                     [
-                        "Deployment of `web, worker` to `dev` complete | Commit: "
-                        "<https://github.com/organisation/repository/commit/99999|99999> | "
-                        "<https://example.com/build_url|Build Log>",
+                        "<https://github.com/organisation/repository/commit/99999|organisation/"
+                        "repository@99999> deployed to `dev` | <https://example.com/build_url"
+                        "|Build Log>",
                     ],
                     True,
                 ),

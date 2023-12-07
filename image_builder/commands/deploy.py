@@ -55,10 +55,10 @@ def deploy(send_notifications):
         commit_hash = tag.replace("commit-", "")
 
         notify.post_job_comment(
-            f'Deploying {", ".join(copilot_services)} to {copilot_environment}',
+            f"{codebase_repository}@{commit_hash} deploying to {copilot_environment}",
             [
-                f'Deploying `{", ".join(copilot_services)}` to `{copilot_environment}` | Commit: '
-                f"<https://github.com/{codebase_repository}/commit/{commit_hash}|{commit_hash}> "
+                f"<https://github.com/{codebase_repository}/commit/{commit_hash}|"
+                f"{codebase_repository}@{commit_hash}> deploying to `{copilot_environment}` "
                 f"| <{notify.get_build_url()}|Build Log>",
             ],
         )
@@ -77,10 +77,10 @@ def deploy(send_notifications):
             raise DeployError("Failed to deploy")
 
         notify.post_job_comment(
-            f'Deployment of {", ".join(copilot_services)} to {copilot_environment} complete',
+            f"{codebase_repository}@{commit_hash} deployed to {copilot_environment}",
             [
-                f'Deployment of `{", ".join(copilot_services)}` to `{copilot_environment}` complete | Commit: '
-                f"<https://github.com/{codebase_repository}/commit/{commit_hash}|{commit_hash}> "
+                f"<https://github.com/{codebase_repository}/commit/{commit_hash}|"
+                f"{codebase_repository}@{commit_hash}> deployed to `{copilot_environment}` "
                 f"| <{notify.get_build_url()}|Build Log>",
             ],
             True,
