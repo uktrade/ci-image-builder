@@ -71,6 +71,7 @@ class TestPackBuildpacks(TestCase):
                 "paketo-buildpacks/nodejs",
                 "fagiani/run",
                 "gcr.io/paketo-buildpacks/image-labels",
+                "gcr.io/paketo-buildpacks/environment-variables",
             ],
         )
 
@@ -103,6 +104,7 @@ class TestPackBuildpacks(TestCase):
                 "paketo-buildpacks/nodejs",
                 "fagiani/run",
                 "gcr.io/paketo-buildpacks/image-labels",
+                "gcr.io/paketo-buildpacks/environment-variables",
             ],
         )
 
@@ -331,7 +333,8 @@ class TestCommand(TestCase):
             "--buildpack paketo-buildpacks/python "
             "--buildpack paketo-buildpacks/nodejs "
             "--buildpack fagiani/run "
-            "--buildpack gcr.io/paketo-buildpacks/image-labels ",
+            "--buildpack gcr.io/paketo-buildpacks/image-labels "
+            "--buildpack gcr.io/paketo-buildpacks/environment-variables ",
         )
 
     def test_get_command_with_publish(
@@ -367,6 +370,7 @@ class TestCommand(TestCase):
             "--buildpack paketo-buildpacks/nodejs "
             "--buildpack fagiani/run "
             "--buildpack gcr.io/paketo-buildpacks/image-labels "
+            "--buildpack gcr.io/paketo-buildpacks/environment-variables "
             "--publish --cache-image 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:cache",
         )
 
@@ -402,7 +406,8 @@ class TestCommand(TestCase):
             "--buildpack paketo-buildpacks/python "
             "--buildpack paketo-buildpacks/nodejs "
             "--buildpack fagiani/run "
-            "--buildpack gcr.io/paketo-buildpacks/image-labels ",
+            "--buildpack gcr.io/paketo-buildpacks/image-labels "
+            "--buildpack gcr.io/paketo-buildpacks/environment-variables ",
             shell=True,
             stdout=subprocess.PIPE,
         )

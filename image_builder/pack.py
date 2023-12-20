@@ -69,6 +69,7 @@ class Pack:
 
         buildpacks.append("fagiani/run")
         buildpacks.append("gcr.io/paketo-buildpacks/image-labels")
+        buildpacks.append("gcr.io/paketo-buildpacks/environment-variables")
 
         return buildpacks
 
