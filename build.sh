@@ -20,14 +20,14 @@ BUILDPACK_JSON="buildpack.json"
 BUILDPACK_POST="fagiani/run@0.1.1"
 BUILDPACKS=""
 
-GIT_COMMIT="$(git rev-parse --short HEAD)"
-GIT_TAG="$(git show-ref --tags | grep "$GIT_COMMIT" | awk '{print substr($2, 11)}')"
+BPE_GIT_COMMIT="$(git rev-parse --short HEAD)"
+GIT_TAG="$(git show-ref --tags | grep "$BPE_GIT_COMMIT" | awk '{print substr($2, 11)}')"
 GIT_COMMIT_MESSAGE=$(git log -1 --pretty=format:%B)
 
 if [ -z "$CODEBUILD_WEBHOOK_TRIGGER" ]; then
-  GIT_BRANCH=$(git branch --show-current)
+  BPE_GIT_BRANCH=$(git branch --show-current)
 else
-  GIT_BRANCH=$(echo "$CODEBUILD_WEBHOOK_TRIGGER" | awk -F "/" '{print $2}')
+  BPE_GIT_BRANCH=$(echo "$CODEBUILD_WEBHOOK_TRIGGER" | awk -F "/" '{print $2}')
 fi
 
 if [ -f "codebuild/process.yml" ];then
@@ -131,14 +131,14 @@ do
                   --env BUILDPACK_POST=$BUILDPACK_POST \
                   --env COPILOT_TOOLS_VERSION=$COPILOT_TOOLS_VERSION \
                   --env GIT_TAG=$GIT_TAG \
-                  --env GIT_COMMIT=$GIT_COMMIT \
-                  --env GIT_BRANCH=$GIT_BRANCH \
+                  --env BPE_GIT_COMMIT=$BPE_GIT_COMMIT \
+                  --env BPE_GIT_BRANCH=$BPE_GIT_BRANCH \
                   $PYTHON_VERSION"
 
     [ -n "$GIT_TAG" ] && PACK_COMMAND="$PACK_COMMAND --tag $IMAGE:$GIT_TAG"
-    [ -n "$GIT_BRANCH" ] && PACK_COMMAND="$PACK_COMMAND --tag $IMAGE:branch-$GIT_BRANCH"
+    [ -n "$BPE_GIT_BRANCH" ] && PACK_COMMAND="$PACK_COMMAND --tag $IMAGE:branch-$BPE_GIT_BRANCH"
 
-    PACK_COMMAND="$PACK_COMMAND --tag $IMAGE:commit-$GIT_COMMIT --publish"
+    PACK_COMMAND="$PACK_COMMAND --tag $IMAGE:commit-$BPE_GIT_COMMIT --publish"
 
     $PACK_COMMAND
 
@@ -154,7 +154,7 @@ do
   if [ "$GIT_TAG" != "" ]; then
     TAG_LINE="$NEW_LINE*Tag:* $GIT_TAG"
   fi
-  SLACK_DATA="$(jq -n --arg dt "*Image:* \`$IMAGE_NAME:$GIT_COMMIT\`$NEW_LINE*Commit:* $GIT_COMMIT_MESSAGE$TAG_LINE$NEW_LINE*Branch:* $GIT_BRANCH$NEW_LINE*Builder Version:* $BUILDER_VERSION$NEW_LINE*Lifecycle Version:* $LIFECYCLE_VERSION$NEW_LINE$NEW_LINE<$BUILD_RUN_URL|:rocket: View Build Run>" '{"text":$dt}')"
+  SLACK_DATA="$(jq -n --arg dt "*Image:* \`$IMAGE_NAME:$BPE_GIT_COMMIT\`$NEW_LINE*Commit:* $GIT_COMMIT_MESSAGE$TAG_LINE$NEW_LINE*Branch:* $BPE_GIT_BRANCH$NEW_LINE*Builder Version:* $BUILDER_VERSION$NEW_LINE*Lifecycle Version:* $LIFECYCLE_VERSION$NEW_LINE$NEW_LINE<$BUILD_RUN_URL|:rocket: View Build Run>" '{"text":$dt}')"
   SLACK_WEBHOOK="https://hooks.slack.com/services/$SLACK_WORKSPACE_ID/$SLACK_CHANNEL_ID/$SLACK_TOKEN"
   curl -X POST -H 'Content-type: application/json' --data "$SLACK_DATA" "$SLACK_WEBHOOK"
 done

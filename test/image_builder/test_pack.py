@@ -71,6 +71,7 @@ class TestPackBuildpacks(TestCase):
                 "paketo-buildpacks/nodejs",
                 "fagiani/run",
                 "gcr.io/paketo-buildpacks/image-labels",
+                "gcr.io/paketo-buildpacks/environment-variables",
             ],
         )
 
@@ -103,6 +104,7 @@ class TestPackBuildpacks(TestCase):
                 "paketo-buildpacks/nodejs",
                 "fagiani/run",
                 "gcr.io/paketo-buildpacks/image-labels",
+                "gcr.io/paketo-buildpacks/environment-variables",
             ],
         )
 
@@ -158,10 +160,10 @@ class TestPackEnvironment(TestCase):
                 "BP_CPYTHON_VERSION=3.11",
                 "BP_NODE_VERSION=20.7",
                 "GIT_TAG=v2.4.6",
-                "GIT_COMMIT=shorthash",
+                "BPE_GIT_COMMIT=shorthash",
                 "BP_OCI_REVISION=shorthash",
                 "BP_OCI_VERSION=shorthash",
-                "GIT_BRANCH=feat/tests",
+                "BPE_GIT_BRANCH=feat/tests",
                 "BP_OCI_REF_NAME=ecr/repos",
                 "BP_OCI_SOURCE=https://github.com/org/repo",
                 'BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp"',
@@ -319,10 +321,10 @@ class TestCommand(TestCase):
             "--env BP_CPYTHON_VERSION=3.11 "
             "--env BP_NODE_VERSION=20.7 "
             "--env GIT_TAG=v2.4.6 "
-            "--env GIT_COMMIT=shorthash "
+            "--env BPE_GIT_COMMIT=shorthash "
             "--env BP_OCI_REVISION=shorthash "
             "--env BP_OCI_VERSION=shorthash "
-            "--env GIT_BRANCH=feat/tests "
+            "--env BPE_GIT_BRANCH=feat/tests "
             "--env BP_OCI_REF_NAME=ecr/repos "
             "--env BP_OCI_SOURCE=https://github.com/org/repo "
             '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
@@ -331,7 +333,8 @@ class TestCommand(TestCase):
             "--buildpack paketo-buildpacks/python "
             "--buildpack paketo-buildpacks/nodejs "
             "--buildpack fagiani/run "
-            "--buildpack gcr.io/paketo-buildpacks/image-labels ",
+            "--buildpack gcr.io/paketo-buildpacks/image-labels "
+            "--buildpack gcr.io/paketo-buildpacks/environment-variables ",
         )
 
     def test_get_command_with_publish(
@@ -354,10 +357,10 @@ class TestCommand(TestCase):
             "--env BP_CPYTHON_VERSION=3.11 "
             "--env BP_NODE_VERSION=20.7 "
             "--env GIT_TAG=v2.4.6 "
-            "--env GIT_COMMIT=shorthash "
+            "--env BPE_GIT_COMMIT=shorthash "
             "--env BP_OCI_REVISION=shorthash "
             "--env BP_OCI_VERSION=shorthash "
-            "--env GIT_BRANCH=feat/tests "
+            "--env BPE_GIT_BRANCH=feat/tests "
             "--env BP_OCI_REF_NAME=ecr/repos "
             "--env BP_OCI_SOURCE=https://github.com/org/repo "
             '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
@@ -367,6 +370,7 @@ class TestCommand(TestCase):
             "--buildpack paketo-buildpacks/nodejs "
             "--buildpack fagiani/run "
             "--buildpack gcr.io/paketo-buildpacks/image-labels "
+            "--buildpack gcr.io/paketo-buildpacks/environment-variables "
             "--publish --cache-image 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:cache",
         )
 
@@ -390,10 +394,10 @@ class TestCommand(TestCase):
             "--env BP_CPYTHON_VERSION=3.11 "
             "--env BP_NODE_VERSION=20.7 "
             "--env GIT_TAG=v2.4.6 "
-            "--env GIT_COMMIT=shorthash "
+            "--env BPE_GIT_COMMIT=shorthash "
             "--env BP_OCI_REVISION=shorthash "
             "--env BP_OCI_VERSION=shorthash "
-            "--env GIT_BRANCH=feat/tests "
+            "--env BPE_GIT_BRANCH=feat/tests "
             "--env BP_OCI_REF_NAME=ecr/repos "
             "--env BP_OCI_SOURCE=https://github.com/org/repo "
             '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
@@ -402,7 +406,8 @@ class TestCommand(TestCase):
             "--buildpack paketo-buildpacks/python "
             "--buildpack paketo-buildpacks/nodejs "
             "--buildpack fagiani/run "
-            "--buildpack gcr.io/paketo-buildpacks/image-labels ",
+            "--buildpack gcr.io/paketo-buildpacks/image-labels "
+            "--buildpack gcr.io/paketo-buildpacks/environment-variables ",
             shell=True,
             stdout=subprocess.PIPE,
         )

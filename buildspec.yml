@@ -19,14 +19,14 @@ phases:
     - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
     - IMAGE_TAG=${COMMIT_HASH:=latest}
     - REPOSITORY_URI=public.ecr.aws/uktrade/ci-image-builder
-    - if [ -z $CODEBUILD_WEBHOOK_TRIGGER ]; then GIT_BRANCH=$(git branch --show-current); else GIT_BRANCH=$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}'); fi
+    - if [ -z $CODEBUILD_WEBHOOK_TRIGGER ]; then BPE_GIT_BRANCH=$(git branch --show-current); else BPE_GIT_BRANCH=$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}'); fi
   build:
     commands:
     - echo Build started on `date`
     - echo Building the Docker image...
     - docker build --build-arg PACK_VERSION=${PACK_VERSION} -t $REPOSITORY_URI .
     - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
-    - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$GIT_BRANCH
+    - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$BPE_GIT_BRANCH
     - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$PACK_VERSION
 
   post_build:

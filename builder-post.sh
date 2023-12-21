@@ -14,6 +14,6 @@ echo "Application version info --------------------------------------" >> build_
 echo -n "GIT tag: " >> build_version.txt
 echo $GIT_TAG >> build_version.txt
 echo -n "GIT commit: " >> build_version.txt
-echo $GIT_COMMIT >> build_version.txt
+echo $BPE_GIT_COMMIT >> build_version.txt
 echo -n "GIT branch: " >> build_version.txt
-echo $GIT_BRANCH >> build_version.txt
+echo $BPE_GIT_BRANCH >> build_version.txt
