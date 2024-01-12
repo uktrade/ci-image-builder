@@ -88,10 +88,10 @@ An example use of these scripts could be to scan an image for image vulnerabilit
 # Exit early if something goes wrong
 set -e
 
-BPE_GIT_COMMIT=$(git rev-parse --short HEAD)
-aws ecr start-image-scan --repository-name demodjano/application --image-id "imageTag=commit-$BPE_GIT_COMMIT" --region eu-west-2
+GIT_COMMIT=$(git rev-parse --short HEAD)
+aws ecr start-image-scan --repository-name demodjano/application --image-id "imageTag=commit-$GIT_COMMIT" --region eu-west-2
 
-aws ecr describe-image-scan-findings --repository-name demodjano/application --image-id "imageTag=commit-$BPE_GIT_COMMIT" --region eu-west-2
+aws ecr describe-image-scan-findings --repository-name demodjano/application --image-id "imageTag=commit-$GIT_COMMIT" --region eu-west-2
 ```
 
 ## Building an Image
