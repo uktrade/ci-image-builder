@@ -85,7 +85,7 @@ class Pack:
             environment.append(f"BP_NODE_VERSION={node_version}")
 
         if self.codebase.revision.tag:
-            environment.append(f"GIT_TAG={self.codebase.revision.tag}")
+            environment.append(f"BPE_GIT_TAG={self.codebase.revision.tag}")
 
         if self.codebase.revision.commit:
             environment.append(f"BPE_GIT_COMMIT={self.codebase.revision.commit}")
