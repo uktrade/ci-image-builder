@@ -159,7 +159,7 @@ class TestPackEnvironment(TestCase):
             [
                 "BP_CPYTHON_VERSION=3.11",
                 "BP_NODE_VERSION=20.7",
-                "GIT_TAG=v2.4.6",
+                "BPE_GIT_TAG=v2.4.6",
                 "BPE_GIT_COMMIT=shorthash",
                 "BP_OCI_REVISION=shorthash",
                 "BP_OCI_VERSION=shorthash",
@@ -320,7 +320,7 @@ class TestCommand(TestCase):
             "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:branch-feat-tests "
             "--env BP_CPYTHON_VERSION=3.11 "
             "--env BP_NODE_VERSION=20.7 "
-            "--env GIT_TAG=v2.4.6 "
+            "--env BPE_GIT_TAG=v2.4.6 "
             "--env BPE_GIT_COMMIT=shorthash "
             "--env BP_OCI_REVISION=shorthash "
             "--env BP_OCI_VERSION=shorthash "
@@ -356,7 +356,7 @@ class TestCommand(TestCase):
             "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:branch-feat-tests "
             "--env BP_CPYTHON_VERSION=3.11 "
             "--env BP_NODE_VERSION=20.7 "
-            "--env GIT_TAG=v2.4.6 "
+            "--env BPE_GIT_TAG=v2.4.6 "
             "--env BPE_GIT_COMMIT=shorthash "
             "--env BP_OCI_REVISION=shorthash "
             "--env BP_OCI_VERSION=shorthash "
@@ -393,7 +393,7 @@ class TestCommand(TestCase):
             "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:branch-feat-tests "
             "--env BP_CPYTHON_VERSION=3.11 "
             "--env BP_NODE_VERSION=20.7 "
-            "--env GIT_TAG=v2.4.6 "
+            "--env BPE_GIT_TAG=v2.4.6 "
             "--env BPE_GIT_COMMIT=shorthash "
             "--env BP_OCI_REVISION=shorthash "
             "--env BP_OCI_VERSION=shorthash "
