@@ -110,3 +110,23 @@ Images are built by CodeBuild when a push to a branch or tag of your repository 
 > Setup for this is not developed yet and will be part of the `dbt-copilot-tools` package.
 
 <!-- TODO: build out configuration command in dbt-copilot-tools to configure a codebase to use the new builder -->
+
+## Using `ci-image-builder` to build an image locally
+
+Assumptions:
+
+- This repository and your codebase repository have the same parent directory
+- You are using virtual Python environments
+- Commands will be run from the application codebase directory
+
+Make sure your application's Python environment has the dependencies for `ci-image-builder`:
+
+```shell
+pip install -r ../ci-image-builder/requirements.txt
+```
+
+Build the image:
+
+```shell
+../ci-image-builder/cli build
+```
