@@ -94,6 +94,14 @@ aws ecr start-image-scan --repository-name demodjano/application --image-id "ima
 aws ecr describe-image-scan-findings --repository-name demodjano/application --image-id "imageTag=commit-$GIT_COMMIT" --region eu-west-2
 ```
 
+### How the Python version is specified
+
+The version of Python used to run your code in the built image will come from the following in this order of preference:
+
+- `pyproject.toml`
+- `runtime.txt`
+- The latest release
+
 ## Building an Image
 
 Images are built by CodeBuild when a push to a branch or tag of your repository matches a given pattern.
