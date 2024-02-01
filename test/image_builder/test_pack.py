@@ -285,6 +285,34 @@ class TestCommand(TestCase):
             pack.get_repository(), "000000000000.dkr.ecr.region.amazonaws.com/ecr/repos"
         )
 
+    def test_get_public_repository_url_from_config(
+        self,
+        subprocess_popen,
+        load_codebase_revision,
+        load_codebase_processes,
+        load_codebase_languages,
+    ):
+        # Replace the original repository in the config
+        # with a public one
+        self.fs.remove(".copilot/config.yml")
+        self.fs.create_file(
+            ".copilot/config.yml",
+            contents=dump(
+                {
+                    "repository": "public.ecr.aws/uktrade/repos",
+                    "builder": {
+                        "name": "paketobuildpacks/builder-jammy-full",
+                        "version": "0.3.288",
+                    },
+                }
+            ),
+        )
+
+        codebase = Codebase(Path("."))
+        pack = Pack(codebase, "timestamp")
+
+        self.assertEqual(pack.get_repository(), "public.ecr.aws/uktrade/repos")
+
     def test_get_repository_url_from_environment(
         self,
         subprocess_popen,
