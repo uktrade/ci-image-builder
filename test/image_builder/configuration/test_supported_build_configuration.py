@@ -49,9 +49,30 @@ class TestSupportedBuildConfiguration(unittest.TestCase):
 
         self.assertEqual(config.repository, None)
 
-    # test_loading_a_codebase_configuration_with_repository_from_config_file
+    def test_loading_a_codebase_configuration_with_repository_from_config_file(self):
+        os.environ.pop("ECR_REPOSITORY", None)
+        config = load_codebase_configuration(self.get_codebase_path("supported"))
 
-    # test_loading_a_codebase_configuration_with_public_repository_from_config_file
+        self.assertEqual(config.repository, "ecr/repos")
+
+    def test_loading_a_codebase_configuration_with_public_repository_from_config_file(
+        self,
+    ):
+        config = load_codebase_configuration(
+            self.get_codebase_path("public-repository")
+        )
+
+        self.assertEqual(config.repository, "public.ecr.aws/organisation/service")
+
+    def test_loading_a_codebase_configuration_environment_variables_overrides_private_repository_from_config_file(
+        self,
+    ):
+        config = load_codebase_configuration(self.get_codebase_path("supported"))
+
+        self.assertEqual(
+            config.repository,
+            f"000000000000.dkr.ecr.region.amazonaws.com/some-repository",
+        )
 
     def test_loading_an_invalid_codebase_configuration(self):
         with pytest.raises(CodebaseConfigurationLoadError):
