@@ -1,4 +1,3 @@
-import os
 import subprocess
 from typing import Callable
 
@@ -125,13 +124,4 @@ class Pack:
         return tags
 
     def get_repository(self):
-        if (
-            "CODEBUILD_BUILD_ARN" not in os.environ
-            or "public.ecr.aws" in self.codebase.build.repository
-        ):
-            return self.codebase.build.repository
-        else:
-            _, _, _, region, account, _, _ = os.environ["CODEBUILD_BUILD_ARN"].split(
-                ":"
-            )
-            return f"{account}.dkr.ecr.{region}.amazonaws.com/{os.getenv('ECR_REPOSITORY', self.codebase.build.repository)}"
+        return self.codebase.build.repository

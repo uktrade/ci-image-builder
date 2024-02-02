@@ -47,13 +47,18 @@ class TestSupportedBuildConfiguration(unittest.TestCase):
             self.get_codebase_path("missing-repository")
         )
 
-        self.assertEqual(config.repository, None)
+        self.assertEqual(
+            config.repository,
+            "000000000000.dkr.ecr.region.amazonaws.com/some-repository",
+        )
 
     def test_loading_a_codebase_configuration_with_repository_from_config_file(self):
         os.environ.pop("ECR_REPOSITORY", None)
         config = load_codebase_configuration(self.get_codebase_path("supported"))
 
-        self.assertEqual(config.repository, "ecr/repos")
+        self.assertEqual(
+            config.repository, "000000000000.dkr.ecr.region.amazonaws.com/ecr/repos"
+        )
 
     def test_loading_a_codebase_configuration_with_public_repository_from_config_file(
         self,
@@ -73,6 +78,14 @@ class TestSupportedBuildConfiguration(unittest.TestCase):
             config.repository,
             f"000000000000.dkr.ecr.region.amazonaws.com/some-repository",
         )
+
+    def test_loading_a_codebase_configuration_when_ecr_environment_variable_is_set_and_codebuild_arn_is_not_set(
+        self,
+    ):
+        os.environ.pop("CODEBUILD_BUILD_ARN", None)
+
+        with pytest.raises(CodebaseConfigurationLoadError):
+            load_codebase_configuration(self.get_codebase_path("supported"))
 
     def test_loading_an_invalid_codebase_configuration(self):
         with pytest.raises(CodebaseConfigurationLoadError):
