@@ -25,7 +25,6 @@ class CodebaseConfiguration:
         self.packs = []
         self.packages = []
 
-
 class CodebaseConfigurationError(Exception):
     pass
 
