@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from typing import List
 
@@ -25,6 +26,7 @@ class CodebaseConfiguration:
         self.packs = []
         self.packages = []
 
+
 class CodebaseConfigurationError(Exception):
     pass
 
@@ -39,7 +41,7 @@ def load_codebase_configuration(path) -> CodebaseConfiguration:
         build = CodebaseConfiguration()
         build.builder.name = config["builder"]["name"]
         build.builder.version = config["builder"]["version"]
-        build.repository = config["repository"] if "repository" in config else None
+        build.repository = get_repository(config)
 
         if "packs" in config:
             for pack_name in config["packs"]:
@@ -55,3 +57,16 @@ def load_codebase_configuration(path) -> CodebaseConfiguration:
         raise CodebaseConfigurationLoadError(f"file {error.filename} does not exist")
     except TypeError:
         raise CodebaseConfigurationLoadError(f"file is not valid")
+
+
+def get_repository(config):
+    if (
+        not os.getenv("CODEBUILD_BUILD_ARN")
+        and not os.getenv("CODEBUILD_BUILD_ARN")
+        and not config.get("repository")
+    ):
+        raise CodebaseConfigurationLoadError(
+            f"repository not set in config file of environment variables"
+        )
+
+    return config["repository"] if "repository" in config else None
