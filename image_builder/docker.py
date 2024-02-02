@@ -17,7 +17,7 @@ class DockerNotInstalledError(DockerError):
 
 class Docker:
     @staticmethod
-    def start():
+    def start(repository=None):
         if not Docker.running():
             subprocess.Popen(
                 "nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock "
@@ -33,8 +33,14 @@ class Docker:
             time.sleep(1)
 
         _, _, _, region, account, _, _ = os.environ["CODEBUILD_BUILD_ARN"].split(":")
+
+        if repository and "public.ecr.aws" in repository:
+            repository_host = "public.ecr.aws"
+        else:
+            repository_host = f"{account}.dkr.ecr.{region}.amazonaws.com"
+
         subprocess.run(
-            f"aws ecr get-login-password --region {region} | docker login --username AWS --password-stdin {account}.dkr.ecr.{region}.amazonaws.com",
+            f"aws ecr get-login-password --region {region} | docker login --username AWS --password-stdin {repository_host}",
             stdout=subprocess.PIPE,
             shell=True,
         )

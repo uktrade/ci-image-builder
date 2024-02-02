@@ -29,7 +29,7 @@ def build(publish, send_notifications):
     try:
         if not Docker.running():
             click.echo("Docker is not running, starting up...")
-            Docker.start()
+            Docker.start(ecr_repository)
 
         click.echo("Docker is running, continuing with build...")
 
