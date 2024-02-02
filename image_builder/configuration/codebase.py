@@ -10,6 +10,7 @@ class Builder:
 
 
 class Pack:
+    # rename to BuildPack
     name: str
 
 
