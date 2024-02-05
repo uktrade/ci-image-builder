@@ -29,6 +29,7 @@ class TestBuildCommand(unittest.TestCase):
         codebase().languages = load_codebase_languages_double(Path("."))
         codebase().build.builder.name = "test-builder"
         codebase().build.builder.version = "0000000"
+        pack().repository = "ecr/test-repository"
         pack().get_buildpacks.return_value = [
             "fagiani/apt",
             "paketo-buildpacks/git",
