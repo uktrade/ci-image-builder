@@ -1,12 +1,12 @@
 import os
 import subprocess
 from pathlib import Path
+from test.base_test_case import BaseTestCase
 from test.doubles.codebase import load_codebase_languages_double
 from test.doubles.codebase import load_codebase_processes_double
 from test.doubles.codebase import load_codebase_revision_double
 from unittest.mock import patch
 
-from pyfakefs.fake_filesystem_unittest import TestCase
 from yaml import dump
 
 from image_builder.codebase.codebase import Codebase
@@ -25,8 +25,12 @@ from image_builder.pack import Pack
     "image_builder.codebase.codebase.load_codebase_revision",
     wraps=load_codebase_revision_double,
 )
-class TestPackBuildpacks(TestCase):
+class TestPackBuildpacks(BaseTestCase):
     def setUp(self):
+        os.environ[
+            "CODEBUILD_BUILD_ARN"
+        ] = "arn:aws:codebuild:region:000000000000:build/project:example-build-id"
+
         self.setUpPyfakefs()
         self.fs.add_real_paths(
             [
@@ -121,8 +125,12 @@ class TestPackBuildpacks(TestCase):
     "image_builder.codebase.codebase.load_codebase_revision",
     wraps=load_codebase_revision_double,
 )
-class TestPackEnvironment(TestCase):
+class TestPackEnvironment(BaseTestCase):
     def setUp(self):
+        os.environ[
+            "CODEBUILD_BUILD_ARN"
+        ] = "arn:aws:codebuild:region:000000000000:build/project:example-build-id"
+
         self.setUpPyfakefs()
         self.fs.add_real_paths(
             [
@@ -183,7 +191,7 @@ class TestPackEnvironment(TestCase):
     "image_builder.codebase.codebase.load_codebase_revision",
     wraps=load_codebase_revision_double,
 )
-class TestPackTags(TestCase):
+class TestPackTags(BaseTestCase):
     def setUp(self):
         self.setUpPyfakefs()
         self.fs.create_dir(".copilot")
@@ -241,7 +249,7 @@ class TestPackTags(TestCase):
         stdout=subprocess.PIPE,
     ),
 )
-class TestCommand(TestCase):
+class TestCommand(BaseTestCase):
     def setUp(self):
         self.setUpPyfakefs()
         self.fs.create_dir(".copilot")

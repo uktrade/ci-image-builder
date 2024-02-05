@@ -1,13 +1,12 @@
 from pathlib import Path
 
 import pytest
-from pyfakefs.fake_filesystem_unittest import TestCase
 
 from image_builder.codebase.processes import CodebaseProcessNoProcfileError
 from image_builder.codebase.processes import load_codebase_processes
 
 
-class TestCodebaseProcesses(TestCase):
+class TestCodebaseProcesses(BaseTestCase):
     def setUp(self):
         self.setUpPyfakefs()
 

@@ -5,13 +5,12 @@ from test.helpers.files import create_python_indicator
 from unittest.mock import patch
 
 import pytest
-from pyfakefs.fake_filesystem_unittest import TestCase
 
 from image_builder.codebase.language import load_codebase_languages
 from image_builder.codebase.language.base import BaseLanguage
 
 
-class TestDetectingCodebaseLanguages(TestCase):
+class TestDetectingCodebaseLanguages(BaseTestCase):
     def setUp(self):
         self.setUpPyfakefs()
 
@@ -55,7 +54,7 @@ class TestDetectingCodebaseLanguages(TestCase):
         requests_get.assert_called_with("https://endoflife.date/api/nodejs.json")
 
 
-class TestBaseLanguageClass(TestCase):
+class TestBaseLanguageClass(BaseTestCase):
     def test_load_is_not_implemented(self):
         class TestLanguage(BaseLanguage):
             pass

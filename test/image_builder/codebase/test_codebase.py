@@ -5,7 +5,6 @@ from test.doubles.codebase import load_codebase_processes_double
 from test.doubles.codebase import load_codebase_revision_double
 from unittest.mock import patch
 
-from pyfakefs.fake_filesystem_unittest import TestCase
 from yaml import dump
 
 from image_builder.codebase.codebase import Codebase
@@ -23,7 +22,7 @@ from image_builder.codebase.codebase import Codebase
     "image_builder.codebase.codebase.load_codebase_revision",
     wraps=load_codebase_revision_double,
 )
-class TestCodebase(TestCase):
+class TestCodebase(BaseTestCase):
     def setUp(self):
         os.environ[
             "CODEBUILD_BUILD_ARN"

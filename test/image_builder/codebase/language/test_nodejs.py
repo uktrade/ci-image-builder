@@ -6,13 +6,12 @@ from unittest.mock import patch
 
 import pytest
 from parameterized import parameterized
-from pyfakefs.fake_filesystem_unittest import TestCase
 
 from image_builder.codebase.language import NodeJSLanguage
 from image_builder.codebase.language.base import CodebaseLanguageNotDetectedError
 
 
-class TestCodebaseLanguageNodeJS(TestCase):
+class TestCodebaseLanguageNodeJS(BaseTestCase):
     def setUp(self):
         self.setUpPyfakefs()
 
