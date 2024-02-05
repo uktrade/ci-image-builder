@@ -4,6 +4,8 @@ from typing import List
 
 from yaml import safe_load as yaml_load
 
+from image_builder.const import PUBLIC_REGISTRY
+
 
 class Builder:
     name: str
@@ -61,21 +63,21 @@ def load_codebase_configuration(path) -> CodebaseConfiguration:
 
 def get_repository(config):
     codebuild_build_arn = os.getenv("CODEBUILD_BUILD_ARN")
-    ecr_repository = os.getenv("ECR_REPOSITORY")
-    config_repository = config.get("repository")
+    repository_from_environment = os.getenv("ECR_REPOSITORY")
+    repository_from_config_file = config.get("repository")
 
-    if config_repository and "public.ecr.aws" in config_repository:
-        return config_repository
+    if repository_from_config_file and PUBLIC_REGISTRY in repository_from_config_file:
+        return repository_from_config_file
     else:
         if not codebuild_build_arn:
             raise CodebaseConfigurationLoadError(
                 f"codebuild build arn not set in environment variables"
             )
 
-        if not ecr_repository and not config_repository:
+        if not repository_from_environment and not repository_from_config_file:
             raise CodebaseConfigurationLoadError(
-                f"repository not set in config file of environment variables"
+                f"repository not set in config file or environment variables"
             )
 
         _, _, _, region, account, _, _ = codebuild_build_arn.split(":")
-        return f"{account}.dkr.ecr.{region}.amazonaws.com/{ecr_repository or config_repository}"
+        return f"{account}.dkr.ecr.{region}.amazonaws.com/{repository_from_environment or repository_from_config_file}"
