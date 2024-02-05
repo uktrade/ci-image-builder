@@ -78,4 +78,4 @@ def get_repository(config):
             )
 
         _, _, _, region, account, _, _ = codebuild_build_arn.split(":")
-        return f"{account}.dkr.ecr.{region}.amazonaws.com/{os.getenv('ECR_REPOSITORY', config_repository)}"
+        return f"{account}.dkr.ecr.{region}.amazonaws.com/{ecr_repository or config_repository}"
