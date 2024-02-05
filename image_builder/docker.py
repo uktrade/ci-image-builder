@@ -36,8 +36,11 @@ class Docker:
     def login(registry):
         _, _, _, region, _, _, _ = os.environ["CODEBUILD_BUILD_ARN"].split(":")
 
+        command = f"aws ecr get-login-password --region {region} | docker login --username AWS --password-stdin {registry} --debug"
+
+        print(f"Running command: {command}")
         subprocess.run(
-            f"aws ecr get-login-password --region {region} | docker login --username AWS --password-stdin {registry}",
+            command,
             stdout=subprocess.PIPE,
             shell=True,
         )
