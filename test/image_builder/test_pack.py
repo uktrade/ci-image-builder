@@ -164,7 +164,7 @@ class TestPackEnvironment(TestCase):
                 "BP_OCI_REVISION=shorthash",
                 "BP_OCI_VERSION=shorthash",
                 "BPE_GIT_BRANCH=feat/tests",
-                "BP_OCI_REF_NAME=ecr/repos",
+                "BP_OCI_REF_NAME=000000000000.dkr.ecr.region.amazonaws.com/ecr/repos",
                 "BP_OCI_SOURCE=https://github.com/org/repo",
                 'BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp"',
             ],
@@ -320,9 +320,9 @@ class TestCommand(TestCase):
         load_codebase_processes,
         load_codebase_languages,
     ):
+        os.environ["ECR_REPOSITORY"] = "ecr/environment-repo"
         codebase = Codebase(Path("."))
         pack = Pack(codebase, "timestamp")
-        os.environ["ECR_REPOSITORY"] = "ecr/environment-repo"
 
         self.assertEqual(
             pack.get_repository(),
@@ -353,7 +353,7 @@ class TestCommand(TestCase):
             "--env BP_OCI_REVISION=shorthash "
             "--env BP_OCI_VERSION=shorthash "
             "--env BPE_GIT_BRANCH=feat/tests "
-            "--env BP_OCI_REF_NAME=ecr/repos "
+            "--env BP_OCI_REF_NAME=000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
             "--env BP_OCI_SOURCE=https://github.com/org/repo "
             '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
             "--buildpack fagiani/apt "
@@ -389,7 +389,7 @@ class TestCommand(TestCase):
             "--env BP_OCI_REVISION=shorthash "
             "--env BP_OCI_VERSION=shorthash "
             "--env BPE_GIT_BRANCH=feat/tests "
-            "--env BP_OCI_REF_NAME=ecr/repos "
+            "--env BP_OCI_REF_NAME=000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
             "--env BP_OCI_SOURCE=https://github.com/org/repo "
             '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
             "--buildpack fagiani/apt "
@@ -426,7 +426,7 @@ class TestCommand(TestCase):
             "--env BP_OCI_REVISION=shorthash "
             "--env BP_OCI_VERSION=shorthash "
             "--env BPE_GIT_BRANCH=feat/tests "
-            "--env BP_OCI_REF_NAME=ecr/repos "
+            "--env BP_OCI_REF_NAME=000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
             "--env BP_OCI_SOURCE=https://github.com/org/repo "
             '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
             "--buildpack fagiani/apt "
