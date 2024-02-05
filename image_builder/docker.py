@@ -21,7 +21,7 @@ class Docker:
         if not Docker.running():
             subprocess.Popen(
                 "nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock "
-                "--host=tcp://127.0.0.1:2375 --storage-driver=overlay2 --debug",
+                "--host=tcp://127.0.0.1:2375 --storage-driver=overlay2",
                 shell=True,
             )
 
@@ -36,7 +36,7 @@ class Docker:
     def login(registry):
         _, _, _, region, _, _, _ = os.environ["CODEBUILD_BUILD_ARN"].split(":")
 
-        command = f"aws ecr get-login-password --region {region} --debug | docker login --username AWS --password-stdin {registry}"
+        command = f"aws ecr get-login-password --region {region} | docker login --username AWS --password-stdin {registry}"
 
         print(f"Running command: {command}")
         subprocess.run(
