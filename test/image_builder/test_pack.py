@@ -293,7 +293,7 @@ class TestCommand(BaseTestCase):
         pack = Pack(codebase, "timestamp")
 
         self.assertEqual(
-            pack.get_repository(), "000000000000.dkr.ecr.region.amazonaws.com/ecr/repos"
+            pack.repository, "000000000000.dkr.ecr.region.amazonaws.com/ecr/repos"
         )
 
     def test_get_public_repository_url_from_config(
@@ -322,7 +322,7 @@ class TestCommand(BaseTestCase):
         codebase = Codebase(Path("."))
         pack = Pack(codebase, "timestamp")
 
-        self.assertEqual(pack.get_repository(), "public.ecr.aws/uktrade/repos")
+        self.assertEqual(pack.repository, "public.ecr.aws/uktrade/repos")
 
     def test_get_repository_url_from_environment(
         self,
@@ -336,7 +336,7 @@ class TestCommand(BaseTestCase):
         pack = Pack(codebase, "timestamp")
 
         self.assertEqual(
-            pack.get_repository(),
+            pack.repository,
             "000000000000.dkr.ecr.region.amazonaws.com/ecr/environment-repo",
         )
 

@@ -41,15 +41,15 @@ class Pack:
     def get_command(self, publish=False):
         buildpacks = " ".join([f"--buildpack {p}" for p in self.get_buildpacks()])
         environment = " ".join([f"--env {e}" for e in self.get_environment()])
-        tags = " ".join([f"--tag {self.get_repository()}:{t}" for t in self.get_tags()])
+        tags = " ".join([f"--tag {self.repository}:{t}" for t in self.get_tags()])
         command = (
-            f"pack build {self.get_repository()} "
+            f"pack build {self.repository} "
             f"--builder {self.codebase.build.builder.name}:{self.codebase.build.builder.version} "
             f"{tags} {environment} {buildpacks} "
         )
 
         if publish:
-            command += f"--publish --cache-image {self.get_repository()}:cache"
+            command += f"--publish --cache-image {self.repository}:cache"
         return command
 
     def get_buildpacks(self):
@@ -123,5 +123,6 @@ class Pack:
 
         return tags
 
-    def get_repository(self):
+    @property
+    def repository(self):
         return self.codebase.build.repository
