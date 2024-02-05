@@ -27,6 +27,7 @@ from image_builder.pack import Pack
 )
 class TestPackBuildpacks(BaseTestCase):
     def setUp(self):
+        super().setUp()
         os.environ[
             "CODEBUILD_BUILD_ARN"
         ] = "arn:aws:codebuild:region:000000000000:build/project:example-build-id"
@@ -127,6 +128,7 @@ class TestPackBuildpacks(BaseTestCase):
 )
 class TestPackEnvironment(BaseTestCase):
     def setUp(self):
+        super().setUp()
         os.environ[
             "CODEBUILD_BUILD_ARN"
         ] = "arn:aws:codebuild:region:000000000000:build/project:example-build-id"
@@ -251,6 +253,7 @@ class TestPackTags(BaseTestCase):
 )
 class TestCommand(BaseTestCase):
     def setUp(self):
+        super().setUp()
         self.setUpPyfakefs()
         self.fs.create_dir(".copilot")
         self.fs.create_file(

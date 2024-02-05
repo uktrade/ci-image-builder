@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from test.base_test_case import BaseTestCase
 from test.doubles.process import StubbedProcess
 from unittest.mock import patch
 
@@ -40,6 +41,7 @@ def git_revision_command(
 
 class TestCodebaseRevision(BaseTestCase):
     def setUp(self):
+        super().setUp()
         self.setUpPyfakefs()
 
     @patch("subprocess.run", wraps=git_revision_command())

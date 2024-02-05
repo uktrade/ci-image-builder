@@ -1,4 +1,5 @@
 from pathlib import Path
+from test.base_test_case import BaseTestCase
 from test.doubles.end_of_life import get_versions
 from test.helpers.files import create_nodejs_indicator
 from test.helpers.files import create_python_indicator
@@ -12,6 +13,7 @@ from image_builder.codebase.language.base import BaseLanguage
 
 class TestDetectingCodebaseLanguages(BaseTestCase):
     def setUp(self):
+        super().setUp()
         self.setUpPyfakefs()
 
     @patch("requests.get", wraps=get_versions)

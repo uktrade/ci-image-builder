@@ -2,6 +2,7 @@ import json
 import os
 import subprocess
 from pathlib import Path
+from test.base_test_case import BaseTestCase
 from test.doubles.process import StubbedProcess
 from unittest.mock import call
 from unittest.mock import patch
@@ -42,6 +43,7 @@ def call_subprocess_run(command: str, stdout=subprocess.PIPE, shell=True, cwd=".
 @patch("image_builder.commands.deploy.Docker")
 class TestDeployCommand(BaseTestCase):
     def setUp(self):
+        super().setUp()
         self.setUpPyfakefs()
         self.fs.create_dir("/src")
 

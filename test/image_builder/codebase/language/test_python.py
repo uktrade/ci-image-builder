@@ -1,4 +1,5 @@
 from pathlib import Path
+from test.base_test_case import BaseTestCase
 from test.doubles.end_of_life import EndOfLifeResponse
 from test.helpers.files import create_python_indicator
 from unittest.mock import patch
@@ -12,6 +13,7 @@ from image_builder.codebase.language.base import CodebaseLanguageNotDetectedErro
 
 class TestCodebaseLanguagePython(BaseTestCase):
     def setUp(self):
+        super().setUp()
         self.setUpPyfakefs()
 
     def test_without_python_application_present(self):

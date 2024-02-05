@@ -1,4 +1,5 @@
 from pathlib import Path
+from test.base_test_case import BaseTestCase
 
 import pytest
 
@@ -8,6 +9,7 @@ from image_builder.codebase.processes import load_codebase_processes
 
 class TestCodebaseProcesses(BaseTestCase):
     def setUp(self):
+        super().setUp()
         self.setUpPyfakefs()
 
     def test_without_procfile_present(self):

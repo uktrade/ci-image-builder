@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from test.base_test_case import BaseTestCase
 from test.doubles.end_of_life import get_versions
 from test.helpers.files import create_nodejs_indicator
 from unittest.mock import patch
@@ -13,6 +14,7 @@ from image_builder.codebase.language.base import CodebaseLanguageNotDetectedErro
 
 class TestCodebaseLanguageNodeJS(BaseTestCase):
     def setUp(self):
+        super().setUp()
         self.setUpPyfakefs()
 
     def test_without_nodejs_application_present(self):

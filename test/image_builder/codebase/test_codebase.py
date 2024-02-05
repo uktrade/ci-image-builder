@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from test.base_test_case import BaseTestCase
 from test.doubles.codebase import load_codebase_languages_double
 from test.doubles.codebase import load_codebase_processes_double
 from test.doubles.codebase import load_codebase_revision_double
@@ -24,6 +25,7 @@ from image_builder.codebase.codebase import Codebase
 )
 class TestCodebase(BaseTestCase):
     def setUp(self):
+        super().setUp()
         os.environ[
             "CODEBUILD_BUILD_ARN"
         ] = "arn:aws:codebuild:region:000000000000:build/project:example-build-id"
