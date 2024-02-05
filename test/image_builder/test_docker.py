@@ -27,11 +27,6 @@ class TestDocker(unittest.TestCase):
         run.assert_has_calls(
             [
                 call("docker ps", stdout=subprocess.PIPE, shell=True),
-                call(
-                    "aws ecr get-login-password --region region | docker login --username AWS --password-stdin 000000000000.dkr.ecr.region.amazonaws.com",
-                    stdout=subprocess.PIPE,
-                    shell=True,
-                ),
             ]
         )
         popen.assert_not_called()
@@ -46,11 +41,6 @@ class TestDocker(unittest.TestCase):
         run.assert_has_calls(
             [
                 call("docker ps", stdout=subprocess.PIPE, shell=True),
-                call(
-                    "aws ecr get-login-password --region region | docker login --username AWS --password-stdin 000000000000.dkr.ecr.region.amazonaws.com",
-                    stdout=subprocess.PIPE,
-                    shell=True,
-                ),
             ]
         )
         popen.assert_called_with(
@@ -90,11 +80,20 @@ class TestDocker(unittest.TestCase):
     @patch("subprocess.run", return_value=StubbedProcess(returncodes=[1, 1, 1, 1, 0]))
     @patch("time.sleep", return_value=None)
     def test_starting_docker_with_public_repository(self, sleep, run, popen):
-        Docker.start(repository="public.ecr.aws/image-name")
+        Docker.start()
 
         run.assert_has_calls(
             [
                 call("docker ps", stdout=subprocess.PIPE, shell=True),
+            ]
+        )
+
+    @patch("subprocess.run", return_value=StubbedProcess(returncode=0))
+    def test_docker_login_with_public_repository(self, run):
+        Docker.login(registry="public.ecr.aws")
+
+        run.assert_has_calls(
+            [
                 call(
                     "aws ecr get-login-password --region region | docker login --username AWS --password-stdin public.ecr.aws",
                     stdout=subprocess.PIPE,

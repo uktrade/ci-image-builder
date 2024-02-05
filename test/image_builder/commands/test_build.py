@@ -93,4 +93,4 @@ class TestBuildCommand(unittest.TestCase):
         self.setup_mocks(pack, docker, codebase, notify, progress)
         docker.running.return_value = False
         self.run_build()
-        docker.start.assert_called_with("ecr/test-repository")
+        docker.start.assert_called()

@@ -25,9 +25,10 @@ def build(publish, send_notifications):
     try:
         if not Docker.running():
             click.echo("Docker is not running, starting up...")
-            Docker.start(pack.repository)
-
+            Docker.start()
         click.echo("Docker is running, continuing with build...")
+
+        Docker.login(codebase.build.registry)
 
         click.echo(
             "Found revision: "

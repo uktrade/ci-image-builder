@@ -118,7 +118,6 @@ class TestDeployCommand(BaseTestCase):
 
         result = self.run_deploy()
 
-        self.assertIn("Docker is running, continuing with build...", result.output)
         self.assertIn(
             "Cloning repository organisation/repository-deploy", result.output
         )

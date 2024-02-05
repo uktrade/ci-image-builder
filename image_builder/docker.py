@@ -2,8 +2,6 @@ import os
 import subprocess
 import time
 
-from image_builder.const import PUBLIC_REGISTRY
-
 
 class DockerError(Exception):
     pass
@@ -19,7 +17,7 @@ class DockerNotInstalledError(DockerError):
 
 class Docker:
     @staticmethod
-    def start(repository=None):
+    def start():
         if not Docker.running():
             subprocess.Popen(
                 "nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock "
@@ -34,15 +32,12 @@ class Docker:
                 raise DockerStartTimeoutError()
             time.sleep(1)
 
-        _, _, _, region, account, _, _ = os.environ["CODEBUILD_BUILD_ARN"].split(":")
-
-        if repository and PUBLIC_REGISTRY in repository:
-            repository_host = PUBLIC_REGISTRY
-        else:
-            repository_host = f"{account}.dkr.ecr.{region}.amazonaws.com"
+    @staticmethod
+    def login(registry):
+        _, _, _, region, _, _, _ = os.environ["CODEBUILD_BUILD_ARN"].split(":")
 
         subprocess.run(
-            f"aws ecr get-login-password --region {region} | docker login --username AWS --password-stdin {repository_host}",
+            f"aws ecr get-login-password --region {region} | docker login --username AWS --password-stdin {registry}",
             stdout=subprocess.PIPE,
             shell=True,
         )
