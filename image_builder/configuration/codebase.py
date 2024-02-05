@@ -64,18 +64,18 @@ def get_repository(config):
     ecr_repository = os.getenv("ECR_REPOSITORY")
     config_repository = config.get("repository")
 
-    if not codebuild_build_arn and not ecr_repository and not config_repository:
-        raise CodebaseConfigurationLoadError(
-            f"repository not set in config file of environment variables"
-        )
-
-    if ecr_repository and not codebuild_build_arn:
-        raise CodebaseConfigurationLoadError(
-            f"codebuild build arn not set in environment variables"
-        )
-
     if config_repository and "public.ecr.aws" in config_repository:
         return config_repository
     else:
+        if not codebuild_build_arn:
+            raise CodebaseConfigurationLoadError(
+                f"codebuild build arn not set in environment variables"
+            )
+
+        if not ecr_repository and not config_repository:
+            raise CodebaseConfigurationLoadError(
+                f"repository not set in config file of environment variables"
+            )
+
         _, _, _, region, account, _, _ = codebuild_build_arn.split(":")
         return f"{account}.dkr.ecr.{region}.amazonaws.com/{os.getenv('ECR_REPOSITORY', config_repository)}"

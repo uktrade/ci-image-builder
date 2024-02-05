@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from test.doubles.codebase import load_codebase_languages_double
 from test.doubles.codebase import load_codebase_processes_double
@@ -24,6 +25,10 @@ from image_builder.codebase.codebase import Codebase
 )
 class TestCodebase(TestCase):
     def setUp(self):
+        os.environ[
+            "CODEBUILD_BUILD_ARN"
+        ] = "arn:aws:codebuild:region:000000000000:build/project:example-build-id"
+
         self.setUpPyfakefs()
         self.fs.create_dir(".copilot")
         self.fs.create_file(
