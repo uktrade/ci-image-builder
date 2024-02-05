@@ -1,7 +1,10 @@
+import os
 from pathlib import Path
 from typing import List
 
 from yaml import safe_load as yaml_load
+
+from image_builder.const import PUBLIC_REGISTRY
 
 
 class Builder:
@@ -18,15 +21,43 @@ class CodebaseConfiguration:
     builder: Builder
     packs: List[Pack]
     registry: str
-    repository: str
+    repository_from_config_file: str
     packages: List[str]
 
     def __init__(self):
         self.builder = Builder()
         self.packs = []
-        self.registry = ""
-        self.repository = ""
         self.packages = []
+        self.repository_from_config_file = ""
+
+    @property
+    def repository(self):
+        codebuild_build_arn = os.getenv("CODEBUILD_BUILD_ARN")
+        repository_from_environment = os.getenv("ECR_REPOSITORY")
+        repository_from_config_file = self.repository_from_config_file
+
+        if (
+            repository_from_config_file
+            and PUBLIC_REGISTRY in repository_from_config_file
+        ):
+            return repository_from_config_file
+        else:
+            if not codebuild_build_arn:
+                raise CodebaseConfigurationLoadError(
+                    f"codebuild build arn not set in environment variables"
+                )
+
+            if not repository_from_environment and not repository_from_config_file:
+                raise CodebaseConfigurationLoadError(
+                    f"repository not set in config file or environment variables"
+                )
+
+            _, _, _, region, account, _, _ = codebuild_build_arn.split(":")
+            return f"{account}.dkr.ecr.{region}.amazonaws.com/{repository_from_environment or repository_from_config_file}"
+
+    @property
+    def registry(self):
+        return self.repository.split("/")[0]
 
 
 class CodebaseConfigurationError(Exception):
@@ -43,7 +74,7 @@ def load_codebase_configuration(path) -> CodebaseConfiguration:
         build = CodebaseConfiguration()
         build.builder.name = config["builder"]["name"]
         build.builder.version = config["builder"]["version"]
-        build.repository = config.get("repository")
+        build.repository_from_config_file = config.get("repository")
 
         if "packs" in config:
             for pack_name in config["packs"]:
@@ -59,25 +90,3 @@ def load_codebase_configuration(path) -> CodebaseConfiguration:
         raise CodebaseConfigurationLoadError(f"file {error.filename} does not exist")
     except TypeError:
         raise CodebaseConfigurationLoadError(f"file is not valid")
-
-
-# def __get_repository(config):
-#     codebuild_build_arn = os.getenv("CODEBUILD_BUILD_ARN")
-#     repository_from_environment = os.getenv("ECR_REPOSITORY")
-#     repository_from_config_file = config.get("repository")
-#
-#     if repository_from_config_file and PUBLIC_REGISTRY in repository_from_config_file:
-#         return repository_from_config_file
-#     else:
-#         if not codebuild_build_arn:
-#             raise CodebaseConfigurationLoadError(
-#                 f"codebuild build arn not set in environment variables"
-#             )
-#
-#         if not repository_from_environment and not repository_from_config_file:
-#             raise CodebaseConfigurationLoadError(
-#                 f"repository not set in config file or environment variables"
-#             )
-#
-#         _, _, _, region, account, _, _ = codebuild_build_arn.split(":")
-#         return f"{account}.dkr.ecr.{region}.amazonaws.com/{repository_from_environment or repository_from_config_file}"
