@@ -40,7 +40,7 @@ class Docker:
 
         print(f"Running command: {command}")
         subprocess.run(
-            command,
+            f"{command} || exit 1",
             stdout=subprocess.PIPE,
             shell=True,
         )
