@@ -46,7 +46,7 @@ def load_codebase_configuration(path) -> CodebaseConfiguration:
         build = CodebaseConfiguration()
         build.builder.name = config["builder"]["name"]
         build.builder.version = config["builder"]["version"]
-        build.repository = get_repository(config)
+        build.repository = __get_repository(config)
         build.registry = build.repository.split("/")[0]
 
         if "packs" in config:
@@ -65,7 +65,7 @@ def load_codebase_configuration(path) -> CodebaseConfiguration:
         raise CodebaseConfigurationLoadError(f"file is not valid")
 
 
-def get_repository(config):
+def __get_repository(config):
     codebuild_build_arn = os.getenv("CODEBUILD_BUILD_ARN")
     repository_from_environment = os.getenv("ECR_REPOSITORY")
     repository_from_config_file = config.get("repository")
