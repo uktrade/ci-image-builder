@@ -94,3 +94,8 @@ class TestSupportedBuildConfiguration(unittest.TestCase):
     def test_loading_a_missing_codebase_configuration(self):
         with pytest.raises(CodebaseConfigurationLoadError):
             load_codebase_configuration(self.get_codebase_path("missing"))
+
+    def test_loading_a_codebase_configuration_sets_registry(self):
+        config = load_codebase_configuration(self.get_codebase_path("supported"))
+
+        self.assertEqual(config.registry, "000000000000.dkr.ecr.region.amazonaws.com")

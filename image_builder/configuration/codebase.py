@@ -20,12 +20,15 @@ class Pack:
 class CodebaseConfiguration:
     builder: Builder
     packs: List[Pack]
+    registry: str
     repository: str
     packages: List[str]
 
     def __init__(self):
         self.builder = Builder()
         self.packs = []
+        self.registry = ""
+        self.repository = ""
         self.packages = []
 
 
@@ -44,6 +47,7 @@ def load_codebase_configuration(path) -> CodebaseConfiguration:
         build.builder.name = config["builder"]["name"]
         build.builder.version = config["builder"]["version"]
         build.repository = get_repository(config)
+        build.registry = build.repository.split("/")[0]
 
         if "packs" in config:
             for pack_name in config["packs"]:
