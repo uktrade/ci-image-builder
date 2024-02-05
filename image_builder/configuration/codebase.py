@@ -1,10 +1,7 @@
-import os
 from pathlib import Path
 from typing import List
 
 from yaml import safe_load as yaml_load
-
-from image_builder.const import PUBLIC_REGISTRY
 
 
 class Builder:
@@ -46,8 +43,7 @@ def load_codebase_configuration(path) -> CodebaseConfiguration:
         build = CodebaseConfiguration()
         build.builder.name = config["builder"]["name"]
         build.builder.version = config["builder"]["version"]
-        build.repository = __get_repository(config)
-        build.registry = build.repository.split("/")[0]
+        build.repository = config.get("repository")
 
         if "packs" in config:
             for pack_name in config["packs"]:
@@ -65,23 +61,23 @@ def load_codebase_configuration(path) -> CodebaseConfiguration:
         raise CodebaseConfigurationLoadError(f"file is not valid")
 
 
-def __get_repository(config):
-    codebuild_build_arn = os.getenv("CODEBUILD_BUILD_ARN")
-    repository_from_environment = os.getenv("ECR_REPOSITORY")
-    repository_from_config_file = config.get("repository")
-
-    if repository_from_config_file and PUBLIC_REGISTRY in repository_from_config_file:
-        return repository_from_config_file
-    else:
-        if not codebuild_build_arn:
-            raise CodebaseConfigurationLoadError(
-                f"codebuild build arn not set in environment variables"
-            )
-
-        if not repository_from_environment and not repository_from_config_file:
-            raise CodebaseConfigurationLoadError(
-                f"repository not set in config file or environment variables"
-            )
-
-        _, _, _, region, account, _, _ = codebuild_build_arn.split(":")
-        return f"{account}.dkr.ecr.{region}.amazonaws.com/{repository_from_environment or repository_from_config_file}"
+# def __get_repository(config):
+#     codebuild_build_arn = os.getenv("CODEBUILD_BUILD_ARN")
+#     repository_from_environment = os.getenv("ECR_REPOSITORY")
+#     repository_from_config_file = config.get("repository")
+#
+#     if repository_from_config_file and PUBLIC_REGISTRY in repository_from_config_file:
+#         return repository_from_config_file
+#     else:
+#         if not codebuild_build_arn:
+#             raise CodebaseConfigurationLoadError(
+#                 f"codebuild build arn not set in environment variables"
+#             )
+#
+#         if not repository_from_environment and not repository_from_config_file:
+#             raise CodebaseConfigurationLoadError(
+#                 f"repository not set in config file or environment variables"
+#             )
+#
+#         _, _, _, region, account, _, _ = codebuild_build_arn.split(":")
+#         return f"{account}.dkr.ecr.{region}.amazonaws.com/{repository_from_environment or repository_from_config_file}"

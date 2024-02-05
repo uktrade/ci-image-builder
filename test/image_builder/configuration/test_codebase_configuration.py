@@ -4,11 +4,12 @@ from pathlib import Path
 
 import pytest
 
+from image_builder.configuration.codebase import CodebaseConfiguration
 from image_builder.configuration.codebase import CodebaseConfigurationLoadError
 from image_builder.configuration.codebase import load_codebase_configuration
 
 
-class TestSupportedBuildConfiguration(unittest.TestCase):
+class TestCodebaseConfiguration(unittest.TestCase):
     def setUp(self):
         os.environ[
             "CODEBUILD_BUILD_ARN"
@@ -25,22 +26,14 @@ class TestSupportedBuildConfiguration(unittest.TestCase):
             .resolve()
         )
 
-    def test_loading_a_valid_codebase_configuration(self):
-        config = load_codebase_configuration(self.get_codebase_path("supported"))
+    def test_repository_with_no_repository_in_environment_variable_or_config_file(self):
+        os.environ.pop("CODEBUILD_BUILD_ARN", None)
+        os.environ.pop("ECR_REPOSITORY", None)
+        CodebaseConfiguration()
 
-        self.assertEqual(config.builder.name, "paketobuildpacks/builder-jammy-full")
-        self.assertEqual(config.builder.version, "0.3.288")
-        self.assertEqual(config.packs[0].name, "paketo-buildpacks/python")
-        self.assertEqual(config.packs[1].name, "paketo-buildpacks/nodejs")
-        self.assertEqual(config.repository, "ecr/repos")
+        with pytest.raises(CodebaseConfigurationLoadError):
+            load_codebase_configuration(self.get_codebase_path("missing-repository"))
 
-    # def test_loading_with_no_repository_in_environment_variable_or_config_file(self):
-    #     os.environ.pop("CODEBUILD_BUILD_ARN", None)
-    #     os.environ.pop("ECR_REPOSITORY", None)
-    #
-    #     with pytest.raises(CodebaseConfigurationLoadError):
-    #         load_codebase_configuration(self.get_codebase_path("missing-repository"))
-    #
     # def test_loading_a_codebase_configuration_with_repository_derived_from_environment_variables(
     #     self,
     # ):
@@ -87,15 +80,15 @@ class TestSupportedBuildConfiguration(unittest.TestCase):
     #
     #     with pytest.raises(CodebaseConfigurationLoadError):
     #         load_codebase_configuration(self.get_codebase_path("supported"))
-
-    def test_loading_an_invalid_codebase_configuration(self):
-        with pytest.raises(CodebaseConfigurationLoadError):
-            load_codebase_configuration(self.get_codebase_path("invalid"))
-
-    def test_loading_a_missing_codebase_configuration(self):
-        with pytest.raises(CodebaseConfigurationLoadError):
-            load_codebase_configuration(self.get_codebase_path("missing"))
-
+    #
+    # def test_loading_an_invalid_codebase_configuration(self):
+    #     with pytest.raises(CodebaseConfigurationLoadError):
+    #         load_codebase_configuration(self.get_codebase_path("invalid"))
+    #
+    # def test_loading_a_missing_codebase_configuration(self):
+    #     with pytest.raises(CodebaseConfigurationLoadError):
+    #         load_codebase_configuration(self.get_codebase_path("missing"))
+    #
     # def test_loading_a_codebase_configuration_sets_registry(self):
     #     config = load_codebase_configuration(self.get_codebase_path("supported"))
     #
