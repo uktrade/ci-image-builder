@@ -5,6 +5,7 @@ from typing import List
 from yaml import safe_load as yaml_load
 
 from image_builder.const import PUBLIC_REGISTRY
+from image_builder.utils.arn_parser import ARN
 
 
 class Builder:
@@ -52,8 +53,8 @@ class CodebaseConfiguration:
                     f"repository not set in config file or environment variables"
                 )
 
-            _, _, _, region, account, _, _ = codebuild_build_arn.split(":")
-            return f"{account}.dkr.ecr.{region}.amazonaws.com/{repository_from_environment or repository_from_config_file}"
+            arn = ARN(codebuild_build_arn)
+            return f"{arn.account_id}.dkr.ecr.{arn.region}.amazonaws.com/{repository_from_environment or repository_from_config_file}"
 
     @property
     def registry(self):
