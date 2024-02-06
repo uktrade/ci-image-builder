@@ -13,13 +13,21 @@ from image_builder.docker import DockerStartTimeoutError
 
 
 class TestDocker(unittest.TestCase):
+    returncode_docker_not_installed = 127
+    returncode_docker_running = 0
+    returncode_docker_wont_start = 1
+    returncodes_docker_ps_successful_on_5th_attempt = [1, 1, 1, 1, 0]
+
     def setUp(self):
         os.environ[
             "CODEBUILD_BUILD_ARN"
         ] = "arn:aws:codebuild:region:000000000000:build/project:example-build-id"
 
     @patch("subprocess.Popen", return_value=None)
-    @patch("subprocess.run", return_value=StubbedProcess())
+    @patch(
+        "subprocess.run",
+        return_value=StubbedProcess(returncode=returncode_docker_running),
+    )
     @patch("time.sleep", return_value=None)
     def test_starting_docker_when_already_running(self, sleep, run, popen):
         Docker.start()
@@ -33,7 +41,12 @@ class TestDocker(unittest.TestCase):
         sleep.assert_not_called()
 
     @patch("subprocess.Popen", return_value=None)
-    @patch("subprocess.run", return_value=StubbedProcess(returncodes=[1, 1, 1, 1, 0]))
+    @patch(
+        "subprocess.run",
+        return_value=StubbedProcess(
+            returncodes=returncodes_docker_ps_successful_on_5th_attempt
+        ),
+    )
     @patch("time.sleep", return_value=None)
     def test_starting_docker_when_not_running(self, sleep, run, popen):
         Docker.start()
@@ -51,7 +64,10 @@ class TestDocker(unittest.TestCase):
         sleep.assert_called_with(1)
 
     @patch("subprocess.Popen", return_value=None)
-    @patch("subprocess.run", return_value=StubbedProcess(returncode=127))
+    @patch(
+        "subprocess.run",
+        return_value=StubbedProcess(returncode=returncode_docker_not_installed),
+    )
     @patch("time.sleep", return_value=None)
     def test_starting_docker_when_not_installed(self, sleep, run, popen):
         with pytest.raises(DockerNotInstalledError):
@@ -62,7 +78,10 @@ class TestDocker(unittest.TestCase):
         sleep.assert_not_called()
 
     @patch("subprocess.Popen", return_value=None)
-    @patch("subprocess.run", return_value=StubbedProcess(returncode=1))
+    @patch(
+        "subprocess.run",
+        return_value=StubbedProcess(returncode=returncode_docker_wont_start),
+    )
     @patch("time.sleep", return_value=None)
     def test_docker_never_starts(self, sleep, run, popen):
         with pytest.raises(DockerStartTimeoutError):
@@ -76,7 +95,10 @@ class TestDocker(unittest.TestCase):
         )
         sleep.assert_has_calls([call(1)] * 60)
 
-    @patch("subprocess.run", return_value=StubbedProcess(returncode=0))
+    @patch(
+        "subprocess.run",
+        return_value=StubbedProcess(returncode=returncode_docker_running),
+    )
     def test_docker_login_with_public_repository(self, run):
         Docker.login(registry="public.ecr.aws")
 
@@ -90,7 +112,10 @@ class TestDocker(unittest.TestCase):
             ]
         )
 
-    @patch("subprocess.run", return_value=StubbedProcess(returncode=0))
+    @patch(
+        "subprocess.run",
+        return_value=StubbedProcess(returncode=returncode_docker_running),
+    )
     def test_docker_login_with_private_repository(self, run):
         Docker.login(registry="000000000000.dkr.ecr.oz-wizd-1.amazonaws.com")
 
