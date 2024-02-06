@@ -34,11 +34,22 @@ class Docker:
 
     @staticmethod
     def login(registry):
+        subprocess.run(
+            "~/.docker/config.json",
+            stdout=subprocess.PIPE,
+            shell=True,
+        )
+
         region = "us-east-1"
-        command = f"aws ecr get-login-password --region {region} | docker login --username AWS --password-stdin {registry}"
+        command = f"aws ecr-public get-login-password --region {region} | docker login --username AWS --password-stdin {registry}"
         print(f"Running command: {command}")
         subprocess.run(
-            f"{command} || exit 1",
+            f"{command}",
+            stdout=subprocess.PIPE,
+            shell=True,
+        )
+        subprocess.run(
+            "~/.docker/config.json",
             stdout=subprocess.PIPE,
             shell=True,
         )
@@ -48,7 +59,12 @@ class Docker:
         command = f"aws ecr get-login-password --region {region} | docker login --username AWS --password-stdin {registry}"
         print(f"Running command: {command}")
         subprocess.run(
-            f"{command} || exit 1",
+            f"{command}",
+            stdout=subprocess.PIPE,
+            shell=True,
+        )
+        subprocess.run(
+            "~/.docker/config.json",
             stdout=subprocess.PIPE,
             shell=True,
         )
