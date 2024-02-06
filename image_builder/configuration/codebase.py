@@ -13,14 +13,13 @@ class Builder:
     version: str
 
 
-class Pack:
-    # rename to BuildPack
+class Buildpack:
     name: str
 
 
 class CodebaseConfiguration:
     builder: Builder
-    packs: List[Pack]
+    packs: List[Buildpack]
     registry: str
     repository_from_config_file: str
     packages: List[str]
@@ -79,7 +78,7 @@ def load_codebase_configuration(path) -> CodebaseConfiguration:
 
         if "packs" in config:
             for pack_name in config["packs"]:
-                pack = Pack()
+                pack = Buildpack()
                 pack.name = pack_name
                 build.packs.append(pack)
 
