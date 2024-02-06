@@ -34,10 +34,18 @@ class Docker:
 
     @staticmethod
     def login(registry):
-        _, _, _, region, _, _, _ = os.environ["CODEBUILD_BUILD_ARN"].split(":")
-
+        region = "us-east-1"
         command = f"aws ecr get-login-password --region {region} | docker login --username AWS --password-stdin {registry}"
+        print(f"Running command: {command}")
+        subprocess.run(
+            f"{command} || exit 1",
+            stdout=subprocess.PIPE,
+            shell=True,
+        )
 
+        _, _, _, region, account, _, _ = os.environ["CODEBUILD_BUILD_ARN"].split(":")
+        registry = f"{account}.dkr.ecr.{region}.amazonaws.com"
+        command = f"aws ecr get-login-password --region {region} | docker login --username AWS --password-stdin {registry}"
         print(f"Running command: {command}")
         subprocess.run(
             f"{command} || exit 1",
