@@ -145,10 +145,6 @@ class TestPackEnvironment(BaseTestCase):
                 .resolve()
             ]
         )
-
-    def test_environments(
-        self, load_codebase_revision, load_codebase_processes, load_codebase_languages
-    ):
         self.fs.create_dir(".copilot")
         self.fs.create_file(
             ".copilot/config.yml",
@@ -163,11 +159,16 @@ class TestPackEnvironment(BaseTestCase):
             ),
         )
 
+    def test_get_environment(
+        self, load_codebase_revision, load_codebase_processes, load_codebase_languages
+    ):
         codebase = Codebase(Path("."))
         pack = Pack(codebase, "timestamp")
 
+        environment = pack.get_environment()
+
         self.assertEqual(
-            pack.get_environment(),
+            environment,
             [
                 "BP_CPYTHON_VERSION=3.11",
                 "BP_NODE_VERSION=20.7",
@@ -185,19 +186,6 @@ class TestPackEnvironment(BaseTestCase):
     def test_get_environment_with_tagged_commit_sets_bp_oci_ref_name_to_tag(
         self, load_codebase_revision, load_codebase_processes, load_codebase_languages
     ):
-        self.fs.create_dir(".copilot")
-        self.fs.create_file(
-            ".copilot/config.yml",
-            contents=dump(
-                {
-                    "repository": "ecr/repos",
-                    "builder": {
-                        "name": "paketobuildpacks/builder-jammy-full",
-                        "version": "0.3.288",
-                    },
-                }
-            ),
-        )
         codebase = Codebase(Path("."))
         pack = Pack(codebase, "timestamp")
 
@@ -217,19 +205,6 @@ class TestPackEnvironment(BaseTestCase):
                 )
             ),
         ):
-            self.fs.create_dir(".copilot")
-            self.fs.create_file(
-                ".copilot/config.yml",
-                contents=dump(
-                    {
-                        "repository": "ecr/repos",
-                        "builder": {
-                            "name": "paketobuildpacks/builder-jammy-full",
-                            "version": "0.3.288",
-                        },
-                    }
-                ),
-            )
             codebase = Codebase(Path("."))
             pack = Pack(codebase, "timestamp")
 
