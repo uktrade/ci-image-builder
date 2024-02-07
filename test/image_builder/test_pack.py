@@ -174,7 +174,7 @@ class TestPackEnvironment(BaseTestCase):
                 "BP_OCI_REVISION=shorthash",
                 "BP_OCI_VERSION=shorthash",
                 "BPE_GIT_BRANCH=feat/tests",
-                "BP_OCI_REF_NAME=000000000000.dkr.ecr.region.amazonaws.com/ecr/repos",
+                "BP_OCI_REF_NAME=tag-v2.4.6",
                 "BP_OCI_SOURCE=https://github.com/org/repo",
                 'BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp"',
             ],
@@ -364,7 +364,7 @@ class TestCommand(BaseTestCase):
             "--env BP_OCI_REVISION=shorthash "
             "--env BP_OCI_VERSION=shorthash "
             "--env BPE_GIT_BRANCH=feat/tests "
-            "--env BP_OCI_REF_NAME=000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
+            "--env BP_OCI_REF_NAME=tag-v2.4.6 "
             "--env BP_OCI_SOURCE=https://github.com/org/repo "
             '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
             "--buildpack fagiani/apt "
@@ -400,7 +400,7 @@ class TestCommand(BaseTestCase):
             "--env BP_OCI_REVISION=shorthash "
             "--env BP_OCI_VERSION=shorthash "
             "--env BPE_GIT_BRANCH=feat/tests "
-            "--env BP_OCI_REF_NAME=000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
+            "--env BP_OCI_REF_NAME=tag-v2.4.6 "
             "--env BP_OCI_SOURCE=https://github.com/org/repo "
             '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
             "--buildpack fagiani/apt "
@@ -437,7 +437,7 @@ class TestCommand(BaseTestCase):
             "--env BP_OCI_REVISION=shorthash "
             "--env BP_OCI_VERSION=shorthash "
             "--env BPE_GIT_BRANCH=feat/tests "
-            "--env BP_OCI_REF_NAME=000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
+            "--env BP_OCI_REF_NAME=tag-v2.4.6 "
             "--env BP_OCI_SOURCE=https://github.com/org/repo "
             '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
             "--buildpack fagiani/apt "
@@ -450,3 +450,5 @@ class TestCommand(BaseTestCase):
             shell=True,
             stdout=subprocess.PIPE,
         )
+
+        # Todo: We need to test BP_OCI_REF_NAME=commit-shorthash "
