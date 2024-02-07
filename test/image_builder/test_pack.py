@@ -349,6 +349,7 @@ class TestCommand(BaseTestCase):
     ):
         codebase = Codebase(Path("."))
         pack = Pack(codebase, "timestamp")
+
         self.assertEqual(
             pack.get_command(),
             "pack build 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
@@ -385,6 +386,7 @@ class TestCommand(BaseTestCase):
     ):
         codebase = Codebase(Path("."))
         pack = Pack(codebase, "timestamp")
+
         self.assertEqual(
             pack.get_command(True),
             "pack build 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
@@ -422,7 +424,9 @@ class TestCommand(BaseTestCase):
     ):
         codebase = Codebase(Path("."))
         pack = Pack(codebase, "timestamp")
+
         pack.build()
+
         subprocess_popen.assert_called_with(
             "pack build 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
             "--builder paketobuildpacks/builder-jammy-full:0.3.288 "
@@ -451,4 +455,4 @@ class TestCommand(BaseTestCase):
             stdout=subprocess.PIPE,
         )
 
-        # Todo: We need to test BP_OCI_REF_NAME=commit-shorthash "
+    # Todo: We need to test BP_OCI_REF_NAME=commit-shorthash "

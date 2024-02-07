@@ -94,7 +94,7 @@ class Pack:
         if self.codebase.revision.branch:
             environment.append(f"BPE_GIT_BRANCH={self.codebase.revision.branch}")
 
-        environment.append(f"BP_OCI_REF_NAME={self.codebase.build.repository}")
+        environment.append(f"BP_OCI_REF_NAME=tag-{self.codebase.revision.tag}")
         environment.append(
             f"BP_OCI_SOURCE={self.codebase.revision.get_repository_url()}"
         )
