@@ -94,7 +94,7 @@ class Pack:
         if self.codebase.revision.branch:
             environment.append(f"BPE_GIT_BRANCH={self.codebase.revision.branch}")
 
-        environment.append(f"BP_OCI_REF_NAME={self.codebase.build.repository}")
+        environment.append(f"BP_OCI_REF_NAME={self.get_bp_oci_ref_name()}")
         environment.append(
             f"BP_OCI_SOURCE={self.codebase.revision.get_repository_url()}"
         )
@@ -122,6 +122,12 @@ class Pack:
             tags.append(f"branch-{self.codebase.revision.branch.replace('/', '-')}")
 
         return tags
+
+    def get_bp_oci_ref_name(self):
+        if self.codebase.revision.tag:
+            return f"tag-{self.codebase.revision.tag}"
+
+        return f"commit-{self.codebase.revision.commit}"
 
     @property
     def repository(self):

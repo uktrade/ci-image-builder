@@ -5,11 +5,13 @@ from test.base_test_case import BaseTestCase
 from test.doubles.codebase import load_codebase_languages_double
 from test.doubles.codebase import load_codebase_processes_double
 from test.doubles.codebase import load_codebase_revision_double
+from unittest import mock
 from unittest.mock import patch
 
 from yaml import dump
 
 from image_builder.codebase.codebase import Codebase
+from image_builder.codebase.revision import Revision
 from image_builder.pack import Pack
 
 
@@ -143,10 +145,6 @@ class TestPackEnvironment(BaseTestCase):
                 .resolve()
             ]
         )
-
-    def test_environments(
-        self, load_codebase_revision, load_codebase_processes, load_codebase_languages
-    ):
         self.fs.create_dir(".copilot")
         self.fs.create_file(
             ".copilot/config.yml",
@@ -161,11 +159,16 @@ class TestPackEnvironment(BaseTestCase):
             ),
         )
 
+    def test_get_environment(
+        self, load_codebase_revision, load_codebase_processes, load_codebase_languages
+    ):
         codebase = Codebase(Path("."))
         pack = Pack(codebase, "timestamp")
 
+        environment = pack.get_environment()
+
         self.assertEqual(
-            pack.get_environment(),
+            environment,
             [
                 "BP_CPYTHON_VERSION=3.11",
                 "BP_NODE_VERSION=20.7",
@@ -174,11 +177,40 @@ class TestPackEnvironment(BaseTestCase):
                 "BP_OCI_REVISION=shorthash",
                 "BP_OCI_VERSION=shorthash",
                 "BPE_GIT_BRANCH=feat/tests",
-                "BP_OCI_REF_NAME=000000000000.dkr.ecr.region.amazonaws.com/ecr/repos",
+                "BP_OCI_REF_NAME=tag-v2.4.6",
                 "BP_OCI_SOURCE=https://github.com/org/repo",
                 'BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp"',
             ],
         )
+
+    def test_get_environment_with_tagged_commit_sets_bp_oci_ref_name_to_tag(
+        self, load_codebase_revision, load_codebase_processes, load_codebase_languages
+    ):
+        codebase = Codebase(Path("."))
+        pack = Pack(codebase, "timestamp")
+
+        environment = pack.get_environment()
+
+        self.assertIn("BP_OCI_REF_NAME=tag-v2.4.6", environment)
+
+    def test_get_environment_with_untagged_commit_sets_bp_oci_ref_name_to_commit(
+        self, load_codebase_revision, load_codebase_processes, load_codebase_languages
+    ):
+        # Override load_codebase_revision to return a Revision with a tag
+        with mock.patch(
+            "image_builder.codebase.codebase.load_codebase_revision",
+            mock.Mock(
+                return_value=Revision(
+                    "git@github.com:org/repo.git", "shorthash", branch="feat/tests"
+                )
+            ),
+        ):
+            codebase = Codebase(Path("."))
+            pack = Pack(codebase, "timestamp")
+
+            environment = pack.get_environment()
+
+            self.assertIn("BP_OCI_REF_NAME=commit-shorthash", environment)
 
 
 @patch(
@@ -349,6 +381,7 @@ class TestCommand(BaseTestCase):
     ):
         codebase = Codebase(Path("."))
         pack = Pack(codebase, "timestamp")
+
         self.assertEqual(
             pack.get_command(),
             "pack build 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
@@ -364,7 +397,7 @@ class TestCommand(BaseTestCase):
             "--env BP_OCI_REVISION=shorthash "
             "--env BP_OCI_VERSION=shorthash "
             "--env BPE_GIT_BRANCH=feat/tests "
-            "--env BP_OCI_REF_NAME=000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
+            "--env BP_OCI_REF_NAME=tag-v2.4.6 "
             "--env BP_OCI_SOURCE=https://github.com/org/repo "
             '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
             "--buildpack fagiani/apt "
@@ -385,6 +418,7 @@ class TestCommand(BaseTestCase):
     ):
         codebase = Codebase(Path("."))
         pack = Pack(codebase, "timestamp")
+
         self.assertEqual(
             pack.get_command(True),
             "pack build 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
@@ -400,7 +434,7 @@ class TestCommand(BaseTestCase):
             "--env BP_OCI_REVISION=shorthash "
             "--env BP_OCI_VERSION=shorthash "
             "--env BPE_GIT_BRANCH=feat/tests "
-            "--env BP_OCI_REF_NAME=000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
+            "--env BP_OCI_REF_NAME=tag-v2.4.6 "
             "--env BP_OCI_SOURCE=https://github.com/org/repo "
             '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
             "--buildpack fagiani/apt "
@@ -422,7 +456,9 @@ class TestCommand(BaseTestCase):
     ):
         codebase = Codebase(Path("."))
         pack = Pack(codebase, "timestamp")
+
         pack.build()
+
         subprocess_popen.assert_called_with(
             "pack build 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
             "--builder paketobuildpacks/builder-jammy-full:0.3.288 "
@@ -437,7 +473,7 @@ class TestCommand(BaseTestCase):
             "--env BP_OCI_REVISION=shorthash "
             "--env BP_OCI_VERSION=shorthash "
             "--env BPE_GIT_BRANCH=feat/tests "
-            "--env BP_OCI_REF_NAME=000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
+            "--env BP_OCI_REF_NAME=tag-v2.4.6 "
             "--env BP_OCI_SOURCE=https://github.com/org/repo "
             '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
             "--buildpack fagiani/apt "
