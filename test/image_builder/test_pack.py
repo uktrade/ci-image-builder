@@ -5,11 +5,13 @@ from test.base_test_case import BaseTestCase
 from test.doubles.codebase import load_codebase_languages_double
 from test.doubles.codebase import load_codebase_processes_double
 from test.doubles.codebase import load_codebase_revision_double
+from unittest import mock
 from unittest.mock import patch
 
 from yaml import dump
 
 from image_builder.codebase.codebase import Codebase
+from image_builder.codebase.revision import Revision
 from image_builder.pack import Pack
 
 
@@ -179,6 +181,61 @@ class TestPackEnvironment(BaseTestCase):
                 'BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp"',
             ],
         )
+
+    def test_get_environment_with_tagged_commit_sets_bp_oci_ref_name_to_tag(
+        self, load_codebase_revision, load_codebase_processes, load_codebase_languages
+    ):
+        self.fs.create_dir(".copilot")
+        self.fs.create_file(
+            ".copilot/config.yml",
+            contents=dump(
+                {
+                    "repository": "ecr/repos",
+                    "builder": {
+                        "name": "paketobuildpacks/builder-jammy-full",
+                        "version": "0.3.288",
+                    },
+                }
+            ),
+        )
+        codebase = Codebase(Path("."))
+        pack = Pack(codebase, "timestamp")
+
+        environment = pack.get_environment()
+
+        self.assertIn("BP_OCI_REF_NAME=tag-v2.4.6", environment)
+
+    def test_get_environment_with_untagged_commit_sets_bp_oci_ref_name_to_commit(
+        self, load_codebase_revision, load_codebase_processes, load_codebase_languages
+    ):
+        # Override load_codebase_revision to return a Revision with a tag
+        with mock.patch(
+            "image_builder.codebase.codebase.load_codebase_revision",
+            mock.Mock(
+                return_value=Revision(
+                    "git@github.com:org/repo.git", "shorthash", branch="feat/tests"
+                )
+            ),
+        ):
+            self.fs.create_dir(".copilot")
+            self.fs.create_file(
+                ".copilot/config.yml",
+                contents=dump(
+                    {
+                        "repository": "ecr/repos",
+                        "builder": {
+                            "name": "paketobuildpacks/builder-jammy-full",
+                            "version": "0.3.288",
+                        },
+                    }
+                ),
+            )
+            codebase = Codebase(Path("."))
+            pack = Pack(codebase, "timestamp")
+
+            environment = pack.get_environment()
+
+            self.assertIn("BP_OCI_REF_NAME=commit-shorthash", environment)
 
 
 @patch(
@@ -454,5 +511,3 @@ class TestCommand(BaseTestCase):
             shell=True,
             stdout=subprocess.PIPE,
         )
-
-    # Todo: We need to test BP_OCI_REF_NAME=commit-shorthash "
