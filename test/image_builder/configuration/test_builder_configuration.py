@@ -1,3 +1,4 @@
+import os
 import unittest
 from pathlib import Path
 
@@ -22,6 +23,10 @@ class TestBuilderConfiguration(unittest.TestCase):
         )
 
     def setUp(self):
+        os.environ[
+            "CODEBUILD_BUILD_ARN"
+        ] = "arn:aws:codebuild:region:000000000000:build/project:example-build-id"
+
         self.builder_config_path = (
             Path(__file__)
             .parent.parent.parent.joinpath("fixtures/builder/config.yml")

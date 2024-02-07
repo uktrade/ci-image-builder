@@ -1,6 +1,7 @@
-import os
 import subprocess
 import time
+
+from image_builder.const import PUBLIC_REGISTRY
 
 
 class DockerError(Exception):
@@ -32,9 +33,16 @@ class Docker:
                 raise DockerStartTimeoutError()
             time.sleep(1)
 
-        _, _, _, region, account, _, _ = os.environ["CODEBUILD_BUILD_ARN"].split(":")
+    @staticmethod
+    def login(registry):
+        if registry == PUBLIC_REGISTRY:
+            command = f"aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin {registry}"
+        else:
+            command = f"aws ecr get-login-password --region {registry.split('.')[3]} | docker login --username AWS --password-stdin {registry}"
+
+        print(f"Running command: {command}")
         subprocess.run(
-            f"aws ecr get-login-password --region {region} | docker login --username AWS --password-stdin {account}.dkr.ecr.{region}.amazonaws.com",
+            f"{command}",
             stdout=subprocess.PIPE,
             shell=True,
         )

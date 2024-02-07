@@ -1,18 +1,19 @@
 from pathlib import Path
+from test.base_test_case import BaseTestCase
 from test.doubles.end_of_life import EndOfLifeResponse
 from test.helpers.files import create_python_indicator
 from unittest.mock import patch
 
 import pytest
 from parameterized import parameterized
-from pyfakefs.fake_filesystem_unittest import TestCase
 
 from image_builder.codebase.language import PythonLanguage
 from image_builder.codebase.language.base import CodebaseLanguageNotDetectedError
 
 
-class TestCodebaseLanguagePython(TestCase):
+class TestCodebaseLanguagePython(BaseTestCase):
     def setUp(self):
+        super().setUp()
         self.setUpPyfakefs()
 
     def test_without_python_application_present(self):

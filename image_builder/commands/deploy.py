@@ -34,17 +34,13 @@ class CannotCloneDeployRepositoryDeployError(DeployError):
     help="Send slack notifications.",
 )
 def deploy(send_notifications):
-    if not Docker.running():
-        click.echo("Docker is not running, starting up...")
-        Docker.start()
-    click.echo("Docker is running, continuing with build...")
-
     try:
         clone_deployment_repository()
         tag = get_image_tag_for_deployment()
         os.environ["IMAGE_TAG"] = tag
 
         repository = get_image_repository_url()
+        Docker.login(repository.split("/")[0])
         timestamp = get_deployment_reference(repository, tag)
         notify = Notify(send_notifications)
         notify.reference = timestamp

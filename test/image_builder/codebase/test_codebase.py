@@ -1,10 +1,11 @@
+import os
 from pathlib import Path
+from test.base_test_case import BaseTestCase
 from test.doubles.codebase import load_codebase_languages_double
 from test.doubles.codebase import load_codebase_processes_double
 from test.doubles.codebase import load_codebase_revision_double
 from unittest.mock import patch
 
-from pyfakefs.fake_filesystem_unittest import TestCase
 from yaml import dump
 
 from image_builder.codebase.codebase import Codebase
@@ -22,8 +23,13 @@ from image_builder.codebase.codebase import Codebase
     "image_builder.codebase.codebase.load_codebase_revision",
     wraps=load_codebase_revision_double,
 )
-class TestCodebase(TestCase):
+class TestCodebase(BaseTestCase):
     def setUp(self):
+        super().setUp()
+        os.environ[
+            "CODEBUILD_BUILD_ARN"
+        ] = "arn:aws:codebuild:region:000000000000:build/project:example-build-id"
+
         self.setUpPyfakefs()
         self.fs.create_dir(".copilot")
         self.fs.create_file(

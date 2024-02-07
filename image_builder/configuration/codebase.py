@@ -1,7 +1,11 @@
+import os
 from pathlib import Path
 from typing import List
 
 from yaml import safe_load as yaml_load
+
+from image_builder.const import PUBLIC_REGISTRY
+from image_builder.utils.arn_parser import ARN
 
 
 class Builder:
@@ -9,20 +13,51 @@ class Builder:
     version: str
 
 
-class Pack:
+class Buildpack:
     name: str
 
 
 class CodebaseConfiguration:
     builder: Builder
-    packs: List[Pack]
-    repository: str
+    packs: List[Buildpack]
+    registry: str
+    repository_from_config_file: str
     packages: List[str]
 
     def __init__(self):
         self.builder = Builder()
         self.packs = []
         self.packages = []
+        self.repository_from_config_file = ""
+
+    @property
+    def repository(self):
+        codebuild_build_arn = os.getenv("CODEBUILD_BUILD_ARN")
+        repository_from_environment = os.getenv("ECR_REPOSITORY")
+        repository_from_config_file = self.repository_from_config_file
+
+        if (
+            repository_from_config_file
+            and PUBLIC_REGISTRY in repository_from_config_file
+        ):
+            return repository_from_config_file
+        else:
+            if not codebuild_build_arn:
+                raise CodebaseConfigurationLoadError(
+                    f"codebuild build arn not set in environment variables"
+                )
+
+            if not repository_from_environment and not repository_from_config_file:
+                raise CodebaseConfigurationLoadError(
+                    f"repository not set in config file or environment variables"
+                )
+
+            arn = ARN(codebuild_build_arn)
+            return f"{arn.account_id}.dkr.ecr.{arn.region}.amazonaws.com/{repository_from_environment or repository_from_config_file}"
+
+    @property
+    def registry(self):
+        return self.repository.split("/")[0]
 
 
 class CodebaseConfigurationError(Exception):
@@ -39,11 +74,11 @@ def load_codebase_configuration(path) -> CodebaseConfiguration:
         build = CodebaseConfiguration()
         build.builder.name = config["builder"]["name"]
         build.builder.version = config["builder"]["version"]
-        build.repository = config["repository"] if "repository" in config else None
+        build.repository_from_config_file = config.get("repository")
 
         if "packs" in config:
             for pack_name in config["packs"]:
-                pack = Pack()
+                pack = Buildpack()
                 pack.name = pack_name
                 build.packs.append(pack)
 

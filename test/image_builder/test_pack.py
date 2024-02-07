@@ -1,12 +1,12 @@
 import os
 import subprocess
 from pathlib import Path
+from test.base_test_case import BaseTestCase
 from test.doubles.codebase import load_codebase_languages_double
 from test.doubles.codebase import load_codebase_processes_double
 from test.doubles.codebase import load_codebase_revision_double
 from unittest.mock import patch
 
-from pyfakefs.fake_filesystem_unittest import TestCase
 from yaml import dump
 
 from image_builder.codebase.codebase import Codebase
@@ -25,8 +25,13 @@ from image_builder.pack import Pack
     "image_builder.codebase.codebase.load_codebase_revision",
     wraps=load_codebase_revision_double,
 )
-class TestPackBuildpacks(TestCase):
+class TestPackBuildpacks(BaseTestCase):
     def setUp(self):
+        super().setUp()
+        os.environ[
+            "CODEBUILD_BUILD_ARN"
+        ] = "arn:aws:codebuild:region:000000000000:build/project:example-build-id"
+
         self.setUpPyfakefs()
         self.fs.add_real_paths(
             [
@@ -121,8 +126,13 @@ class TestPackBuildpacks(TestCase):
     "image_builder.codebase.codebase.load_codebase_revision",
     wraps=load_codebase_revision_double,
 )
-class TestPackEnvironment(TestCase):
+class TestPackEnvironment(BaseTestCase):
     def setUp(self):
+        super().setUp()
+        os.environ[
+            "CODEBUILD_BUILD_ARN"
+        ] = "arn:aws:codebuild:region:000000000000:build/project:example-build-id"
+
         self.setUpPyfakefs()
         self.fs.add_real_paths(
             [
@@ -164,7 +174,7 @@ class TestPackEnvironment(TestCase):
                 "BP_OCI_REVISION=shorthash",
                 "BP_OCI_VERSION=shorthash",
                 "BPE_GIT_BRANCH=feat/tests",
-                "BP_OCI_REF_NAME=ecr/repos",
+                "BP_OCI_REF_NAME=000000000000.dkr.ecr.region.amazonaws.com/ecr/repos",
                 "BP_OCI_SOURCE=https://github.com/org/repo",
                 'BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp"',
             ],
@@ -183,7 +193,7 @@ class TestPackEnvironment(TestCase):
     "image_builder.codebase.codebase.load_codebase_revision",
     wraps=load_codebase_revision_double,
 )
-class TestPackTags(TestCase):
+class TestPackTags(BaseTestCase):
     def setUp(self):
         self.setUpPyfakefs()
         self.fs.create_dir(".copilot")
@@ -241,8 +251,9 @@ class TestPackTags(TestCase):
         stdout=subprocess.PIPE,
     ),
 )
-class TestCommand(TestCase):
+class TestCommand(BaseTestCase):
     def setUp(self):
+        super().setUp()
         self.setUpPyfakefs()
         self.fs.create_dir(".copilot")
         self.fs.create_file(
@@ -282,7 +293,7 @@ class TestCommand(TestCase):
         pack = Pack(codebase, "timestamp")
 
         self.assertEqual(
-            pack.get_repository(), "000000000000.dkr.ecr.region.amazonaws.com/ecr/repos"
+            pack.repository, "000000000000.dkr.ecr.region.amazonaws.com/ecr/repos"
         )
 
     def test_get_public_repository_url_from_config(
@@ -311,7 +322,7 @@ class TestCommand(TestCase):
         codebase = Codebase(Path("."))
         pack = Pack(codebase, "timestamp")
 
-        self.assertEqual(pack.get_repository(), "public.ecr.aws/uktrade/repos")
+        self.assertEqual(pack.repository, "public.ecr.aws/uktrade/repos")
 
     def test_get_repository_url_from_environment(
         self,
@@ -320,12 +331,12 @@ class TestCommand(TestCase):
         load_codebase_processes,
         load_codebase_languages,
     ):
+        os.environ["ECR_REPOSITORY"] = "ecr/environment-repo"
         codebase = Codebase(Path("."))
         pack = Pack(codebase, "timestamp")
-        os.environ["ECR_REPOSITORY"] = "ecr/environment-repo"
 
         self.assertEqual(
-            pack.get_repository(),
+            pack.repository,
             "000000000000.dkr.ecr.region.amazonaws.com/ecr/environment-repo",
         )
 
@@ -353,7 +364,7 @@ class TestCommand(TestCase):
             "--env BP_OCI_REVISION=shorthash "
             "--env BP_OCI_VERSION=shorthash "
             "--env BPE_GIT_BRANCH=feat/tests "
-            "--env BP_OCI_REF_NAME=ecr/repos "
+            "--env BP_OCI_REF_NAME=000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
             "--env BP_OCI_SOURCE=https://github.com/org/repo "
             '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
             "--buildpack fagiani/apt "
@@ -389,7 +400,7 @@ class TestCommand(TestCase):
             "--env BP_OCI_REVISION=shorthash "
             "--env BP_OCI_VERSION=shorthash "
             "--env BPE_GIT_BRANCH=feat/tests "
-            "--env BP_OCI_REF_NAME=ecr/repos "
+            "--env BP_OCI_REF_NAME=000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
             "--env BP_OCI_SOURCE=https://github.com/org/repo "
             '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
             "--buildpack fagiani/apt "
@@ -426,7 +437,7 @@ class TestCommand(TestCase):
             "--env BP_OCI_REVISION=shorthash "
             "--env BP_OCI_VERSION=shorthash "
             "--env BPE_GIT_BRANCH=feat/tests "
-            "--env BP_OCI_REF_NAME=ecr/repos "
+            "--env BP_OCI_REF_NAME=000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
             "--env BP_OCI_SOURCE=https://github.com/org/repo "
             '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
             "--buildpack fagiani/apt "

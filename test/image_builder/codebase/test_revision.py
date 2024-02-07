@@ -1,10 +1,10 @@
 import os
 from pathlib import Path
+from test.base_test_case import BaseTestCase
 from test.doubles.process import StubbedProcess
 from unittest.mock import patch
 
 import pytest
-from pyfakefs.fake_filesystem_unittest import TestCase
 
 from image_builder.codebase.revision import CodebaseRevisionMissingDataError
 from image_builder.codebase.revision import CodebaseRevisionNoDataError
@@ -39,8 +39,9 @@ def git_revision_command(
     return get_git_revision_data
 
 
-class TestCodebaseRevision(TestCase):
+class TestCodebaseRevision(BaseTestCase):
     def setUp(self):
+        super().setUp()
         self.setUpPyfakefs()
 
     @patch("subprocess.run", wraps=git_revision_command())

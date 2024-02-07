@@ -29,6 +29,7 @@ class TestBuildCommand(unittest.TestCase):
         codebase().languages = load_codebase_languages_double(Path("."))
         codebase().build.builder.name = "test-builder"
         codebase().build.builder.version = "0000000"
+        pack().repository = "ecr/test-repository"
         pack().get_buildpacks.return_value = [
             "fagiani/apt",
             "paketo-buildpacks/git",
@@ -92,4 +93,4 @@ class TestBuildCommand(unittest.TestCase):
         self.setup_mocks(pack, docker, codebase, notify, progress)
         docker.running.return_value = False
         self.run_build()
-        docker.start.assert_called_with()
+        docker.start.assert_called()

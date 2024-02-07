@@ -2,13 +2,13 @@ import json
 import os
 import subprocess
 from pathlib import Path
+from test.base_test_case import BaseTestCase
 from test.doubles.process import StubbedProcess
 from unittest.mock import call
 from unittest.mock import patch
 
 from click.testing import CliRunner
 from parameterized import parameterized
-from pyfakefs.fake_filesystem_unittest import TestCase
 
 from image_builder.commands.deploy import deploy
 
@@ -41,8 +41,9 @@ def call_subprocess_run(command: str, stdout=subprocess.PIPE, shell=True, cwd=".
 @patch("subprocess.run", wraps=call_subprocess_run)
 @patch("image_builder.commands.deploy.Notify")
 @patch("image_builder.commands.deploy.Docker")
-class TestDeployCommand(TestCase):
+class TestDeployCommand(BaseTestCase):
     def setUp(self):
+        super().setUp()
         self.setUpPyfakefs()
         self.fs.create_dir("/src")
 
@@ -117,7 +118,6 @@ class TestDeployCommand(TestCase):
 
         result = self.run_deploy()
 
-        self.assertIn("Docker is running, continuing with build...", result.output)
         self.assertIn(
             "Cloning repository organisation/repository-deploy", result.output
         )

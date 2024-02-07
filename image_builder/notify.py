@@ -6,6 +6,7 @@ from slack_sdk.models import blocks
 
 from image_builder.codebase.codebase import Codebase
 from image_builder.progress import Progress
+from image_builder.utils.arn_parser import ARN
 
 
 class Settings:
@@ -117,17 +118,16 @@ class Notify:
 
     def get_build_url(self):
         try:
-            build_arn = self.settings.build_arn
-            _, _, _, region, account, project, build_id = build_arn.split(":")
+            arn = ARN(self.settings.build_arn)
             url = (
                 "https://{region}.console.aws.amazon.com/codesuite/codebuild/{account}/projects/{"
                 "project}/build/{project}%3A{build_id}"
             )
             return url.format(
-                region=region,
-                account=account,
-                project=project.replace("build/", ""),
-                build_id=build_id,
+                region=arn.region,
+                account=arn.account_id,
+                project=arn.project.replace("build/", ""),
+                build_id=arn.build_id,
             )
         except ValueError:
             return ""
