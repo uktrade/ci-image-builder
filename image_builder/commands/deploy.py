@@ -215,7 +215,7 @@ def install_copilot():
         subprocess.run(
             "chmod +x ./copilot && mv copilot /usr/bin/",
             shell=True,
-            check=True
+            check=True,
         )
     except subprocess.CalledProcessError as e:
         raise CannotInstallCopilotDeployError(

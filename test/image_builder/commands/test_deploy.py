@@ -26,10 +26,12 @@ COMMAND_PATTERNS = {
     ),
     "git clone": StubbedProcess(returncode=0),
     "copilot deploy": StubbedProcess(returncode=0),
+    "wget": StubbedProcess(returncode=0),
+    "chmod": StubbedProcess(returncode=0),
 }
 
 
-def call_subprocess_run(command: str, stdout=subprocess.PIPE, shell=True, cwd="."):
+def call_subprocess_run(command: str, stdout=subprocess.PIPE, shell=True, check=True, cwd="."):
     for pattern in COMMAND_PATTERNS.keys():
         if command.startswith(pattern):
             return COMMAND_PATTERNS[pattern]
@@ -46,6 +48,10 @@ class TestDeployCommand(BaseTestCase):
         super().setUp()
         self.setUpPyfakefs()
         self.fs.create_dir("/src")
+        self.fs.create_file(
+            "deploy/.copilot-version",
+            contents="1.33.1"
+        )
 
     @staticmethod
     def setup_mocks(docker, notify, subprocess_run, subprocess_popen):
@@ -136,6 +142,16 @@ class TestDeployCommand(BaseTestCase):
                     "deploy",
                     stdout=subprocess.PIPE,
                     shell=True,
+                ),
+                call(
+                    "wget -q -O copilot https://ecs-cli-v2-release.s3.amazonaws.com/copilot-linux-v1.33.1",
+                    shell=True,
+                    check=True,
+                ),
+                call(
+                    "chmod +x ./copilot && mv copilot /usr/bin/",
+                    shell=True,
+                    check=True,
                 ),
                 call(
                     "regctl image config 00000000000.dkr.ecr.eu-west-2.amazonaws.com/repository/application:commit-99999",
