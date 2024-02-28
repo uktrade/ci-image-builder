@@ -26,6 +26,10 @@ class CannotCloneDeployRepositoryDeployError(DeployError):
     pass
 
 
+class CannotInstallCopilotDeployError(DeployError):
+    pass
+
+
 @click.command("deploy", help="Deploy an image to a list of services.")
 @click.option(
     "--send-notifications",
@@ -36,6 +40,7 @@ class CannotCloneDeployRepositoryDeployError(DeployError):
 def deploy(send_notifications):
     try:
         clone_deployment_repository()
+        install_copilot()
         tag = get_image_tag_for_deployment()
         os.environ["IMAGE_TAG"] = tag
 
@@ -189,4 +194,30 @@ def clone_deployment_repository():
     if proc.returncode != 0:
         raise CannotCloneDeployRepositoryDeployError(
             f"Failed to clone deploy repository: " f"{proc.stderr}"
+        )
+
+
+def install_copilot():
+    try:
+        version = open('deploy/.copilot-version').read()
+    except FileNotFoundError:
+        raise CannotInstallCopilotDeployError(
+            "Cannot find .copilot-version file in deploy repository"
+        )
+
+    click.echo(f"Installing copilot version {version}")
+    try:
+        subprocess.run(
+            f"wget -q -O copilot https://ecs-cli-v2-release.s3.amazonaws.com/copilot-linux-v{version}",
+            shell=True,
+            check=True,
+        )
+        subprocess.run(
+            "chmod +x ./copilot && mv copilot /usr/bin/",
+            shell=True,
+            check=True
+        )
+    except subprocess.CalledProcessError as e:
+        raise CannotInstallCopilotDeployError(
+            f"Failed to install copilot version {version}: " f"{e.stderr}"
         )
