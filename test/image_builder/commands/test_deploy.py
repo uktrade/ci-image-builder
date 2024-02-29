@@ -362,3 +362,20 @@ class TestDeployCommand(BaseTestCase):
             self.teardown_environment()
         finally:
             COMMAND_PATTERNS["regctl"] = old_regctl
+
+    def test_installing_copilot_fails_when_no_version_file_present(
+        self, docker, notify, subprocess_run, subprocess_popen
+    ):
+        self.setup_mocks(docker, notify, subprocess_run, subprocess_popen)
+        self.setup_environment()
+        self.fs.remove_object('deploy/.copilot-version')
+
+        result = self.run_deploy()
+
+        self.assertIn(
+            "CannotInstallCopilotDeployError: Cannot find .copilot-version file in deploy repository",
+            result.output,
+        )
+
+        self.assertEqual(result.exit_code, 1)
+        self.teardown_environment()
