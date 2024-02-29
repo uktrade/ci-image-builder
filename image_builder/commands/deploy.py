@@ -199,7 +199,7 @@ def clone_deployment_repository():
 
 def install_copilot():
     try:
-        version = open('deploy/.copilot-version').read()
+        version = open("deploy/.copilot-version").read()
     except FileNotFoundError:
         raise CannotInstallCopilotDeployError(
             "Cannot find .copilot-version file in deploy repository"

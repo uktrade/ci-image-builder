@@ -31,7 +31,9 @@ COMMAND_PATTERNS = {
 }
 
 
-def call_subprocess_run(command: str, stdout=subprocess.PIPE, shell=True, check=True, cwd="."):
+def call_subprocess_run(
+    command: str, stdout=subprocess.PIPE, shell=True, check=True, cwd="."
+):
     for pattern in COMMAND_PATTERNS.keys():
         if command.startswith(pattern):
             return COMMAND_PATTERNS[pattern]
@@ -48,10 +50,7 @@ class TestDeployCommand(BaseTestCase):
         super().setUp()
         self.setUpPyfakefs()
         self.fs.create_dir("/src")
-        self.fs.create_file(
-            "deploy/.copilot-version",
-            contents="1.33.1"
-        )
+        self.fs.create_file("deploy/.copilot-version", contents="1.33.1")
 
     @staticmethod
     def setup_mocks(docker, notify, subprocess_run, subprocess_popen):
@@ -368,7 +367,7 @@ class TestDeployCommand(BaseTestCase):
     ):
         self.setup_mocks(docker, notify, subprocess_run, subprocess_popen)
         self.setup_environment()
-        self.fs.remove_object('deploy/.copilot-version')
+        self.fs.remove_object("deploy/.copilot-version")
 
         result = self.run_deploy()
 
