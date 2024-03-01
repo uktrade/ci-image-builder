@@ -199,25 +199,32 @@ def clone_deployment_repository():
 
 def install_copilot():
     try:
-        version = open("deploy/.copilot-version").read()
+        version = open("deploy/.copilot-version").read().rstrip("\n")
     except FileNotFoundError:
         raise CannotInstallCopilotDeployError(
             "Cannot find .copilot-version file in deploy repository"
         )
 
-    click.echo(f"Installing copilot version {version}")
-    try:
-        subprocess.run(
-            f"wget -q -O copilot https://ecs-cli-v2-release.s3.amazonaws.com/copilot-linux-v{version}",
+    click.echo(f"Using copilot version {version}")
+    proc = subprocess.run(
+        f"/copilot/./copilot-{version} --version",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=True,
+    )
+
+    if proc.returncode != 0:
+        click.echo(f"Copilot version {version} not pre-installed, installing now")
+
+        proc = subprocess.run(
+            f"wget -q -O copilot-{version} https://ecs-cli-v2-release.s3.amazonaws.com/copilot-linux-v{version} && "
+            f"chmod +x ./copilot-{version} && mv copilot-{version} /copilot",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             shell=True,
-            check=True,
         )
-        subprocess.run(
-            "chmod +x ./copilot && mv copilot /usr/bin/",
-            shell=True,
-            check=True,
-        )
-    except subprocess.CalledProcessError as e:
-        raise CannotInstallCopilotDeployError(
-            f"Failed to install copilot version {version}: " f"{e.stderr}"
-        )
+
+        if proc.returncode != 0:
+            raise CannotInstallCopilotDeployError(
+                f"Failed to install copilot version {version}: " f"{proc.stderr}"
+            )

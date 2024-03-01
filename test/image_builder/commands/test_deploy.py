@@ -28,11 +28,12 @@ COMMAND_PATTERNS = {
     "copilot deploy": StubbedProcess(returncode=0),
     "wget": StubbedProcess(returncode=0),
     "chmod": StubbedProcess(returncode=0),
+    "/copilot": StubbedProcess(returncode=0),
 }
 
 
 def call_subprocess_run(
-    command: str, stdout=subprocess.PIPE, shell=True, check=True, cwd="."
+    command: str, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, cwd="."
 ):
     for pattern in COMMAND_PATTERNS.keys():
         if command.startswith(pattern):
@@ -143,14 +144,10 @@ class TestDeployCommand(BaseTestCase):
                     shell=True,
                 ),
                 call(
-                    "wget -q -O copilot https://ecs-cli-v2-release.s3.amazonaws.com/copilot-linux-v1.33.1",
+                    "/copilot/./copilot-1.33.1 --version",
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
                     shell=True,
-                    check=True,
-                ),
-                call(
-                    "chmod +x ./copilot && mv copilot /usr/bin/",
-                    shell=True,
-                    check=True,
                 ),
                 call(
                     "regctl image config 00000000000.dkr.ecr.eu-west-2.amazonaws.com/repository/application:commit-99999",
@@ -378,3 +375,45 @@ class TestDeployCommand(BaseTestCase):
 
         self.assertEqual(result.exit_code, 1)
         self.teardown_environment()
+
+    def test_installing_copilot_fails_when_version_fails_to_install(
+        self, docker, notify, subprocess_run, subprocess_popen
+    ):
+        self.setup_mocks(docker, notify, subprocess_run, subprocess_popen)
+        self.setup_environment()
+        self.fs.remove_object("deploy/.copilot-version")
+        self.fs.create_file("deploy/.copilot-version", contents="test")
+        COMMAND_PATTERNS["/copilot"] = StubbedProcess(returncode=1)
+        COMMAND_PATTERNS["wget"] = StubbedProcess(returncode=1)
+
+        result = self.run_deploy()
+
+        self.assertIn(
+            "Failed to install copilot version test",
+            result.output,
+        )
+
+        self.assertEqual(result.exit_code, 1)
+        self.teardown_environment()
+        COMMAND_PATTERNS["/copilot"] = StubbedProcess(returncode=0)
+        COMMAND_PATTERNS["wget"] = StubbedProcess(returncode=0)
+
+    def test_installing_copilot_succeeds_when_preinstalled_version_does_not_exist(
+        self, docker, notify, subprocess_run, subprocess_popen
+    ):
+        self.setup_mocks(docker, notify, subprocess_run, subprocess_popen)
+        self.setup_environment()
+        self.fs.remove_object("deploy/.copilot-version")
+        self.fs.create_file("deploy/.copilot-version", contents="1.31.0")
+        COMMAND_PATTERNS["/copilot"] = StubbedProcess(returncode=1)
+
+        result = self.run_deploy()
+
+        self.assertIn(
+            "Copilot version 1.31.0 not pre-installed, installing now",
+            result.output,
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        self.teardown_environment()
+        COMMAND_PATTERNS["/copilot"] = StubbedProcess(returncode=0)
