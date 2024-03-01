@@ -40,7 +40,7 @@ class CannotInstallCopilotDeployError(DeployError):
 def deploy(send_notifications):
     try:
         clone_deployment_repository()
-        install_copilot()
+        copilot_version = install_copilot()
         tag = get_image_tag_for_deployment()
         os.environ["IMAGE_TAG"] = tag
 
@@ -65,7 +65,7 @@ def deploy(send_notifications):
         )
 
         deploy_command = (
-            f"copilot deploy --env {copilot_environment} --deploy-env=false --force"
+            f"/copilot/./copilot-{copilot_version} deploy --env {copilot_environment} --deploy-env=false --force"
         )
         for i, service in enumerate(copilot_services):
             deploy_command += f" --name {service}/{i + 1}"
@@ -197,7 +197,7 @@ def clone_deployment_repository():
         )
 
 
-def install_copilot():
+def install_copilot() -> str:
     try:
         version = open("deploy/.copilot-version").read().rstrip("\n")
     except FileNotFoundError:
@@ -228,3 +228,5 @@ def install_copilot():
             raise CannotInstallCopilotDeployError(
                 f"Failed to install copilot version {version}: " f"{proc.stderr}"
             )
+
+    return version

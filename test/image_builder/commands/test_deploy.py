@@ -25,10 +25,12 @@ COMMAND_PATTERNS = {
         )
     ),
     "git clone": StubbedProcess(returncode=0),
-    "copilot deploy": StubbedProcess(returncode=0),
     "wget": StubbedProcess(returncode=0),
     "chmod": StubbedProcess(returncode=0),
-    "/copilot": StubbedProcess(returncode=0),
+    "/copilot/./copilot-1.33.1 deploy": StubbedProcess(returncode=0),
+    "/copilot/./copilot-1.31.1 --version": StubbedProcess(returncode=0),
+    "/copilot/./copilot-1.31.0 --version": StubbedProcess(returncode=1),
+    "/copilot/./copilot-test --version": StubbedProcess(returncode=1),
 }
 
 
@@ -155,7 +157,7 @@ class TestDeployCommand(BaseTestCase):
                     shell=True,
                 ),
                 call(
-                    "copilot deploy --env dev --deploy-env=false --force --name web/1 --name worker/2",
+                    "/copilot/./copilot-1.33.1 deploy --env dev --deploy-env=false --force --name web/1 --name worker/2",
                     stdout=subprocess.PIPE,
                     shell=True,
                     cwd=Path("deploy"),
@@ -383,7 +385,7 @@ class TestDeployCommand(BaseTestCase):
         self.setup_environment()
         self.fs.remove_object("deploy/.copilot-version")
         self.fs.create_file("deploy/.copilot-version", contents="test")
-        COMMAND_PATTERNS["/copilot"] = StubbedProcess(returncode=1)
+        COMMAND_PATTERNS["/copilot/./copilot-test --version"] = StubbedProcess(returncode=1)
         COMMAND_PATTERNS["wget"] = StubbedProcess(returncode=1)
 
         result = self.run_deploy()
@@ -395,7 +397,6 @@ class TestDeployCommand(BaseTestCase):
 
         self.assertEqual(result.exit_code, 1)
         self.teardown_environment()
-        COMMAND_PATTERNS["/copilot"] = StubbedProcess(returncode=0)
         COMMAND_PATTERNS["wget"] = StubbedProcess(returncode=0)
 
     def test_installing_copilot_succeeds_when_preinstalled_version_does_not_exist(
@@ -405,7 +406,7 @@ class TestDeployCommand(BaseTestCase):
         self.setup_environment()
         self.fs.remove_object("deploy/.copilot-version")
         self.fs.create_file("deploy/.copilot-version", contents="1.31.0")
-        COMMAND_PATTERNS["/copilot"] = StubbedProcess(returncode=1)
+        COMMAND_PATTERNS["/copilot/./copilot-1.31.0 --version"] = StubbedProcess(returncode=1)
 
         result = self.run_deploy()
 
@@ -416,4 +417,3 @@ class TestDeployCommand(BaseTestCase):
 
         self.assertEqual(result.exit_code, 0)
         self.teardown_environment()
-        COMMAND_PATTERNS["/copilot"] = StubbedProcess(returncode=0)
