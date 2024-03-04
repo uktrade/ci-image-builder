@@ -64,9 +64,7 @@ def deploy(send_notifications):
             ],
         )
 
-        deploy_command = (
-            f"/copilot/./copilot-{copilot_version} deploy --env {copilot_environment} --deploy-env=false --force"
-        )
+        deploy_command = f"/copilot/./copilot-{copilot_version} deploy --env {copilot_environment} --deploy-env=false --force"
         for i, service in enumerate(copilot_services):
             deploy_command += f" --name {service}/{i + 1}"
 
