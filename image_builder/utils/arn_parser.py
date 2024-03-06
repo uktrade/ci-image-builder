@@ -1,4 +1,4 @@
-from test.image_builder.utils.exceptions import ValidationError
+from image_builder.utils.exceptions import ValidationError
 
 
 class ARN:
