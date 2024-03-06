@@ -5,9 +5,8 @@ from pathlib import Path
 import pytest
 from parameterized import parameterized
 
-from image_builder.configuration.codebase import CodebaseConfiguration
-from image_builder.configuration.codebase import CodebaseConfigurationLoadError
-
+from image_builder.configuration.codebase import (
+    CodebaseConfiguration, CodebaseConfigurationLoadError)
 
 ECR_REPO = "ECR_REPOSITORY"
 

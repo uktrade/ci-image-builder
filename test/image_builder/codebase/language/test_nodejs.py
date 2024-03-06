@@ -9,7 +9,8 @@ import pytest
 from parameterized import parameterized
 
 from image_builder.codebase.language import NodeJSLanguage
-from image_builder.codebase.language.base import CodebaseLanguageNotDetectedError
+from image_builder.codebase.language.base import \
+    CodebaseLanguageNotDetectedError
 
 
 class TestCodebaseLanguageNodeJS(BaseTestCase):

@@ -5,9 +5,9 @@ from pathlib import Path
 import pytest
 from parameterized import parameterized
 
-from image_builder.configuration.builder import BuilderSupport
-from image_builder.configuration.builder import BuilderUnsupportedError
-from image_builder.configuration.builder import load_builder_configuration
+from image_builder.configuration.builder import (BuilderSupport,
+                                                 BuilderUnsupportedError,
+                                                 load_builder_configuration)
 from image_builder.configuration.codebase import load_codebase_configuration
 
 

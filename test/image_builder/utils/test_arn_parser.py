@@ -1,11 +1,11 @@
 import unittest
+from test.image_builder.utils.exceptions import ValidationError
 
 import pytest
 from parameterized import parameterized
 
 from image_builder.configuration.codebase import CodebaseConfigurationLoadError
 from image_builder.utils.arn_parser import ARN
-from test.image_builder.utils.exceptions import ValidationError
 
 
 class TestArnParser(unittest.TestCase):

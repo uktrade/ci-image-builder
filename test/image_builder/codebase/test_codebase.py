@@ -1,9 +1,9 @@
 import os
 from pathlib import Path
 from test.base_test_case import BaseTestCase
-from test.doubles.codebase import load_codebase_languages_double
-from test.doubles.codebase import load_codebase_processes_double
-from test.doubles.codebase import load_codebase_revision_double
+from test.doubles.codebase import (load_codebase_languages_double,
+                                   load_codebase_processes_double,
+                                   load_codebase_revision_double)
 from unittest.mock import patch
 
 from yaml import dump

@@ -1,8 +1,6 @@
-from image_builder.codebase.language import Languages
-from image_builder.codebase.language import NodeJSLanguage
-from image_builder.codebase.language import PythonLanguage
-from image_builder.codebase.processes import Process
-from image_builder.codebase.processes import Processes
+from image_builder.codebase.language import (Languages, NodeJSLanguage,
+                                             PythonLanguage)
+from image_builder.codebase.processes import Process, Processes
 from image_builder.codebase.revision import Revision
 
 
