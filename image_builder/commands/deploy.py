@@ -26,6 +26,10 @@ class CannotCloneDeployRepositoryDeployError(DeployError):
     pass
 
 
+class CannotInstallCopilotDeployError(DeployError):
+    pass
+
+
 @click.command("deploy", help="Deploy an image to a list of services.")
 @click.option(
     "--send-notifications",
@@ -36,6 +40,7 @@ class CannotCloneDeployRepositoryDeployError(DeployError):
 def deploy(send_notifications):
     try:
         clone_deployment_repository()
+        copilot_version = install_copilot()
         tag = get_image_tag_for_deployment()
         os.environ["IMAGE_TAG"] = tag
 
@@ -59,9 +64,7 @@ def deploy(send_notifications):
             ],
         )
 
-        deploy_command = (
-            f"copilot deploy --env {copilot_environment} --deploy-env=false --force"
-        )
+        deploy_command = f"/copilot/./copilot-{copilot_version} deploy --env {copilot_environment} --deploy-env=false --force"
         for i, service in enumerate(copilot_services):
             deploy_command += f" --name {service}/{i + 1}"
 
@@ -190,3 +193,38 @@ def clone_deployment_repository():
         raise CannotCloneDeployRepositoryDeployError(
             f"Failed to clone deploy repository: " f"{proc.stderr}"
         )
+
+
+def install_copilot() -> str:
+    try:
+        version = open("deploy/.copilot-version").read().rstrip("\n")
+    except FileNotFoundError:
+        raise CannotInstallCopilotDeployError(
+            "Cannot find .copilot-version file in deploy repository"
+        )
+
+    click.echo(f"Using copilot version {version}")
+    proc = subprocess.run(
+        f"/copilot/./copilot-{version} --version",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=True,
+    )
+
+    if proc.returncode != 0:
+        click.echo(f"Copilot version {version} not pre-installed, installing now")
+
+        proc = subprocess.run(
+            f"wget -q -O copilot-{version} https://ecs-cli-v2-release.s3.amazonaws.com/copilot-linux-v{version} && "
+            f"chmod +x ./copilot-{version} && mv copilot-{version} /copilot",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=True,
+        )
+
+        if proc.returncode != 0:
+            raise CannotInstallCopilotDeployError(
+                f"Failed to install copilot version {version}: " f"{proc.stderr}"
+            )
+
+    return version
