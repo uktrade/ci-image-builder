@@ -69,6 +69,24 @@ class CodebaseConfiguration:
         return f"{arn.account_id}.dkr.ecr.{arn.region}.amazonaws.com/{repository}"
 
     @property
+    def additional_repository(self):
+        repository_from_environment = os.getenv("ECR_REPOSITORY")
+        repository_from_config_file = self.repository_from_config_file
+
+        self.validate_ecr_config(repository_from_config_file, repository_from_environment)
+
+        repository = repository_from_environment if repository_from_environment else repository_from_config_file
+
+        if PUBLIC_REGISTRY in repository:
+            return repository
+
+        codebuild_build_arn = os.getenv("CODEBUILD_BUILD_ARN")
+        self.validate_build_arn(codebuild_build_arn)
+        arn = ARN(codebuild_build_arn)
+
+        return f"{arn.account_id}.dkr.ecr.{arn.region}.amazonaws.com/{repository}"
+
+    @property
     def registry(self):
         return self.repository.split("/")[0]
 

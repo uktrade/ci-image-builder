@@ -9,6 +9,7 @@ from image_builder.configuration.codebase import CodebaseConfiguration
 from image_builder.configuration.codebase import CodebaseConfigurationLoadError
 
 ECR_REPO = "ECR_REPOSITORY"
+ADD_ECR_REPO = "ADDITIONAL_ECR_REPOSITORY"
 
 
 class TestCodebaseConfiguration(unittest.TestCase):
@@ -21,6 +22,8 @@ class TestCodebaseConfiguration(unittest.TestCase):
     def tearDown(self) -> None:
         if ECR_REPO in os.environ:
             del os.environ[ECR_REPO]
+        if ADD_ECR_REPO in os.environ:
+            del os.environ[ADD_ECR_REPO]
 
     @staticmethod
     def get_codebase_path(version: str):
@@ -141,3 +144,43 @@ class TestCodebaseConfiguration(unittest.TestCase):
         config = CodebaseConfiguration()
 
         self.assertEqual(config.registry, "000000000000.dkr.ecr.region.amazonaws.com")
+
+    @parameterized.expand(
+        [
+            ("public.ecr.aws/org/repo_1", "private/repo_1", "000000000000.dkr.ecr.region.amazonaws.com/private/repo_1"),
+            ("private/repo_2", "public.ecr.aws/org/repo_2", "public.ecr.aws/org/repo_2"),
+            ("public.ecr.aws/org/repo_3", "public.ecr.aws/org/repo_4", "public.ecr.aws/org/repo_4"),
+            ("private/repo_3", "private/repo_4", "000000000000.dkr.ecr.region.amazonaws.com/private/repo_4"),
+        ]
+    )
+    def test_loading_additional_repository_env_var_overrides_config(self, config_repo, env_repo, expected):
+        config = CodebaseConfiguration()
+        config.additional_repository_from_config_file = config_repo
+        os.environ[ADD_ECR_REPO] = env_repo
+
+        self.assertEqual(config.additional_repository, expected)
+
+    @parameterized.expand(
+        [
+            ("public.ecr.aws/org/repo_1", "public.ecr.aws/org/repo_1"),
+            ("private/repo_3", "000000000000.dkr.ecr.region.amazonaws.com/private/repo_3"),
+        ]
+    )
+    def test_loading_additional_repository_from_config_formats_are_correct(self, config_repo, expected):
+        config = CodebaseConfiguration()
+        config.additional_repository_from_config_file = config_repo
+
+        self.assertEqual(config.additional_repository, expected)
+
+    def test_no_additional_repository_configured(self):
+        config = CodebaseConfiguration()
+        config.additional_repository_from_config_file = None
+
+        self.assertEqual(config.additional_repository, None)
+
+    def test_additional_private_repository_with_missing_codebuild_arn_fails(self):
+        del os.environ["CODEBUILD_BUILD_ARN"]
+        config = CodebaseConfiguration()
+
+        with pytest.raises(CodebaseConfigurationLoadError):
+            config.additional_repository
