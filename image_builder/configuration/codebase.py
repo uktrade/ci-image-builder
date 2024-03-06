@@ -30,30 +30,43 @@ class CodebaseConfiguration:
         self.packages = []
         self.repository_from_config_file = ""
 
+    @staticmethod
+    def validate_build_arn(codebuild_build_arn):
+        if not codebuild_build_arn:
+            raise CodebaseConfigurationLoadError(
+                f"codebuild build arn not set in environment variables"
+            )
+
+    @staticmethod
+    def validate_ecr_config(repository_from_config_file, repository_from_environment):
+        if not repository_from_environment and not repository_from_config_file:
+            raise CodebaseConfigurationLoadError(
+                f"Repository not set in config file or environment variables"
+            )
+
     @property
     def repository(self):
-        codebuild_build_arn = os.getenv("CODEBUILD_BUILD_ARN")
         repository_from_environment = os.getenv("ECR_REPOSITORY")
         repository_from_config_file = self.repository_from_config_file
 
-        if (
-            repository_from_config_file
-            and PUBLIC_REGISTRY in repository_from_config_file
-        ):
-            return repository_from_config_file
-        else:
-            if not codebuild_build_arn:
-                raise CodebaseConfigurationLoadError(
-                    f"codebuild build arn not set in environment variables"
-                )
+        self.validate_ecr_config(
+            repository_from_config_file, repository_from_environment
+        )
 
-            if not repository_from_environment and not repository_from_config_file:
-                raise CodebaseConfigurationLoadError(
-                    f"repository not set in config file or environment variables"
-                )
+        repository = (
+            repository_from_environment
+            if repository_from_environment
+            else repository_from_config_file
+        )
 
-            arn = ARN(codebuild_build_arn)
-            return f"{arn.account_id}.dkr.ecr.{arn.region}.amazonaws.com/{repository_from_environment or repository_from_config_file}"
+        if PUBLIC_REGISTRY in repository:
+            return repository
+
+        codebuild_build_arn = os.getenv("CODEBUILD_BUILD_ARN")
+        self.validate_build_arn(codebuild_build_arn)
+        arn = ARN(codebuild_build_arn)
+
+        return f"{arn.account_id}.dkr.ecr.{arn.region}.amazonaws.com/{repository}"
 
     @property
     def registry(self):

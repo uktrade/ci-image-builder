@@ -1,7 +1,15 @@
+from test.image_builder.utils.exceptions import ValidationError
+
+
 class ARN:
     def __init__(self, arn, *args, **kwargs):
         # store the original ARN
         self.__source = arn
+
+        arn_parts = arn.split(":", 7)
+
+        if len(arn_parts) != 7:
+            raise ValidationError(f"Invalid ARN: {arn}")
 
         # parse and store ARN parts
         # arn:partition:service:region:account-id:resource-type:resource-id
@@ -13,7 +21,7 @@ class ARN:
             account,
             project,
             build_id,
-        ) = self.__source.split(":")
+        ) = arn_parts
 
         self.__partition = partition
         self.__service = service

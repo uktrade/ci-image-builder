@@ -38,7 +38,7 @@ def build(publish, send_notifications):
             f"tag={codebase.revision.tag}"
         )
 
-        click.echo(f"Using ECR repository: {pack.repository}")
+        click.echo(f"Using ECR repository: {codebase.build.repository}")
         click.echo(f"Found processes: {[p.name for p in codebase.processes]}")
         click.echo(f"Found languages: {codebase.languages}")
         click.echo(
@@ -55,7 +55,7 @@ def build(publish, send_notifications):
                 f"*Commit*: {pack.codebase.revision.commit} "
                 f"*Branch*: {pack.codebase.revision.branch} "
                 f"*Tag*: {pack.codebase.revision.tag}",
-                f"*ECR Image*: {pack.repository}:commit-{pack.codebase.revision.commit}",
+                f"*ECR Image*: {codebase.build.repository}:commit-{pack.codebase.revision.commit}",
                 f"*Processes*: {processes}",
                 f"*Languages*: {pack.codebase.languages}",
                 f"*Builder*: {pack.codebase.build.builder.name}@{pack.codebase.build.builder.version}",
