@@ -1,10 +1,12 @@
 import os
 import unittest
 from pathlib import Path
-from test.doubles.codebase import (load_codebase_languages_double,
-                                   load_codebase_processes_double,
-                                   load_codebase_revision_double)
-from unittest.mock import ANY, call, patch
+from test.doubles.codebase import load_codebase_languages_double
+from test.doubles.codebase import load_codebase_processes_double
+from test.doubles.codebase import load_codebase_revision_double
+from unittest.mock import ANY
+from unittest.mock import call
+from unittest.mock import patch
 
 from click.testing import CliRunner
 

@@ -5,10 +5,11 @@ from pathlib import Path
 import pytest
 from parameterized import parameterized
 
-from image_builder.configuration.codebase import (
-    CodebaseConfiguration, CodebaseConfigurationLoadError)
+from image_builder.configuration.codebase import CodebaseConfiguration
+from image_builder.configuration.codebase import CodebaseConfigurationLoadError
 
 ECR_REPO = "ECR_REPOSITORY"
+
 
 class TestCodebaseConfiguration(unittest.TestCase):
     def setUp(self):
@@ -60,13 +61,31 @@ class TestCodebaseConfiguration(unittest.TestCase):
 
     @parameterized.expand(
         [
-            ("public.ecr.aws/org/repo_1", "private/repo_1", "000000000000.dkr.ecr.region.amazonaws.com/private/repo_1"),
-            ("private/repo_2", "public.ecr.aws/org/repo_2", "public.ecr.aws/org/repo_2"),
-            ("public.ecr.aws/org/repo_3", "public.ecr.aws/org/repo_4", "public.ecr.aws/org/repo_4"),
-            ("private/repo_3", "private/repo_4", "000000000000.dkr.ecr.region.amazonaws.com/private/repo_4"),
+            (
+                "public.ecr.aws/org/repo_1",
+                "private/repo_1",
+                "000000000000.dkr.ecr.region.amazonaws.com/private/repo_1",
+            ),
+            (
+                "private/repo_2",
+                "public.ecr.aws/org/repo_2",
+                "public.ecr.aws/org/repo_2",
+            ),
+            (
+                "public.ecr.aws/org/repo_3",
+                "public.ecr.aws/org/repo_4",
+                "public.ecr.aws/org/repo_4",
+            ),
+            (
+                "private/repo_3",
+                "private/repo_4",
+                "000000000000.dkr.ecr.region.amazonaws.com/private/repo_4",
+            ),
         ]
     )
-    def test_loading_repository_env_var_overrides_config(self, config_repo, env_repo, expected):
+    def test_loading_repository_env_var_overrides_config(
+        self, config_repo, env_repo, expected
+    ):
         config = CodebaseConfiguration()
         config.repository_from_config_file = config_repo
         os.environ[ECR_REPO] = env_repo
@@ -76,10 +95,15 @@ class TestCodebaseConfiguration(unittest.TestCase):
     @parameterized.expand(
         [
             ("public.ecr.aws/org/repo_1", "public.ecr.aws/org/repo_1"),
-            ("private/repo_3", "000000000000.dkr.ecr.region.amazonaws.com/private/repo_3"),
+            (
+                "private/repo_3",
+                "000000000000.dkr.ecr.region.amazonaws.com/private/repo_3",
+            ),
         ]
     )
-    def test_loading_repository_from_config_formats_are_correct(self, config_repo, expected):
+    def test_loading_repository_from_config_formats_are_correct(
+        self, config_repo, expected
+    ):
         config = CodebaseConfiguration()
         config.repository_from_config_file = config_repo
         del os.environ[ECR_REPO]
@@ -89,10 +113,15 @@ class TestCodebaseConfiguration(unittest.TestCase):
     @parameterized.expand(
         [
             ("public.ecr.aws/org/repo_1", "public.ecr.aws/org/repo_1"),
-            ("private/repo_3", "000000000000.dkr.ecr.region.amazonaws.com/private/repo_3"),
+            (
+                "private/repo_3",
+                "000000000000.dkr.ecr.region.amazonaws.com/private/repo_3",
+            ),
         ]
     )
-    def test_loading_repository_from_env_var_formats_are_correct(self, env_var, expected):
+    def test_loading_repository_from_env_var_formats_are_correct(
+        self, env_var, expected
+    ):
         config = CodebaseConfiguration()
         config.repository_from_config_file = None
         os.environ[ECR_REPO] = env_var

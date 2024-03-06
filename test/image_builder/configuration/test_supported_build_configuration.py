@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from image_builder.configuration.codebase import (
-    CodebaseConfigurationLoadError, load_codebase_configuration)
+from image_builder.configuration.codebase import CodebaseConfigurationLoadError
+from image_builder.configuration.codebase import load_codebase_configuration
 
 
 class TestSupportedBuildConfiguration(unittest.TestCase):

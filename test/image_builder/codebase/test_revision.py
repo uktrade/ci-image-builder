@@ -6,9 +6,9 @@ from unittest.mock import patch
 
 import pytest
 
-from image_builder.codebase.revision import (CodebaseRevisionMissingDataError,
-                                             CodebaseRevisionNoDataError,
-                                             load_codebase_revision)
+from image_builder.codebase.revision import CodebaseRevisionMissingDataError
+from image_builder.codebase.revision import CodebaseRevisionNoDataError
+from image_builder.codebase.revision import load_codebase_revision
 
 
 def git_revision_command(

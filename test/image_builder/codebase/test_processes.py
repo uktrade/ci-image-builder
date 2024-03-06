@@ -3,8 +3,8 @@ from test.base_test_case import BaseTestCase
 
 import pytest
 
-from image_builder.codebase.processes import (CodebaseProcessNoProcfileError,
-                                              load_codebase_processes)
+from image_builder.codebase.processes import CodebaseProcessNoProcfileError
+from image_builder.codebase.processes import load_codebase_processes
 
 
 class TestCodebaseProcesses(BaseTestCase):

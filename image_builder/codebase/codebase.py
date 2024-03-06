@@ -1,12 +1,15 @@
 import stat
 from pathlib import Path
 
-from image_builder.codebase.language import Languages, load_codebase_languages
-from image_builder.codebase.processes import Processes, load_codebase_processes
-from image_builder.codebase.revision import Revision, load_codebase_revision
+from image_builder.codebase.language import Languages
+from image_builder.codebase.language import load_codebase_languages
+from image_builder.codebase.processes import Processes
+from image_builder.codebase.processes import load_codebase_processes
+from image_builder.codebase.revision import Revision
+from image_builder.codebase.revision import load_codebase_revision
 from image_builder.configuration.builder import load_builder_configuration
-from image_builder.configuration.codebase import (CodebaseConfiguration,
-                                                  load_codebase_configuration)
+from image_builder.configuration.codebase import CodebaseConfiguration
+from image_builder.configuration.codebase import load_codebase_configuration
 
 
 class Codebase:

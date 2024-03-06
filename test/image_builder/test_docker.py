@@ -2,12 +2,14 @@ import os
 import subprocess
 import unittest
 from test.doubles.process import StubbedProcess
-from unittest.mock import call, patch
+from unittest.mock import call
+from unittest.mock import patch
 
 import pytest
 
-from image_builder.docker import (Docker, DockerNotInstalledError,
-                                  DockerStartTimeoutError)
+from image_builder.docker import Docker
+from image_builder.docker import DockerNotInstalledError
+from image_builder.docker import DockerStartTimeoutError
 
 
 class TestDocker(unittest.TestCase):

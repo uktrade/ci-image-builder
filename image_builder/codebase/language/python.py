@@ -2,7 +2,8 @@ import re
 import tomllib
 from pathlib import Path
 
-from .base import BaseLanguage, CodebaseLanguageNotDetectedError
+from .base import BaseLanguage
+from .base import CodebaseLanguageNotDetectedError
 from .end_of_life import get_latest_version_for
 
 

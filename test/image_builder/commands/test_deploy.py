@@ -4,7 +4,8 @@ import subprocess
 from pathlib import Path
 from test.base_test_case import BaseTestCase
 from test.doubles.process import StubbedProcess
-from unittest.mock import call, patch
+from unittest.mock import call
+from unittest.mock import patch
 
 from click.testing import CliRunner
 from parameterized import parameterized

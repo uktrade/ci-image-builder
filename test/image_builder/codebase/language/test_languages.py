@@ -1,7 +1,8 @@
 from pathlib import Path
 from test.base_test_case import BaseTestCase
 from test.doubles.end_of_life import get_versions
-from test.helpers.files import create_nodejs_indicator, create_python_indicator
+from test.helpers.files import create_nodejs_indicator
+from test.helpers.files import create_python_indicator
 from unittest.mock import patch
 
 import pytest

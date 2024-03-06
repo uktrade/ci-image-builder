@@ -49,9 +49,15 @@ class CodebaseConfiguration:
         repository_from_environment = os.getenv("ECR_REPOSITORY")
         repository_from_config_file = self.repository_from_config_file
 
-        self.validate_ecr_config(repository_from_config_file, repository_from_environment)
+        self.validate_ecr_config(
+            repository_from_config_file, repository_from_environment
+        )
 
-        repository = repository_from_environment if repository_from_environment else repository_from_config_file
+        repository = (
+            repository_from_environment
+            if repository_from_environment
+            else repository_from_config_file
+        )
 
         if PUBLIC_REGISTRY in repository:
             return repository
