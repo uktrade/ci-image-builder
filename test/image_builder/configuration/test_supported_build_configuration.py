@@ -6,6 +6,7 @@ import pytest
 
 from image_builder.configuration.codebase import CodebaseConfigurationLoadError
 from image_builder.configuration.codebase import load_codebase_configuration
+from image_builder.const import ECR_REPO
 
 
 class TestSupportedBuildConfiguration(unittest.TestCase):
@@ -13,7 +14,7 @@ class TestSupportedBuildConfiguration(unittest.TestCase):
         os.environ[
             "CODEBUILD_BUILD_ARN"
         ] = "arn:aws:codebuild:region:000000000000:build/project:example-build-id"
-        os.environ["ECR_REPOSITORY"] = "some-repository"
+        os.environ[ECR_REPO] = "some-repository"
 
     @staticmethod
     def get_codebase_path(version: str):

@@ -2,6 +2,7 @@ import subprocess
 from typing import Callable
 
 from image_builder.codebase.codebase import Codebase
+from image_builder.publish import publish_to_additional_repository
 
 
 class PackError(Exception):
@@ -24,11 +25,11 @@ class Pack:
         self, publish=False, on_building: Callable = None, on_exporting: Callable = None
     ):
         proc = subprocess.Popen(
-            self.get_command(publish), shell=True, stdout=subprocess.PIPE
+            self.get_command(publish), shell=True, stdout=subprocess.PIPE, text=True
         )
 
         while proc.poll() is None:
-            output = proc.stdout.readline().decode()
+            output = proc.stdout.readline()
             print(output, end="")
             if on_building is not None and "===> BUILDING" in output:
                 on_building()
@@ -38,6 +39,13 @@ class Pack:
         if proc.returncode != 0:
             raise PackCommandFailedError
 
+        if publish and self.codebase.build.additional_repository:
+            publish_to_additional_repository(
+                self.codebase.build.repository,
+                self.codebase.build.additional_repository,
+                self.get_tags(),
+            )
+
     def get_command(self, publish=False):
         buildpacks = " ".join([f"--buildpack {p}" for p in self.get_buildpacks()])
         environment = " ".join([f"--env {e}" for e in self.get_environment()])
@@ -45,11 +53,11 @@ class Pack:
         command = (
             f"pack build {self._repository} "
             f"--builder {self.codebase.build.builder.name}:{self.codebase.build.builder.version} "
-            f"{tags} {environment} {buildpacks} "
+            f"{tags} {environment} {buildpacks}"
         )
 
         if publish:
-            command += f"--publish --cache-image {self._repository}:cache"
+            command += f" --publish --cache-image {self._repository}:cache"
         return command
 
     def get_buildpacks(self):

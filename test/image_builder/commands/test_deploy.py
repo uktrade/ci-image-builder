@@ -11,6 +11,7 @@ from click.testing import CliRunner
 from parameterized import parameterized
 
 from image_builder.commands.deploy import deploy
+from image_builder.const import ECR_REPO
 
 DEFAULT_TEST_COPILOT_VERSION = "1.33.1"
 FAILING_TEST_COPILOT_VERSION = "1.31.0"
@@ -88,7 +89,7 @@ class TestDeployCommand(BaseTestCase):
         os.environ["COPILOT_ENVIRONMENT"] = "dev"
         os.environ["COPILOT_SERVICES"] = "web worker"
         os.environ["DEPLOY_REPOSITORY"] = "organisation/repository-deploy"
-        os.environ["ECR_REPOSITORY"] = "repository/application"
+        os.environ[ECR_REPO] = "repository/application"
         os.environ["ECR_TAG_PATTERN"] = "branch-main"
         os.environ["IMAGE_TAG"] = "commit-99999"
 
@@ -110,8 +111,8 @@ class TestDeployCommand(BaseTestCase):
             del os.environ["COPILOT_SERVICES"]
         if os.getenv("DEPLOY_REPOSITORY"):
             del os.environ["DEPLOY_REPOSITORY"]
-        if os.getenv("ECR_REPOSITORY"):
-            del os.environ["ECR_REPOSITORY"]
+        if os.getenv(ECR_REPO):
+            del os.environ[ECR_REPO]
         if os.getenv("ECR_TAG_PATTERN"):
             del os.environ["ECR_TAG_PATTERN"]
         if os.getenv("IMAGE_TAG"):
@@ -328,7 +329,7 @@ class TestDeployCommand(BaseTestCase):
     ):
         self.setup_mocks(docker, notify, subprocess_run, subprocess_popen)
         self.setup_environment()
-        del os.environ["ECR_REPOSITORY"]
+        del os.environ[ECR_REPO]
 
         result = self.run_deploy()
 

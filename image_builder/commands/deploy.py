@@ -6,6 +6,7 @@ from pathlib import Path
 
 import click
 
+from image_builder.const import ECR_REPO
 from image_builder.docker import Docker
 from image_builder.notify import Notify
 
@@ -92,7 +93,7 @@ def deploy(send_notifications):
 def get_image_repository_url() -> str:
     account_id = os.getenv("AWS_ACCOUNT_ID")
     region = os.getenv("AWS_REGION")
-    ecr_repository = os.getenv("ECR_REPOSITORY")
+    ecr_repository = os.getenv(ECR_REPO)
     if not (account_id and region and ecr_repository):
         raise MissingConfigurationDeployError(
             "AWS_ACCOUNT_ID, AWS_REGION and ECR_REPOSITORY must be set"
