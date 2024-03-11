@@ -58,8 +58,9 @@ class Codebase:
         )
         self.original_files["delete"]["buildpack-run.sh"] = None
 
-        self.path.joinpath("Aptfile").write_text("\n".join(self.build.packages))
-        self.original_files["delete"]["Aptfile"] = None
+        if self.build.packages:
+            self.path.joinpath("Aptfile").write_text("\n".join(self.build.packages))
+            self.original_files["delete"]["Aptfile"] = None
 
     def teardown(self):
         for filename, contents in self.original_files["write"].items():

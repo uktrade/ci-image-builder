@@ -59,8 +59,7 @@ class TestPackBuildpacks(BaseTestCase):
                         "version": "0.3.288",
                     },
                     "packs": [
-                        "paketo-buildpacks/python",
-                        "paketo-buildpacks/nodejs",
+                        "paketo-buildpacks/nginx",
                     ],
                 }
             ),
@@ -72,8 +71,8 @@ class TestPackBuildpacks(BaseTestCase):
         self.assertEqual(
             pack.get_buildpacks(),
             [
-                "fagiani/apt",
                 "paketo-buildpacks/git",
+                "paketo-buildpacks/nginx",
                 "paketo-buildpacks/python",
                 "paketo-buildpacks/nodejs",
                 "fagiani/run",
@@ -105,8 +104,43 @@ class TestPackBuildpacks(BaseTestCase):
         self.assertEqual(
             pack.get_buildpacks(),
             [
-                "fagiani/apt",
                 "paketo-buildpacks/git",
+                "paketo-buildpacks/python",
+                "paketo-buildpacks/nodejs",
+                "fagiani/run",
+                "gcr.io/paketo-buildpacks/image-labels",
+                "gcr.io/paketo-buildpacks/environment-variables",
+            ],
+        )
+
+    def test_buildpacks_when_packages_present_in_config(
+        self, load_codebase_revision, load_codebase_processes, load_codebase_languages
+    ):
+        self.fs.create_dir(".copilot")
+        self.fs.create_file(
+            ".copilot/config.yml",
+            contents=dump(
+                {
+                    "repository": "ecr/repos",
+                    "builder": {
+                        "name": "paketobuildpacks/builder-jammy-full",
+                        "version": "0.3.288",
+                    },
+                    "packages": [
+                        "graphviz",
+                    ],
+                }
+            ),
+        )
+
+        codebase = Codebase(Path("."))
+        pack = Pack(codebase)
+
+        self.assertEqual(
+            pack.get_buildpacks(),
+            [
+                "paketo-buildpacks/git",
+                "fagiani/apt",
                 "paketo-buildpacks/python",
                 "paketo-buildpacks/nodejs",
                 "fagiani/run",
@@ -400,7 +434,6 @@ class TestCommand(BaseTestCase):
             "--env BP_OCI_REF_NAME=tag-v2.4.6 "
             "--env BP_OCI_SOURCE=https://github.com/org/repo "
             '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
-            "--buildpack fagiani/apt "
             "--buildpack paketo-buildpacks/git "
             "--buildpack paketo-buildpacks/python "
             "--buildpack paketo-buildpacks/nodejs "
@@ -437,7 +470,6 @@ class TestCommand(BaseTestCase):
             "--env BP_OCI_REF_NAME=tag-v2.4.6 "
             "--env BP_OCI_SOURCE=https://github.com/org/repo "
             '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
-            "--buildpack fagiani/apt "
             "--buildpack paketo-buildpacks/git "
             "--buildpack paketo-buildpacks/python "
             "--buildpack paketo-buildpacks/nodejs "
@@ -476,7 +508,6 @@ class TestCommand(BaseTestCase):
             "--env BP_OCI_REF_NAME=tag-v2.4.6 "
             "--env BP_OCI_SOURCE=https://github.com/org/repo "
             '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
-            "--buildpack fagiani/apt "
             "--buildpack paketo-buildpacks/git "
             "--buildpack paketo-buildpacks/python "
             "--buildpack paketo-buildpacks/nodejs "

@@ -53,7 +53,10 @@ class Pack:
         return command
 
     def get_buildpacks(self):
-        buildpacks = ["fagiani/apt", "paketo-buildpacks/git"]
+        buildpacks = ["paketo-buildpacks/git"]
+
+        if self.codebase.build.packages:
+            buildpacks.append("fagiani/apt")
 
         for pack in self.codebase.build.packs:
             buildpacks.append(pack.name)
