@@ -37,8 +37,11 @@ def build(publish, send_notifications):
             f"branch={codebase.revision.branch}, "
             f"tag={codebase.revision.tag}"
         )
-
         click.echo(f"Using ECR repository: {codebase.build.repository}")
+        if publish and codebase.build.additional_repository:
+            click.echo(
+                f"Pushing image to additional ECR repository: {codebase.build.additional_repository}"
+            )
         click.echo(f"Found processes: {[p.name for p in codebase.processes]}")
         click.echo(f"Found languages: {codebase.languages}")
         click.echo(
@@ -75,11 +78,13 @@ def build(publish, send_notifications):
         notify.post_build_progress(progress, codebase)
 
     except (Exception, KeyboardInterrupt) as e:
+        reason = "Build was cancelled" if type(e) == KeyboardInterrupt else "Error"
+        click.secho(f"{reason}: {str(e)}", fg="red")
         progress.current_phase_failure()
         notify.post_build_progress(progress, codebase)
         notify.post_job_comment(
             f"Build: {pack.codebase.revision.get_repository_name()}@{pack.codebase.revision.commit} cancelled",
-            [f"Build was cancelled: {e.__class__.__name__}", str(e)],
+            [f"{reason}: {e.__class__.__name__}", str(e)],
         )
         exit(1)
 

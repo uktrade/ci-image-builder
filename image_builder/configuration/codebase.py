@@ -4,6 +4,8 @@ from typing import List
 
 from yaml import safe_load as yaml_load
 
+from image_builder.const import ADDITIONAL_ECR_REPO
+from image_builder.const import ECR_REPO
 from image_builder.const import PUBLIC_REGISTRY
 from image_builder.utils.arn_parser import ARN
 
@@ -29,6 +31,7 @@ class CodebaseConfiguration:
         self.packs = []
         self.packages = []
         self.repository_from_config_file = ""
+        self.additional_repository_from_config_file = None
 
     @staticmethod
     def validate_build_arn(codebuild_build_arn):
@@ -46,7 +49,7 @@ class CodebaseConfiguration:
 
     @property
     def repository(self):
-        repository_from_environment = os.getenv("ECR_REPOSITORY")
+        repository_from_environment = os.getenv(ECR_REPO)
         repository_from_config_file = self.repository_from_config_file
 
         self.validate_ecr_config(
@@ -69,6 +72,32 @@ class CodebaseConfiguration:
         return f"{arn.account_id}.dkr.ecr.{arn.region}.amazonaws.com/{repository}"
 
     @property
+    def additional_repository(self):
+        additional_repo_from_config_file = self.additional_repository_from_config_file
+        additional_repo_from_environment = os.getenv(ADDITIONAL_ECR_REPO)
+
+        if (
+            not additional_repo_from_config_file
+            and not additional_repo_from_environment
+        ):
+            return None
+
+        additional_repository = (
+            additional_repo_from_environment
+            if additional_repo_from_environment
+            else additional_repo_from_config_file
+        )
+
+        if PUBLIC_REGISTRY in additional_repository:
+            return additional_repository
+
+        codebuild_build_arn = os.getenv("CODEBUILD_BUILD_ARN")
+        self.validate_build_arn(codebuild_build_arn)
+        arn = ARN(codebuild_build_arn)
+
+        return f"{arn.account_id}.dkr.ecr.{arn.region}.amazonaws.com/{additional_repository}"
+
+    @property
     def registry(self):
         return self.repository.split("/")[0]
 
@@ -88,6 +117,9 @@ def load_codebase_configuration(path) -> CodebaseConfiguration:
         build.builder.name = config["builder"]["name"]
         build.builder.version = config["builder"]["version"]
         build.repository_from_config_file = config.get("repository")
+        build.additional_repository_from_config_file = config.get(
+            "additional_repository"
+        )
 
         if "packs" in config:
             for pack_name in config["packs"]:

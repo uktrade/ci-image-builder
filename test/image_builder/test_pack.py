@@ -8,10 +8,13 @@ from test.doubles.codebase import load_codebase_revision_double
 from unittest import mock
 from unittest.mock import patch
 
+from parameterized import parameterized
 from yaml import dump
 
 from image_builder.codebase.codebase import Codebase
 from image_builder.codebase.revision import Revision
+from image_builder.const import ADDITIONAL_ECR_REPO
+from image_builder.const import ECR_REPO
 from image_builder.pack import Pack
 
 
@@ -317,6 +320,7 @@ class TestPackTags(BaseTestCase):
         stdout=subprocess.PIPE,
     ),
 )
+@patch("image_builder.pack.publish_to_additional_repository")
 class TestCommand(BaseTestCase):
     def setUp(self):
         super().setUp()
@@ -348,8 +352,41 @@ class TestCommand(BaseTestCase):
             "CODEBUILD_BUILD_ARN"
         ] = "arn:aws:codebuild:region:000000000000:build/project:example-build-id"
 
+        self.expected_tags = [
+            "commit-shorthash",
+            "tag-v2.4.6",
+            "tag-latest",
+            "branch-feat-tests",
+        ]
+        self.expected_command = [
+            "pack build 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos",
+            "--builder paketobuildpacks/builder-jammy-full:0.3.288",
+            "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:commit-shorthash",
+            "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:tag-v2.4.6",
+            "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:tag-latest",
+            "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:branch-feat-tests",
+            "--env BP_CPYTHON_VERSION=3.11",
+            "--env BP_NODE_VERSION=20.7",
+            "--env BPE_GIT_TAG=v2.4.6",
+            "--env BPE_GIT_COMMIT=shorthash",
+            "--env BP_OCI_REVISION=shorthash",
+            "--env BP_OCI_VERSION=shorthash",
+            "--env BPE_GIT_BRANCH=feat/tests",
+            "--env BP_OCI_REF_NAME=tag-v2.4.6",
+            "--env BP_OCI_SOURCE=https://github.com/org/repo",
+            '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp"',
+            "--buildpack paketo-buildpacks/git",
+            "--buildpack paketo-buildpacks/python",
+            "--buildpack paketo-buildpacks/nodejs",
+            "--buildpack fagiani/run",
+            "--buildpack gcr.io/paketo-buildpacks/image-labels",
+            "--buildpack gcr.io/paketo-buildpacks/environment-variables",
+        ]
+        self.publish_opts = "--publish --cache-image 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:cache"
+
     def test_get_repository_url_from_config(
         self,
+        publish_to_additional,
         subprocess_popen,
         load_codebase_revision,
         load_codebase_processes,
@@ -364,6 +401,7 @@ class TestCommand(BaseTestCase):
 
     def test_get_public_repository_url_from_config(
         self,
+        publish_to_additional,
         subprocess_popen,
         load_codebase_revision,
         load_codebase_processes,
@@ -392,12 +430,13 @@ class TestCommand(BaseTestCase):
 
     def test_get_repository_url_from_environment(
         self,
+        publish_to_additional,
         subprocess_popen,
         load_codebase_revision,
         load_codebase_processes,
         load_codebase_languages,
     ):
-        os.environ["ECR_REPOSITORY"] = "ecr/environment-repo"
+        os.environ[ECR_REPO] = "ecr/environment-repo"
         codebase = Codebase(Path("."))
         pack = Pack(codebase, "timestamp")
 
@@ -408,6 +447,7 @@ class TestCommand(BaseTestCase):
 
     def test_get_command(
         self,
+        publish_to_additional,
         subprocess_popen,
         load_codebase_revision,
         load_codebase_processes,
@@ -416,34 +456,11 @@ class TestCommand(BaseTestCase):
         codebase = Codebase(Path("."))
         pack = Pack(codebase, "timestamp")
 
-        self.assertEqual(
-            pack.get_command(),
-            "pack build 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
-            "--builder paketobuildpacks/builder-jammy-full:0.3.288 "
-            "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:commit-shorthash "
-            "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:tag-v2.4.6 "
-            "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:tag-latest "
-            "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:branch-feat-tests "
-            "--env BP_CPYTHON_VERSION=3.11 "
-            "--env BP_NODE_VERSION=20.7 "
-            "--env BPE_GIT_TAG=v2.4.6 "
-            "--env BPE_GIT_COMMIT=shorthash "
-            "--env BP_OCI_REVISION=shorthash "
-            "--env BP_OCI_VERSION=shorthash "
-            "--env BPE_GIT_BRANCH=feat/tests "
-            "--env BP_OCI_REF_NAME=tag-v2.4.6 "
-            "--env BP_OCI_SOURCE=https://github.com/org/repo "
-            '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
-            "--buildpack paketo-buildpacks/git "
-            "--buildpack paketo-buildpacks/python "
-            "--buildpack paketo-buildpacks/nodejs "
-            "--buildpack fagiani/run "
-            "--buildpack gcr.io/paketo-buildpacks/image-labels "
-            "--buildpack gcr.io/paketo-buildpacks/environment-variables ",
-        )
+        self.assertEqual(pack.get_command(), " ".join(self.expected_command))
 
     def test_get_command_with_publish(
         self,
+        publish_to_additional,
         subprocess_popen,
         load_codebase_revision,
         load_codebase_processes,
@@ -452,35 +469,13 @@ class TestCommand(BaseTestCase):
         codebase = Codebase(Path("."))
         pack = Pack(codebase, "timestamp")
 
-        self.assertEqual(
-            pack.get_command(True),
-            "pack build 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
-            "--builder paketobuildpacks/builder-jammy-full:0.3.288 "
-            "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:commit-shorthash "
-            "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:tag-v2.4.6 "
-            "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:tag-latest "
-            "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:branch-feat-tests "
-            "--env BP_CPYTHON_VERSION=3.11 "
-            "--env BP_NODE_VERSION=20.7 "
-            "--env BPE_GIT_TAG=v2.4.6 "
-            "--env BPE_GIT_COMMIT=shorthash "
-            "--env BP_OCI_REVISION=shorthash "
-            "--env BP_OCI_VERSION=shorthash "
-            "--env BPE_GIT_BRANCH=feat/tests "
-            "--env BP_OCI_REF_NAME=tag-v2.4.6 "
-            "--env BP_OCI_SOURCE=https://github.com/org/repo "
-            '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
-            "--buildpack paketo-buildpacks/git "
-            "--buildpack paketo-buildpacks/python "
-            "--buildpack paketo-buildpacks/nodejs "
-            "--buildpack fagiani/run "
-            "--buildpack gcr.io/paketo-buildpacks/image-labels "
-            "--buildpack gcr.io/paketo-buildpacks/environment-variables "
-            "--publish --cache-image 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:cache",
-        )
+        expected = " ".join(self.expected_command + [self.publish_opts])
+
+        self.assertEqual(pack.get_command(True), expected)
 
     def test_build(
         self,
+        publish_to_additional,
         subprocess_popen,
         load_codebase_revision,
         load_codebase_processes,
@@ -492,28 +487,61 @@ class TestCommand(BaseTestCase):
         pack.build()
 
         subprocess_popen.assert_called_with(
-            "pack build 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos "
-            "--builder paketobuildpacks/builder-jammy-full:0.3.288 "
-            "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:commit-shorthash "
-            "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:tag-v2.4.6 "
-            "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:tag-latest "
-            "--tag 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:branch-feat-tests "
-            "--env BP_CPYTHON_VERSION=3.11 "
-            "--env BP_NODE_VERSION=20.7 "
-            "--env BPE_GIT_TAG=v2.4.6 "
-            "--env BPE_GIT_COMMIT=shorthash "
-            "--env BP_OCI_REVISION=shorthash "
-            "--env BP_OCI_VERSION=shorthash "
-            "--env BPE_GIT_BRANCH=feat/tests "
-            "--env BP_OCI_REF_NAME=tag-v2.4.6 "
-            "--env BP_OCI_SOURCE=https://github.com/org/repo "
-            '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp" '
-            "--buildpack paketo-buildpacks/git "
-            "--buildpack paketo-buildpacks/python "
-            "--buildpack paketo-buildpacks/nodejs "
-            "--buildpack fagiani/run "
-            "--buildpack gcr.io/paketo-buildpacks/image-labels "
-            "--buildpack gcr.io/paketo-buildpacks/environment-variables ",
+            " ".join(self.expected_command),
             shell=True,
             stdout=subprocess.PIPE,
+            text=True,
         )
+
+    @parameterized.expand(
+        [
+            ("ecr/repo2", "000000000000.dkr.ecr.region.amazonaws.com/ecr/repo2"),
+            ("public.ecr.aws/my/repo", "public.ecr.aws/my/repo"),
+        ]
+    )
+    def test_build_and_publish_to_additional_repo(
+        self,
+        publish_to_additional,
+        subprocess_popen,
+        load_codebase_revision,
+        load_codebase_processes,
+        load_codebase_languages,
+        additional_repository,
+        exp_additional_repository,
+    ):
+        codebase = Codebase(Path("."))
+        pack = Pack(codebase, "timestamp")
+        os.environ[ADDITIONAL_ECR_REPO] = additional_repository
+        exp_initial_repo = "000000000000.dkr.ecr.region.amazonaws.com/ecr/repos"
+
+        pack.build(publish=True)
+
+        expected = " ".join(self.expected_command + [self.publish_opts])
+        subprocess_popen.assert_called_with(
+            expected, shell=True, stdout=subprocess.PIPE, text=True
+        )
+
+        publish_to_additional.assert_called_with(
+            exp_initial_repo, exp_additional_repository, self.expected_tags
+        )
+
+    def test_build_without_publish_does_not_publish_to_additional_repo(
+        self,
+        publish_to_additional,
+        subprocess_popen,
+        load_codebase_revision,
+        load_codebase_processes,
+        load_codebase_languages,
+    ):
+        codebase = Codebase(Path("."))
+        pack = Pack(codebase, "timestamp")
+        os.environ[ADDITIONAL_ECR_REPO] = "public.ecr.aws/my/repo"
+
+        pack.build(publish=False)
+
+        expected = " ".join(self.expected_command)
+        subprocess_popen.assert_called_with(
+            expected, shell=True, stdout=subprocess.PIPE, text=True
+        )
+
+        publish_to_additional.assert_not_called()
