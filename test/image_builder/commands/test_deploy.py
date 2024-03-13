@@ -119,7 +119,9 @@ class TestDeployCommand(BaseTestCase):
             del os.environ["IMAGE_TAG"]
 
     @patch("image_builder.commands.deploy.check_copilot_version", return_value=True)
-    def test_perfect_deploy(self, check_copilot_version, docker, notify, subprocess_run, subprocess_popen):
+    def test_perfect_deploy(
+        self, check_copilot_version, docker, notify, subprocess_run, subprocess_popen
+    ):
         self.setup_mocks(docker, notify, subprocess_run, subprocess_popen)
         self.setup_environment()
         del os.environ["IMAGE_TAG"]
@@ -376,7 +378,9 @@ class TestDeployCommand(BaseTestCase):
             COMMAND_PATTERNS["regctl"] = old_regctl
 
     @patch("image_builder.commands.deploy.check_copilot_version", return_value=True)
-    def test_installing_copilot(self, check_copilot_version, docker, notify, subprocess_run, subprocess_popen):
+    def test_installing_copilot(
+        self, check_copilot_version, docker, notify, subprocess_run, subprocess_popen
+    ):
         self.setup_mocks(docker, notify, subprocess_run, subprocess_popen)
         self.setup_environment()
 

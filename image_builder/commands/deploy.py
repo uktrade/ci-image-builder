@@ -69,14 +69,18 @@ def deploy(send_notifications):
         if not check_copilot_version(copilot_version):
             notify.post_job_comment(
                 "Warning: A newer version of copilot-cli is available",
-                ["Download the latest version and update the `.copilot-version` file "
-                 "https://github.com/aws/copilot-cli/releases/latest"],
+                [
+                    "Download the latest version and update the `.copilot-version` file "
+                    "https://github.com/aws/copilot-cli/releases/latest"
+                ],
             )
 
         if not version_cached:
             notify.post_job_comment(
                 "Warning: copilot version not cached in `ci-image-builder`",
-                ["The latest version should be added to the `ci-image-builder` Dockerfile"],
+                [
+                    "The latest version should be added to the `ci-image-builder` Dockerfile"
+                ],
             )
 
         deploy_command = f"/copilot/./copilot-{copilot_version} deploy --env {copilot_environment} --deploy-env=false --force"
@@ -250,5 +254,5 @@ def install_copilot() -> (str, bool):
 
 def check_copilot_version(version):
     response = requests.get("https://github.com/aws/copilot-cli/releases/latest")
-    release_version = response.url.split('/').pop().replace('v', '')
+    release_version = response.url.split("/").pop().replace("v", "")
     return release_version == version
