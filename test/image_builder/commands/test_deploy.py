@@ -432,8 +432,9 @@ class TestDeployCommand(BaseTestCase):
         self.teardown_environment()
         COMMAND_PATTERNS["wget"] = StubbedProcess(returncode=0)
 
+    @patch("image_builder.commands.deploy.check_copilot_version", return_value=False)
     def test_installing_copilot_succeeds_when_preinstalled_version_does_not_exist(
-        self, docker, notify, subprocess_run, subprocess_popen
+        self, check_copilot_version, docker, notify, subprocess_run, subprocess_popen
     ):
         self.setup_mocks(docker, notify, subprocess_run, subprocess_popen)
         self.setup_environment()
@@ -450,6 +451,27 @@ class TestDeployCommand(BaseTestCase):
         self.assertIn(
             f"Copilot version {FAILING_TEST_COPILOT_VERSION} not pre-installed, installing now",
             result.output,
+        )
+
+        notify().post_job_comment.assert_has_calls(
+            [
+                call(
+                    "Warning: copilot version not cached in `ci-image-builder`",
+                    [
+                        "The latest version should be added to the `ci-image-builder` Dockerfile",
+                    ],
+                ),
+                call(
+                    "organisation/repository@99999 deployed to dev",
+                    [
+                        "<https://github.com/organisation/repository/commit/99999|organisation/"
+                        "repository@99999> deployed to `dev` | <https://example.com/build_url"
+                        "|Build Log>",
+                    ],
+                    True,
+                ),
+            ],
+            any_order=False,
         )
 
         self.assertEqual(result.exit_code, 0)
