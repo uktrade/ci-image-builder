@@ -70,16 +70,18 @@ def deploy(send_notifications):
             notify.post_job_comment(
                 "Warning: A newer version of copilot-cli is available",
                 [
-                    "Download the latest version and update the `.copilot-version` file "
-                    "https://github.com/aws/copilot-cli/releases/latest"
+                    "Warning: A newer version of `copilot-cli` is available. "
+                    "Download the <https://github.com/aws/copilot-cli/releases/latest|latest version> "
+                    "and update the `.copilot-version` file"
                 ],
             )
 
         if not version_cached:
             notify.post_job_comment(
-                "Warning: copilot version not cached in `ci-image-builder`",
+                "Warning: copilot version is not cached",
                 [
-                    "The latest version should be added to the `ci-image-builder` Dockerfile"
+                    f"Warning: copilot version `{copilot_version}` is not cached. "
+                    "This version should be added to the `ci-image-builder` Dockerfile"
                 ],
             )
 

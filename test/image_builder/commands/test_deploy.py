@@ -462,9 +462,10 @@ class TestDeployCommand(BaseTestCase):
         notify().post_job_comment.assert_has_calls(
             [
                 call(
-                    "Warning: copilot version not cached in `ci-image-builder`",
+                    "Warning: copilot version is not cached",
                     [
-                        "The latest version should be added to the `ci-image-builder` Dockerfile",
+                        f"Warning: copilot version `{FAILING_TEST_COPILOT_VERSION}` is not cached. "
+                        "This version should be added to the `ci-image-builder` Dockerfile"
                     ],
                 )
             ],
@@ -487,8 +488,9 @@ class TestDeployCommand(BaseTestCase):
                 call(
                     "Warning: A newer version of copilot-cli is available",
                     [
-                        "Download the latest version and update the `.copilot-version` file "
-                        "https://github.com/aws/copilot-cli/releases/latest",
+                        "Warning: A newer version of `copilot-cli` is available. "
+                        "Download the <https://github.com/aws/copilot-cli/releases/latest|latest version> "
+                        "and update the `.copilot-version` file"
                     ],
                 ),
             ],
