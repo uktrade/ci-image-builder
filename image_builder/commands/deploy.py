@@ -5,6 +5,7 @@ from json import JSONDecodeError
 from pathlib import Path
 
 import click
+import requests
 
 from image_builder.const import ECR_REPO
 from image_builder.docker import Docker
@@ -41,7 +42,7 @@ class CannotInstallCopilotDeployError(DeployError):
 def deploy(send_notifications):
     try:
         clone_deployment_repository()
-        copilot_version = install_copilot()
+        copilot_version, version_cached = install_copilot()
         tag = get_image_tag_for_deployment()
         os.environ["IMAGE_TAG"] = tag
 
@@ -64,6 +65,25 @@ def deploy(send_notifications):
                 f"| <{notify.get_build_url()}|Build Log>",
             ],
         )
+
+        if not check_copilot_version(copilot_version):
+            notify.post_job_comment(
+                "Warning: A newer version of copilot-cli is available",
+                [
+                    "Warning: A newer version of `copilot-cli` is available. "
+                    "Download the <https://github.com/aws/copilot-cli/releases/latest|latest version> "
+                    "and update the `.copilot-version` file"
+                ],
+            )
+
+        if not version_cached:
+            notify.post_job_comment(
+                "Warning: copilot version is not cached",
+                [
+                    f"Warning: copilot version `{copilot_version}` is not cached. "
+                    "This version should be added to the `ci-image-builder` Dockerfile"
+                ],
+            )
 
         deploy_command = f"/copilot/./copilot-{copilot_version} deploy --env {copilot_environment} --deploy-env=false --force"
         for i, service in enumerate(copilot_services):
@@ -196,7 +216,9 @@ def clone_deployment_repository():
         )
 
 
-def install_copilot() -> str:
+def install_copilot() -> (str, bool):
+    cached = True
+
     try:
         version = open("deploy/.copilot-version").read().rstrip("\n")
     except FileNotFoundError:
@@ -214,6 +236,7 @@ def install_copilot() -> str:
 
     if proc.returncode != 0:
         click.echo(f"Copilot version {version} not pre-installed, installing now")
+        cached = False
 
         proc = subprocess.run(
             f"wget -q -O copilot-{version} https://ecs-cli-v2-release.s3.amazonaws.com/copilot-linux-v{version} && "
@@ -228,4 +251,10 @@ def install_copilot() -> str:
                 f"Failed to install copilot version {version}: " f"{proc.stderr}"
             )
 
-    return version
+    return version, cached
+
+
+def check_copilot_version(version):
+    response = requests.get("https://github.com/aws/copilot-cli/releases/latest")
+    release_version = response.url.split("/").pop().replace("v", "")
+    return release_version == version

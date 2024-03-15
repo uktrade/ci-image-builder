@@ -118,7 +118,10 @@ class TestDeployCommand(BaseTestCase):
         if os.getenv("IMAGE_TAG"):
             del os.environ["IMAGE_TAG"]
 
-    def test_perfect_deploy(self, docker, notify, subprocess_run, subprocess_popen):
+    @patch("image_builder.commands.deploy.check_copilot_version", return_value=True)
+    def test_perfect_deploy(
+        self, check_copilot_version, docker, notify, subprocess_run, subprocess_popen
+    ):
         self.setup_mocks(docker, notify, subprocess_run, subprocess_popen)
         self.setup_environment()
         del os.environ["IMAGE_TAG"]
@@ -374,7 +377,10 @@ class TestDeployCommand(BaseTestCase):
         finally:
             COMMAND_PATTERNS["regctl"] = old_regctl
 
-    def test_installing_copilot(self, docker, notify, subprocess_run, subprocess_popen):
+    @patch("image_builder.commands.deploy.check_copilot_version", return_value=True)
+    def test_installing_copilot(
+        self, check_copilot_version, docker, notify, subprocess_run, subprocess_popen
+    ):
         self.setup_mocks(docker, notify, subprocess_run, subprocess_popen)
         self.setup_environment()
 
@@ -432,8 +438,9 @@ class TestDeployCommand(BaseTestCase):
         self.teardown_environment()
         COMMAND_PATTERNS["wget"] = StubbedProcess(returncode=0)
 
+    @patch("image_builder.commands.deploy.check_copilot_version", return_value=True)
     def test_installing_copilot_succeeds_when_preinstalled_version_does_not_exist(
-        self, docker, notify, subprocess_run, subprocess_popen
+        self, check_copilot_version, docker, notify, subprocess_run, subprocess_popen
     ):
         self.setup_mocks(docker, notify, subprocess_run, subprocess_popen)
         self.setup_environment()
@@ -450,6 +457,43 @@ class TestDeployCommand(BaseTestCase):
         self.assertIn(
             f"Copilot version {FAILING_TEST_COPILOT_VERSION} not pre-installed, installing now",
             result.output,
+        )
+
+        notify().post_job_comment.assert_has_calls(
+            [
+                call(
+                    "Warning: copilot version is not cached",
+                    [
+                        f"Warning: copilot version `{FAILING_TEST_COPILOT_VERSION}` is not cached. "
+                        "This version should be added to the `ci-image-builder` Dockerfile"
+                    ],
+                )
+            ],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        self.teardown_environment()
+
+    @patch("image_builder.commands.deploy.check_copilot_version", return_value=False)
+    def test_sending_notification_when_copilot_version_behind_latest(
+        self, check_copilot_version, docker, notify, subprocess_run, subprocess_popen
+    ):
+        self.setup_mocks(docker, notify, subprocess_run, subprocess_popen)
+        self.setup_environment()
+
+        result = self.run_deploy()
+
+        notify().post_job_comment.assert_has_calls(
+            [
+                call(
+                    "Warning: A newer version of copilot-cli is available",
+                    [
+                        "Warning: A newer version of `copilot-cli` is available. "
+                        "Download the <https://github.com/aws/copilot-cli/releases/latest|latest version> "
+                        "and update the `.copilot-version` file"
+                    ],
+                ),
+            ],
         )
 
         self.assertEqual(result.exit_code, 0)
