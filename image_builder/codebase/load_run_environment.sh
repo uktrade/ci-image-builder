@@ -13,7 +13,7 @@ if [[ -d "/layers/paketo-buildpacks_pipenv-install" ]]; then
   if ls "$(cat /layers/paketo-buildpacks_pipenv-install/packages/env/PYTHONPATH.prepend)" 2> /dev/null; then
     export PYTHONPATH="$(cat /layers/paketo-buildpacks_pipenv-install/packages/env/PYTHONPATH.prepend):$PYTHONPATH"
   else
-    echo "    PYTHONPATH needed to be hacked due to incorrect export"
+    echo "    PYTHONPATH not found in expected location because of the version of the pipenv buildpack in play. Adding the site-packages directory to the PYTHONPATH."
     PIPENV_WORKSPACE_DIR="$(ls /layers/paketo-buildpacks_pipenv-install/packages/ | grep workspace)"
     PYTHON_DIR="$(ls /layers/paketo-buildpacks_pipenv-install/packages/$PIPENV_WORKSPACE_DIR/lib/)"
     export PYTHONPATH="/layers/paketo-buildpacks_pipenv-install/packages/$PIPENV_WORKSPACE_DIR/lib/$PYTHON_DIR/site-packages:$PYTHONPATH"
