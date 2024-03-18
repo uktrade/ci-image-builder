@@ -54,8 +54,13 @@ class TestCodebase(BaseTestCase):
                 .parent.parent.parent.parent.joinpath(
                     "image_builder/configuration/builder_configuration.yml"
                 )
-                .resolve()
-            ]
+                .resolve(),
+                Path(__file__)
+                .parent.parent.parent.parent.joinpath(
+                    "image_builder/codebase/load_run_environment.sh"
+                )
+                .resolve(),
+            ],
         )
 
     def test_loading_codebase(
@@ -84,17 +89,11 @@ class TestCodebase(BaseTestCase):
         self.assertEqual(Path("Procfile").read_text(), "web: django serve")
         self.assertEqual(
             Path("buildpack-run.sh").read_text(),
-            "\n".join(
-                [
-                    "#!/usr/bin/env bash",
-                    "export NODE_HOME=/layers/paketo-buildpacks_node-engine/node",
-                    "export PYTHONPATH=/layers/paketo-buildpacks_pip-install/packages/lib"
-                    "/python$BP_CPYTHON_VERSION/site-packages",
-                    'if [ -f "./.copilot/image_build_run.sh" ]; then',
-                    "    bash ./.copilot/image_build_run.sh",
-                    "fi",
-                ]
-            ),
+            Path(__file__)
+            .parent.parent.parent.parent.joinpath(
+                "image_builder/codebase/load_run_environment.sh"
+            )
+            .read_text(),
         )
 
     def test_codebase_teardown(
