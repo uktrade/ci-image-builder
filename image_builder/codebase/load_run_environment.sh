@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 export NODE_HOME=/layers/paketo-buildpacks_node-engine/node
 
-echo "Detecting python installation method"
+echo "Detecting Python installation method"
 
 if [[ -d "/layers/paketo-buildpacks_pip-install" ]]; then
   echo "  Found paketo-buildpacks/pip-install buildpack, setting PYTHONPATH"
