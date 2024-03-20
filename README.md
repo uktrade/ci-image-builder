@@ -118,6 +118,7 @@ Assumptions:
 - This repository and your codebase repository have the same parent directory
 - You are using virtual Python environments
 - Commands will be run from the application codebase directory
+- You've [installed Pack](https://buildpacks.io/docs/for-platform-operators/how-to/integrate-ci/pack/#install)
 
 Make sure your application's Python environment has the dependencies for `ci-image-builder`:
 
