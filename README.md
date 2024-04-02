@@ -12,7 +12,7 @@ them to AWS ECR.
 To configure your application repository for use with this image, run the following command:
 
 ```shell
-copilot-helper codebase prepare
+platform-helper codebase prepare
 ```
 
 Alternatively, you can create or use the following folder structure:
