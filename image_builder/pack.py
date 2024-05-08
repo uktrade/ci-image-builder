@@ -25,7 +25,11 @@ class Pack:
         self, publish=False, on_building: Callable = None, on_exporting: Callable = None
     ):
         proc = subprocess.Popen(
-            self.get_command(publish), shell=True, stdout=subprocess.PIPE, text=True
+            self.get_command(publish),
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
         )
 
         while proc.poll() is None:
@@ -37,7 +41,7 @@ class Pack:
                 on_exporting()
 
         if proc.returncode != 0:
-            raise PackCommandFailedError
+            raise PackCommandFailedError(proc.stderr.read())
 
         if publish and self.codebase.build.additional_repository:
             publish_to_additional_repository(
