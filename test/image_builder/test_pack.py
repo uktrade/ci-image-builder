@@ -490,6 +490,7 @@ class TestCommand(BaseTestCase):
             " ".join(self.expected_command),
             shell=True,
             stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             text=True,
         )
 
@@ -518,7 +519,11 @@ class TestCommand(BaseTestCase):
 
         expected = " ".join(self.expected_command + [self.publish_opts])
         subprocess_popen.assert_called_with(
-            expected, shell=True, stdout=subprocess.PIPE, text=True
+            expected,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
         )
 
         publish_to_additional.assert_called_with(
@@ -541,7 +546,11 @@ class TestCommand(BaseTestCase):
 
         expected = " ".join(self.expected_command)
         subprocess_popen.assert_called_with(
-            expected, shell=True, stdout=subprocess.PIPE, text=True
+            expected,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
         )
 
         publish_to_additional.assert_not_called()
