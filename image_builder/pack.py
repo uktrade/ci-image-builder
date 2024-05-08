@@ -41,8 +41,12 @@ class Pack:
                 on_exporting()
 
         if proc.returncode != 0:
-            error = proc.stderr.read().decode("utf-8")
-            print(len(error), len(error) - 2500)
+            error = proc.stderr.read()
+
+            # To account for different systems (macOS produces a byte array, linux produces a str)
+            if hasattr(error, "decode"):
+                error = error.decode("utf-8")
+
             raise PackCommandFailedError(
                 error[len(error) - 2500 :] if len(error) > 2500 else error
             )
