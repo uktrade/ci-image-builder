@@ -41,7 +41,11 @@ class Pack:
                 on_exporting()
 
         if proc.returncode != 0:
-            raise PackCommandFailedError(proc.stderr.read())
+            error = proc.stderr.read().decode("utf-8")
+            print(len(error), len(error) - 2500)
+            raise PackCommandFailedError(
+                error[len(error) - 2500 :] if len(error) > 2500 else error
+            )
 
         if publish and self.codebase.build.additional_repository:
             publish_to_additional_repository(

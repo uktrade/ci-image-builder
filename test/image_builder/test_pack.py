@@ -16,6 +16,7 @@ from image_builder.codebase.revision import Revision
 from image_builder.const import ADDITIONAL_ECR_REPO
 from image_builder.const import ECR_REPO
 from image_builder.pack import Pack
+from image_builder.pack import PackCommandFailedError
 
 
 @patch(
@@ -554,3 +555,74 @@ class TestCommand(BaseTestCase):
         )
 
         publish_to_additional.assert_not_called()
+
+
+@patch(
+    "image_builder.codebase.codebase.load_codebase_languages",
+    wraps=load_codebase_languages_double,
+)
+@patch(
+    "image_builder.codebase.codebase.load_codebase_processes",
+    wraps=load_codebase_processes_double,
+)
+@patch(
+    "image_builder.codebase.codebase.load_codebase_revision",
+    wraps=load_codebase_revision_double,
+)
+@patch(
+    "subprocess.Popen",
+    return_value=subprocess.Popen(
+        f"bash {Path(__file__).parent.parent.joinpath('doubles/fake_pack_fail.sh').resolve()}",
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    ),
+)
+@patch("image_builder.pack.publish_to_additional_repository")
+class TestCommandErrors(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.setUpPyfakefs()
+        self.fs.create_dir(".copilot")
+        self.fs.create_file(
+            ".copilot/config.yml",
+            contents=dump(
+                {
+                    "repository": "ecr/repos",
+                    "builder": {
+                        "name": "paketobuildpacks/builder-jammy-full",
+                        "version": "0.3.288",
+                    },
+                }
+            ),
+        )
+        self.fs.create_file(".copilot/post_image_build.sh")
+        self.fs.add_real_paths(
+            [
+                Path(__file__)
+                .parent.parent.parent.joinpath(
+                    "image_builder/configuration/builder_configuration.yml"
+                )
+                .resolve()
+            ]
+        )
+        os.environ[
+            "CODEBUILD_BUILD_ARN"
+        ] = "arn:aws:codebuild:region:000000000000:build/project:example-build-id"
+
+    def test_build_with_error(
+        self,
+        publish_to_additional,
+        subprocess_popen,
+        load_codebase_revision,
+        load_codebase_processes,
+        load_codebase_languages,
+    ):
+        codebase = Codebase(Path("."))
+        pack = Pack(codebase, "timestamp")
+
+        with self.assertRaises(PackCommandFailedError) as e:
+            pack.build()
+
+        self.assertEqual(len(str(e.exception)), 2500)
+        self.assertNotIn("Not in notification", str(e.exception))
