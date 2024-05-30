@@ -126,7 +126,7 @@ Make sure your application's Python environment has the dependencies for `ci-ima
 pip install -r ../ci-image-builder/requirements.txt
 ```
 
-Temporarily edit your codebase's `.copilot/config.yml` so that `repository` has a public URL. e.g. change `this/application` to `public.ecr.aws/this/application`.
+Temporarily edit your codebase's `.copilot/config.yml` so that `repository` has a public URL. e.g. change `this/application` to `public.ecr.aws/this/application`. If you don't do this, it just exits with no explanation after outputting "Docker is running, continuing with build...".
 
 Build the image:
 
