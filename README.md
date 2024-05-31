@@ -111,7 +111,7 @@ Images are built by CodeBuild when a push to a branch or tag of your repository 
 
 <!-- TODO: build out configuration command in dbt-copilot-tools to configure a codebase to use the new builder -->
 
-## Using `ci-image-builder` to build an image locally
+## Using `ci-image-builder` to build an image locally for testing
 
 Assumptions:
 
@@ -125,6 +125,8 @@ Make sure your application's Python environment has the dependencies for `ci-ima
 ```shell
 pip install -r ../ci-image-builder/requirements.txt
 ```
+
+Temporarily edit your codebase's `.copilot/config.yml` so that `repository` has a public URL. e.g. change `this/application` to `public.ecr.aws/this/application`. If you don't do this, it just exits with no explanation after outputting "Docker is running, continuing with build...".
 
 Build the image:
 
