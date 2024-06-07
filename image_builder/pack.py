@@ -140,9 +140,6 @@ class Pack:
 
         return environment
 
-    def get_tags(self):
-        return self.codebase.revision.get_docker_tags()
-
     def get_bp_oci_ref_name(self):
         if self.codebase.revision.tag:
             return f"tag-{self.codebase.revision.tag}"
