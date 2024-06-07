@@ -55,13 +55,18 @@ class Pack:
             publish_to_additional_repository(
                 self.codebase.build.repository,
                 self.codebase.build.additional_repository,
-                self.get_tags(),
+                self.codebase.revision.get_docker_tags(),
             )
 
     def get_command(self, publish=False):
         buildpacks = " ".join([f"--buildpack {p}" for p in self.get_buildpacks()])
         environment = " ".join([f"--env {e}" for e in self.get_environment()])
-        tags = " ".join([f"--tag {self._repository}:{t}" for t in self.get_tags()])
+        tags = " ".join(
+            [
+                f"--tag {self._repository}:{t}"
+                for t in self.codebase.revision.get_docker_tags()
+            ]
+        )
         command = (
             f"pack build {self._repository} "
             f"--builder {self.codebase.build.builder.name}:{self.codebase.build.builder.version} "
@@ -136,15 +141,7 @@ class Pack:
         return environment
 
     def get_tags(self):
-        tags = [f"commit-{self.codebase.revision.commit}"]
-        if self.codebase.revision.tag:
-            tags.append(f"tag-{self.codebase.revision.tag}")
-            tags.append(f"tag-latest")
-
-        if self.codebase.revision.branch:
-            tags.append(f"branch-{self.codebase.revision.branch.replace('/', '-')}")
-
-        return tags
+        return self.codebase.revision.get_docker_tags()
 
     def get_bp_oci_ref_name(self):
         if self.codebase.revision.tag:
