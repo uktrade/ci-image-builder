@@ -263,56 +263,6 @@ class TestPackEnvironment(BaseTestCase):
     "image_builder.codebase.codebase.load_codebase_revision",
     wraps=load_codebase_revision_double,
 )
-class TestPackTags(BaseTestCase):
-    def setUp(self):
-        self.setUpPyfakefs()
-        self.fs.create_dir(".copilot")
-        self.fs.create_file(
-            ".copilot/config.yml",
-            contents=dump(
-                {
-                    "repository": "ecr/repos",
-                    "builder": {
-                        "name": "paketobuildpacks/builder-jammy-full",
-                        "version": "0.3.288",
-                    },
-                }
-            ),
-        )
-        self.fs.add_real_paths(
-            [
-                Path(__file__)
-                .parent.parent.parent.joinpath(
-                    "image_builder/configuration/builder_configuration.yml"
-                )
-                .resolve()
-            ]
-        )
-
-    def test_get_tags(
-        self, load_codebase_revision, load_codebase_processes, load_codebase_languages
-    ):
-        codebase = Codebase(Path("."))
-        pack = Pack(codebase)
-
-        self.assertEqual(
-            pack.get_tags(),
-            ["commit-shorthash", "tag-v2.4.6", "tag-latest", "branch-feat-tests"],
-        )
-
-
-@patch(
-    "image_builder.codebase.codebase.load_codebase_languages",
-    wraps=load_codebase_languages_double,
-)
-@patch(
-    "image_builder.codebase.codebase.load_codebase_processes",
-    wraps=load_codebase_processes_double,
-)
-@patch(
-    "image_builder.codebase.codebase.load_codebase_revision",
-    wraps=load_codebase_revision_double,
-)
 @patch(
     "subprocess.Popen",
     return_value=subprocess.Popen(

@@ -1,11 +1,16 @@
 import os
 from pathlib import Path
 from test.base_test_case import BaseTestCase
+from test.doubles.codebase import load_codebase_languages_double
+from test.doubles.codebase import load_codebase_processes_double
+from test.doubles.codebase import load_codebase_revision_double
 from test.doubles.process import StubbedProcess
 from unittest.mock import patch
 
 import pytest
+from yaml import dump
 
+from image_builder.codebase.codebase import Codebase
 from image_builder.codebase.revision import CodebaseRevisionMissingDataError
 from image_builder.codebase.revision import CodebaseRevisionNoDataError
 from image_builder.codebase.revision import load_codebase_revision
@@ -108,3 +113,52 @@ class TestCodebaseRevision(BaseTestCase):
         self.fs.create_dir(".git")
         with pytest.raises(CodebaseRevisionMissingDataError):
             load_codebase_revision(Path("."))
+
+
+@patch(
+    "image_builder.codebase.codebase.load_codebase_languages",
+    wraps=load_codebase_languages_double,
+)
+@patch(
+    "image_builder.codebase.codebase.load_codebase_processes",
+    wraps=load_codebase_processes_double,
+)
+@patch(
+    "image_builder.codebase.codebase.load_codebase_revision",
+    wraps=load_codebase_revision_double,
+)
+class TestRevisionTags(BaseTestCase):
+    def setUp(self):
+        self.setUpPyfakefs()
+        self.fs.create_dir(".copilot")
+        self.fs.create_file(
+            ".copilot/config.yml",
+            contents=dump(
+                {
+                    "repository": "ecr/repos",
+                    "builder": {
+                        "name": "paketobuildpacks/builder-jammy-full",
+                        "version": "0.3.288",
+                    },
+                }
+            ),
+        )
+        self.fs.add_real_paths(
+            [
+                Path(__file__)
+                .parent.parent.parent.parent.joinpath(
+                    "image_builder/configuration/builder_configuration.yml"
+                )
+                .resolve()
+            ]
+        )
+
+    def test_get_docker_tags(
+        self, load_codebase_revision, load_codebase_processes, load_codebase_languages
+    ):
+        codebase = Codebase(Path("."))
+
+        self.assertEqual(
+            codebase.revision.get_docker_tags(),
+            ["commit-shorthash", "tag-v2.4.6", "tag-latest", "branch-feat-tests"],
+        )

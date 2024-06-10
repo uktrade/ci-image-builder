@@ -37,6 +37,17 @@ class Revision:
     def get_repository_url(self) -> str:
         return f"https://github.com/{self.get_repository_name()}"
 
+    def get_docker_tags(self) -> list:
+        tags = [f"commit-{self.commit}"]
+        if self.tag:
+            tags.append(f"tag-{self.tag}")
+            tags.append(f"tag-latest")
+
+        if self.branch:
+            tags.append(f"branch-{self.branch.replace('/', '-')}")
+
+        return tags
+
 
 def load_codebase_revision(path: Path):
     if not path.joinpath(".git").exists():
