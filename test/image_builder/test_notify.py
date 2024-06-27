@@ -169,7 +169,9 @@ class TestNotify(unittest.TestCase):
         )
 
 
-def get_expected_message_blocks(setup="running", build="pending", publish="pending"):
+def get_expected_message_blocks(
+    setup="running", build="pending", publish="pending", deploy="pending"
+):
     phase_messages = {
         "pending": "Pending :large_blue_circle:",
         "running": "Running :hourglass_flowing_sand:",
@@ -209,6 +211,10 @@ def get_expected_message_blocks(setup="running", build="pending", publish="pendi
                 blocks.TextObject(
                     type="mrkdwn",
                     text=f"*Publish*: {phase_messages[publish]}",
+                ),
+                blocks.TextObject(
+                    type="mrkdwn",
+                    text=f"*Deploy*: {phase_messages[deploy]}",
                 ),
             ]
         ),

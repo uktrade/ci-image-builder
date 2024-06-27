@@ -94,17 +94,23 @@ def deploy(send_notifications):
         )
 
         if result.returncode != 0:
-            raise DeployError("Failed to deploy")
+            deploy_status_msg = "failed to deploy to"
+        else:
+            deploy_status_msg = "deployed to"
 
         notify.post_job_comment(
-            f"{codebase_repository}@{commit_hash} deployed to {copilot_environment}",
+            f"{codebase_repository}@{commit_hash} {deploy_status_msg} {copilot_environment}",
             [
                 f"<https://github.com/{codebase_repository}/commit/{commit_hash}|"
-                f"{codebase_repository}@{commit_hash}> deployed to `{copilot_environment}` "
+                f"{codebase_repository}@{commit_hash}> {deploy_status_msg} `{copilot_environment}` "
                 f"| <{notify.get_build_url()}|Build Log>",
             ],
             True,
         )
+
+        if result.returncode != 0:
+            raise DeployError("Failed to deploy")
+
     except DeployError as e:
         click.secho(f"{e.__class__.__name__}: {e}", fg="red")
         exit(1)

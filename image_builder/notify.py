@@ -71,6 +71,9 @@ class Notify:
                         blocks.TextObject(
                             type="mrkdwn", text=f'{progress.get_phase("publish")}'
                         ),
+                        blocks.TextObject(
+                            type="mrkdwn", text=f'{progress.get_phase("deploy")}'
+                        ),
                     ]
                 ),
             ]
