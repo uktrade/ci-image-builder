@@ -64,6 +64,7 @@ class Progress:
             Phase("setup"),
             Phase("build"),
             Phase("publish"),
+            Phase("deploy"),
         ]
         self.phase = 0
 
