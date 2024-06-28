@@ -137,6 +137,23 @@ class TestNotify(unittest.TestCase):
             unfurl_media=False,
         )
 
+        # set deploy to running
+        progress.current_phase_success()
+        progress.set_current_phase("deploy")
+        progress.current_phase_running()
+        notify.post_build_progress(progress, self.codebase)
+
+        notify.slack.chat_update.assert_called_with(
+            channel="channel-id",
+            ts="updated-message",
+            blocks=get_expected_message_blocks(
+                setup="success", build="success", publish="success", deploy="running"
+            ),
+            text="Building: org/repo@commit-sha",
+            unfurl_links=False,
+            unfurl_media=False,
+        )
+
         # set state to done
         progress.current_phase_success()
         notify.post_build_progress(progress, self.codebase)
@@ -145,7 +162,7 @@ class TestNotify(unittest.TestCase):
             channel="channel-id",
             ts="updated-message",
             blocks=get_expected_message_blocks(
-                setup="success", build="success", publish="success"
+                setup="success", build="success", publish="success", deploy="success"
             ),
             text="Building: org/repo@commit-sha",
             unfurl_links=False,
