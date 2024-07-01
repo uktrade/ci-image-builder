@@ -10,6 +10,7 @@ import requests
 from image_builder.const import ECR_REPO
 from image_builder.docker import Docker
 from image_builder.notify import Notify
+from image_builder.progress import Progress
 
 
 class DeployError(Exception):
@@ -49,6 +50,7 @@ def deploy(send_notifications):
         repository = get_image_repository_url()
         Docker.login(repository.split("/")[0])
         timestamp = get_deployment_reference(repository, tag)
+        progress = Progress()
         notify = Notify(send_notifications)
         notify.reference = timestamp
 
@@ -57,6 +59,8 @@ def deploy(send_notifications):
         codebase_repository = os.getenv("CODEBASE_REPOSITORY")
         commit_hash = tag.replace("commit-", "")
 
+        progress.set_current_phase("deploy")
+        progress.current_phase_running()
         notify.post_job_comment(
             f"{codebase_repository}@{commit_hash} deploying to {copilot_environment}",
             [
@@ -94,8 +98,10 @@ def deploy(send_notifications):
         )
 
         if result.returncode != 0:
+            progress.current_phase_failure()
             deploy_status_msg = "failed to deploy to"
         else:
+            progress.current_phase_success()
             deploy_status_msg = "deployed to"
 
         notify.post_job_comment(
