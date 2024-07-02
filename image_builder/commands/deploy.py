@@ -104,6 +104,12 @@ def deploy(send_notifications):
             progress.current_phase_success()
             deploy_status_msg = "deployed to"
 
+        # TODO: make this work???
+        # notify.post_build_progress is needed to update the status dots on the
+        # original thread; Codebase, however, doesn't seem to be available at
+        # deploy time
+        # notify.post_build_progress(progress, Codebase("."))
+
         notify.post_job_comment(
             f"{codebase_repository}@{commit_hash} {deploy_status_msg} {copilot_environment}",
             [
