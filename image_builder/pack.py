@@ -100,7 +100,7 @@ class Pack:
             if "nodejs" in self.codebase.languages:
                 buildpacks.append("paketo-buildpacks/nodejs")
 
-        buildpacks.append("fagiani/run")
+        # buildpacks.append("fagiani/run")
         buildpacks.append("gcr.io/paketo-buildpacks/image-labels")
         buildpacks.append("gcr.io/paketo-buildpacks/environment-variables")
 
