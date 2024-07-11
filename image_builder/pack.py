@@ -98,6 +98,8 @@ class Pack:
         buildpacks.append("gcr.io/paketo-buildpacks/image-labels")
         buildpacks.append("gcr.io/paketo-buildpacks/environment-variables")
 
+        buildpacks.append("paketo-buildpacks/dotnet-core")
+
         return buildpacks
 
     def get_environment(self):
