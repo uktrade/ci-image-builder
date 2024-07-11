@@ -24,6 +24,10 @@ class Pack:
     def build(
         self, publish=False, on_building: Callable = None, on_exporting: Callable = None
     ):
+        print(f"Will's debug work out where we are")
+        subprocess.run(["pwd"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print(subprocess.run(["pwd"], stdout=subprocess.PIPE, stderr=subprocess.PIPE))
+        print(f"Will's debug self.get_command(publish): {self.get_command(publish)}")
         proc = subprocess.Popen(
             self.get_command(publish),
             shell=True,
@@ -69,6 +73,7 @@ class Pack:
         )
         command = (
             f"pack build {self._repository} "
+            "--path DemoDotnet "
             f"--builder {self.codebase.build.builder.name}:{self.codebase.build.builder.version} "
             f"{tags} {environment} {buildpacks}"
         )
@@ -78,7 +83,8 @@ class Pack:
         return command
 
     def get_buildpacks(self):
-        buildpacks = ["paketo-buildpacks/git"]
+        # buildpacks = ["paketo-buildpacks/git"]
+        buildpacks = []
 
         # if self.codebase.build.packages:
         #     buildpacks.append("fagiani/apt")

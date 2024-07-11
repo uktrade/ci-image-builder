@@ -36,6 +36,8 @@ else
   BUILDSPEC_PATH="copilot/process.yml"
 fi
 
+echo "Will's debug BUILDSPEC_PATH: $BUILDSPEC_PATH"
+
 # Create a list of Buildpacks
 if [ -f $BUILDPACK_JSON ]; then
   if [[ $(jq '.buildpacks' $BUILDPACK_JSON) != "null" ]]; then
@@ -87,6 +89,8 @@ fi
 APP_NAME=$(niet ".application.name" $BUILDSPEC_PATH)
 count=1
 
+echo "Will's debug APP_NAME: $APP_NAME"
+
 # If there are multiple processes, loop through them and create multiple OCI images for each instance
 for PROC in $(niet ".application.process" $BUILDSPEC_PATH)
 do
@@ -98,7 +102,7 @@ do
     IMAGE_NAME="$APP_NAME/$PROC"
   fi
 
-  echo "Will's debug: $IMAGE_NAME"
+  echo "Will's debug IMAGE_NAME: $IMAGE_NAME"
 
   # Public/Private repos have different commands and targets.
   if [ $ECR_VISIBILITY == "PRIVATE" ]; then
