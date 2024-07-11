@@ -80,8 +80,8 @@ class Pack:
     def get_buildpacks(self):
         buildpacks = ["paketo-buildpacks/git"]
 
-        if self.codebase.build.packages:
-            buildpacks.append("fagiani/apt")
+        # if self.codebase.build.packages:
+        #     buildpacks.append("fagiani/apt")
 
         for pack in self.codebase.build.packs:
             buildpacks.append(pack.name)
@@ -99,6 +99,8 @@ class Pack:
         buildpacks.append("gcr.io/paketo-buildpacks/environment-variables")
 
         buildpacks.append("paketo-buildpacks/dotnet-core")
+        buildpacks.append("paketo-buildpacks/dotnet-publish")
+        buildpacks.append("paketo-buildpacks/dotnet-execute")
 
         return buildpacks
 

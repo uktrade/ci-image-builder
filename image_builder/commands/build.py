@@ -23,6 +23,7 @@ def build(publish, send_notifications):
     notify.post_build_progress(progress, codebase)
     pack = Pack(codebase, notify.reference)
     try:
+        print("Will's debug: Image version 1")
         if not Docker.running():
             click.echo("Docker is not running, starting up...")
             Docker.start()

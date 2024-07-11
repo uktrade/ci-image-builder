@@ -98,6 +98,8 @@ do
     IMAGE_NAME="$APP_NAME/$PROC"
   fi
 
+  echo "Will's debug: $IMAGE_NAME"
+
   # Public/Private repos have different commands and targets.
   if [ $ECR_VISIBILITY == "PRIVATE" ]; then
     DOCKERREG=$(aws sts get-caller-identity --query Account --output text).dkr.ecr.eu-west-2.amazonaws.com
@@ -140,6 +142,13 @@ do
 
     PACK_COMMAND="$PACK_COMMAND --tag $IMAGE:commit-$GIT_COMMIT --publish"
 
+    echo "Will's debug $PACK_COMMAND"
+
+    echo -e "\nWill's debug info..."
+    pwd
+    cd DemoDotnet
+    pwd
+    ls -al
     $PACK_COMMAND
 
   status=$?
