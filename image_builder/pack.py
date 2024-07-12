@@ -24,10 +24,7 @@ class Pack:
     def build(
         self, publish=False, on_building: Callable = None, on_exporting: Callable = None
     ):
-        print(f"Will's debug work out where we are")
         subprocess.run(["pwd"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print(subprocess.run(["pwd"], stdout=subprocess.PIPE, stderr=subprocess.PIPE))
-        print(f"Will's debug self.get_command(publish): {self.get_command(publish)}")
         proc = subprocess.Popen(
             self.get_command(publish),
             shell=True,

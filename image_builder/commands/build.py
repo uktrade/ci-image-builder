@@ -23,7 +23,6 @@ def build(publish, send_notifications):
     notify.post_build_progress(progress, codebase)
     pack = Pack(codebase, notify.reference)
     try:
-        print("Will's debug")
         if not Docker.running():
             click.echo("Docker is not running, starting up...")
             Docker.start()
@@ -67,19 +66,15 @@ def build(publish, send_notifications):
             ],
         )
 
-        print("Will's debug: pack.codebase.setup()")
         pack.codebase.setup()
 
-        print("Will's debug: pack.build")
         pack.build(
             publish,
             on_building(notify, progress, codebase),
             on_publishing(notify, progress, codebase),
         )
 
-        print("Will's debug: progress.current_phase_success()")
         progress.current_phase_success()
-        print("Will's debug: notify.post_build_progress(progress, codebase)")
         notify.post_build_progress(progress, codebase)
 
     except (Exception, KeyboardInterrupt) as e:
