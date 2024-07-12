@@ -220,6 +220,16 @@ def clone_deployment_repository():
         raise CannotCloneDeployRepositoryDeployError(
             f"Failed to clone deploy repository: " f"{proc.stderr}"
         )
+    proc = subprocess.run(
+        "cd deploy && git checkout DBTP-1058-add-dotnet-service && cd ..",
+        stdout=subprocess.PIPE,
+        shell=True,
+    )
+
+    if proc.returncode != 0:
+        raise CannotCloneDeployRepositoryDeployError(
+            "Failed to checkout DBTP-1058-add-dotnet-service branch"
+        )
 
 
 def install_copilot() -> (str, bool):
