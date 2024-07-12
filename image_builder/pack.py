@@ -24,7 +24,6 @@ class Pack:
     def build(
         self, publish=False, on_building: Callable = None, on_exporting: Callable = None
     ):
-        subprocess.run(["pwd"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         proc = subprocess.Popen(
             self.get_command(publish),
             shell=True,
