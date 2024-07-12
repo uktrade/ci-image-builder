@@ -140,6 +140,8 @@ do
 
     PACK_COMMAND="$PACK_COMMAND --tag $IMAGE:commit-$GIT_COMMIT --publish"
 
+    $PACK_COMMAND
+
   status=$?
   [ $status -ne 0 ] && exit 1
 
