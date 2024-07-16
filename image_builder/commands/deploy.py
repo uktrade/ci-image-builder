@@ -109,7 +109,7 @@ def deploy(send_notifications):
             "revision_commit": commit_hash,
             "repository_url": f"https://github.com/{codebase_repository}",
         }
-        # notify.post_build_progress(progress, None, extras)
+        notify.post_build_progress(progress, None, extras)
 
         notify.post_job_comment(
             f"{codebase_repository}@{commit_hash} {deploy_status_msg} {copilot_environment}",
