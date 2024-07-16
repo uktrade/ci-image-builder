@@ -33,19 +33,33 @@ class Notify:
             except KeyError as e:
                 raise ValueError(f"{e} environment variable must be set")
 
-    def post_build_progress(self, progress: Progress, codebase: Codebase):
+    def _prepare_message_blocks(self, codebase: Codebase, text_blocks=None):
+        if text_blocks is not None:
+            return text_blocks
+
+        if codebase is not None:
+            return {
+                "repository_name": codebase.revision.get_repository_name(),
+                "revision_commit": codebase.revision.commit,
+                "repository_url": codebase.revision.get_repository_url(),
+            }
+        return {}
+
+    def post_build_progress(self, progress: Progress, codebase: Codebase, extras=None):
         if self.send_notifications:
+            text_blocks = self._prepare_message_blocks(codebase, extras)
+
             message_headline = (
-                f"*Building {codebase.revision.get_repository_name()}@"
-                f"{codebase.revision.commit}*"
+                f"*Building {text_blocks['repository_name']}@"
+                f"{text_blocks['revision_commit']}*"
             )
             message_repository = (
-                f"*Repository*: <{codebase.revision.get_repository_url()}|"
-                f"{codebase.revision.get_repository_name()}>"
+                f"*Repository*: <{text_blocks['repository_url']}|"
+                f"{text_blocks['repository_name']}>"
             )
             message_revision = (
-                f"*Revision*: <{codebase.revision.get_repository_url()}/commit/"
-                f"{codebase.revision.commit}|{codebase.revision.commit}>"
+                f"*Revision*: <{text_blocks['repository_url']}/commit/"
+                f"{text_blocks['revision_commit']}|{text_blocks['revision_commit']}>"
             )
             message_build_logs = f"<{self.get_build_url()}|Build Logs>"
 
@@ -82,7 +96,7 @@ class Notify:
                 response = self.slack.chat_postMessage(
                     channel=os.environ["SLACK_CHANNEL_ID"],
                     blocks=message_blocks,
-                    text=f"Building: {codebase.revision.get_repository_name()}@{codebase.revision.commit}",
+                    text=f"Building: {text_blocks['repository_name']}@{text_blocks['revision_commit']}",
                     unfurl_links=False,
                     unfurl_media=False,
                 )
@@ -92,7 +106,7 @@ class Notify:
                     channel=os.environ["SLACK_CHANNEL_ID"],
                     blocks=message_blocks,
                     ts=self.reference,
-                    text=f"Building: {codebase.revision.get_repository_name()}@{codebase.revision.commit}",
+                    text=f"Building: {text_blocks['repository_name']}@{text_blocks['revision_commit']}",
                     unfurl_links=False,
                     unfurl_media=False,
                 )
