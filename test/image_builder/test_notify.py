@@ -28,6 +28,11 @@ class TestNotify(unittest.TestCase):
         self.codebase.revision.get_repository_url.return_value = (
             "https://github.com/org/repo"
         )
+        self.extras = {
+            "repository_name": "org/repo",
+            "revision_commit": "commit-sha",
+            "repository_url": "https://github.com/org/repo",
+        }
 
     @parameterized.expand(
         [
@@ -75,6 +80,36 @@ class TestNotify(unittest.TestCase):
             unfurl_media=False,
         )
         notify.post_build_progress(progress, self.codebase)
+        notify.slack.chat_update.assert_called_with(
+            channel="channel-id",
+            blocks=ANY,
+            ts="updated-message",
+            text="Building: org/repo@commit-sha",
+            unfurl_links=False,
+            unfurl_media=False,
+        )
+
+    def test_sending_progress_updates_no_codebase(self, webclient, time):
+        notify = Notify(self.codebase)
+        progress = Progress()
+        notify.post_build_progress(progress, None, self.extras)
+        notify.post_build_progress(progress, None, self.extras)
+        notify.slack.chat_postMessage.assert_called_with(
+            channel="channel-id",
+            blocks=ANY,
+            text="Building: org/repo@commit-sha",
+            unfurl_links=False,
+            unfurl_media=False,
+        )
+        notify.slack.chat_update.assert_called_with(
+            channel="channel-id",
+            blocks=ANY,
+            ts="first-message",
+            text="Building: org/repo@commit-sha",
+            unfurl_links=False,
+            unfurl_media=False,
+        )
+        notify.post_build_progress(progress, None, self.extras)
         notify.slack.chat_update.assert_called_with(
             channel="channel-id",
             blocks=ANY,
