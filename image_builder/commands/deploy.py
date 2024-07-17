@@ -59,8 +59,15 @@ def deploy(send_notifications):
         codebase_repository = os.getenv("CODEBASE_REPOSITORY")
         commit_hash = tag.replace("commit-", "")
 
+        text_blocks = {
+            "repository_name": codebase_repository,
+            "revision_commit": commit_hash,
+            "repository_url": f"https://github.com/{codebase_repository}",
+        }
+
         progress.set_current_phase("deploy")
         progress.current_phase_running()
+        notify.post_build_progress(progress, text_blocks)
         notify.post_job_comment(
             f"{codebase_repository}@{commit_hash} deploying to {copilot_environment}",
             [
@@ -104,13 +111,7 @@ def deploy(send_notifications):
             progress.current_phase_success()
             deploy_status_msg = "deployed to"
 
-        extras = {
-            "repository_name": codebase_repository,
-            "revision_commit": commit_hash,
-            "repository_url": f"https://github.com/{codebase_repository}",
-        }
-        notify.post_build_progress(progress, None, extras)
-
+        notify.post_build_progress(progress, text_blocks)
         notify.post_job_comment(
             f"{codebase_repository}@{commit_hash} {deploy_status_msg} {copilot_environment}",
             [

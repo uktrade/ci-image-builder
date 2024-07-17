@@ -20,7 +20,7 @@ def build(publish, send_notifications):
     notify = Notify(send_notifications)
     progress = Progress()
     progress.current_phase_running()
-    notify.post_build_progress(progress, codebase)
+    notify.post_build_progress(progress, codebase.get_notify_attrs())
     pack = Pack(codebase, notify.reference)
     try:
         if not Docker.running():
@@ -75,13 +75,13 @@ def build(publish, send_notifications):
         )
 
         progress.current_phase_success()
-        notify.post_build_progress(progress, codebase)
+        notify.post_build_progress(progress, codebase.get_notify_attrs())
 
     except (Exception, KeyboardInterrupt) as e:
         reason = "Build was cancelled" if type(e) == KeyboardInterrupt else "Error"
         click.secho(f"{reason}: {str(e)}", fg="red")
         progress.current_phase_failure()
-        notify.post_build_progress(progress, codebase)
+        notify.post_build_progress(progress, codebase.get_notify_attrs())
         notify.post_job_comment(
             f"Build: {pack.codebase.revision.get_repository_name()}@{pack.codebase.revision.commit} cancelled",
             [f"{reason}: {e.__class__.__name__}", str(e)],
@@ -97,7 +97,7 @@ def on_building(notify, progress, codebase):
         progress.current_phase_success()
         progress.set_current_phase("build")
         progress.current_phase_running()
-        notify.post_build_progress(progress, codebase)
+        notify.post_build_progress(progress, codebase.get_notify_attrs())
 
     return on_building_callback
 
@@ -107,6 +107,6 @@ def on_publishing(notify, progress, codebase):
         progress.current_phase_success()
         progress.set_current_phase("publish")
         progress.current_phase_running()
-        notify.post_build_progress(progress, codebase)
+        notify.post_build_progress(progress, codebase.get_notify_attrs())
 
     return on_publishing_callback

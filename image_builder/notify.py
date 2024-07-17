@@ -4,7 +4,6 @@ from typing import List
 from slack_sdk import WebClient
 from slack_sdk.models import blocks
 
-from image_builder.codebase.codebase import Codebase
 from image_builder.progress import Progress
 from image_builder.utils.arn_parser import ARN
 
@@ -32,22 +31,8 @@ class Notify:
             except KeyError as e:
                 raise ValueError(f"{e} environment variable must be set")
 
-    def _prepare_message_blocks(self, codebase: Codebase, text_blocks=None):
-        if text_blocks is not None:
-            return text_blocks
-
-        if codebase is not None:
-            return {
-                "repository_name": codebase.revision.get_repository_name(),
-                "revision_commit": codebase.revision.commit,
-                "repository_url": codebase.revision.get_repository_url(),
-            }
-        return {}
-
-    def post_build_progress(self, progress: Progress, codebase: Codebase, extras=None):
+    def post_build_progress(self, progress: Progress, text_blocks=None):
         if self.send_notifications:
-            text_blocks = self._prepare_message_blocks(codebase, extras)
-
             message_headline = (
                 f"*Building {text_blocks['repository_name']}@"
                 f"{text_blocks['revision_commit']}*"
