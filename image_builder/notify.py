@@ -31,8 +31,24 @@ class Notify:
             except KeyError as e:
                 raise ValueError(f"{e} environment variable must be set")
 
+    def _validate_data(self, data):
+        if data is None:
+            raise ValueError(f"The notification data can't be empty.")
+
+        if not isinstance(data, dict):
+            raise ValueError(f"The notification data isn't a valid object.")
+
+        if sorted(["revision_commit", "repository_name", "repository_url"]) != sorted(
+            data.keys()
+        ):
+            raise ValueError(
+                f"The notification data must include revision_commit, repository_name and repository_url."
+            )
+
     def post_build_progress(self, progress: Progress, text_blocks=None):
         if self.send_notifications:
+            self._validate_data(text_blocks)
+
             message_headline = (
                 f"*Building {text_blocks['repository_name']}@"
                 f"{text_blocks['revision_commit']}*"

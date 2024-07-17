@@ -220,6 +220,36 @@ class TestNotify(unittest.TestCase):
             unfurl_media=False,
         )
 
+    def test_sending_progress_updates_missing_data(self, webclient, time):
+        notify = Notify(True)
+        progress = Progress()
+
+        with pytest.raises(ValueError) as e:
+            notify.post_build_progress(progress, None)
+
+        self.assertEqual(f"The notification data can't be empty.", str(e.value))
+
+    def test_sending_progress_updates_invalid_type(self, webclient, time):
+        notify = Notify(True)
+        progress = Progress()
+
+        with pytest.raises(ValueError) as e:
+            notify.post_build_progress(progress, "Invalid")
+
+        self.assertEqual(f"The notification data isn't a valid object.", str(e.value))
+
+    def test_sending_progress_updates_invalid_data(self, webclient, time):
+        notify = Notify(True)
+        progress = Progress()
+
+        with pytest.raises(ValueError) as e:
+            notify.post_build_progress(progress, {"invalid_key": "test"})
+
+        self.assertEqual(
+            f"The notification data must include revision_commit, repository_name and repository_url.",
+            str(e.value),
+        )
+
 
 def get_expected_message_blocks(
     setup="running", build="pending", publish="pending", deploy="pending"
