@@ -7,6 +7,8 @@ from slack_sdk.models import blocks
 from image_builder.progress import Progress
 from image_builder.utils.arn_parser import ARN
 
+NOTIFY_DATA_KEYS = ["revision_commit", "repository_name", "repository_url"]
+
 
 class Settings:
     channel: str
@@ -38,9 +40,7 @@ class Notify:
         if not isinstance(data, dict):
             raise ValueError(f"The notification data isn't a valid object.")
 
-        if sorted(["revision_commit", "repository_name", "repository_url"]) != sorted(
-            data.keys()
-        ):
+        if sorted(NOTIFY_DATA_KEYS) != sorted(data.keys()):
             raise ValueError(
                 f"The notification data must include revision_commit, repository_name and repository_url."
             )
