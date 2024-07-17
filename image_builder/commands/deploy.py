@@ -10,6 +10,7 @@ import requests
 from image_builder.const import ECR_REPO
 from image_builder.docker import Docker
 from image_builder.notify import Notify
+from image_builder.progress import Progress
 
 
 class DeployError(Exception):
@@ -57,6 +58,16 @@ def deploy(send_notifications):
         codebase_repository = os.getenv("CODEBASE_REPOSITORY")
         commit_hash = tag.replace("commit-", "")
 
+        text_blocks = {
+            "repository_name": codebase_repository,
+            "revision_commit": commit_hash,
+            "repository_url": f"https://github.com/{codebase_repository}",
+        }
+
+        progress = Progress()
+        progress.set_current_phase("deploy")
+        progress.current_phase_running()
+        notify.post_build_progress(progress, text_blocks)
         notify.post_job_comment(
             f"{codebase_repository}@{commit_hash} deploying to {copilot_environment}",
             [
@@ -94,10 +105,13 @@ def deploy(send_notifications):
         )
 
         if result.returncode != 0:
+            progress.current_phase_failure()
             deploy_status_msg = "failed to deploy to"
         else:
+            progress.current_phase_success()
             deploy_status_msg = "deployed to"
 
+        notify.post_build_progress(progress, text_blocks)
         notify.post_job_comment(
             f"{codebase_repository}@{commit_hash} {deploy_status_msg} {copilot_environment}",
             [
