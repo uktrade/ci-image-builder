@@ -16,7 +16,6 @@ class Settings:
 
 
 class Notify:
-    codebase: Codebase
     reference: str | None
     settings: Settings
 
