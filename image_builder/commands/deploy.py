@@ -50,7 +50,6 @@ def deploy(send_notifications):
         repository = get_image_repository_url()
         Docker.login(repository.split("/")[0])
         timestamp = get_deployment_reference(repository, tag)
-        progress = Progress()
         notify = Notify(send_notifications)
         notify.reference = timestamp
 
@@ -65,6 +64,7 @@ def deploy(send_notifications):
             "repository_url": f"https://github.com/{codebase_repository}",
         }
 
+        progress = Progress()
         progress.set_current_phase("deploy")
         progress.current_phase_running()
         notify.post_build_progress(progress, text_blocks)
