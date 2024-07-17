@@ -89,7 +89,7 @@ class TestNotify(unittest.TestCase):
             unfurl_media=False,
         )
 
-    def test_sending_progress_updates_no_codebase(self, webclient, time):
+    def test_sending_progress_updates_non_codebase_data(self, webclient, time):
         notify = Notify(True)
         progress = Progress()
         notify.post_build_progress(progress, self.extras)
