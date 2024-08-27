@@ -9,9 +9,10 @@ packages = [{include = "ci_image_builder"}]
 [tool.poetry.dependencies]
 python = "^3.11"
 PyYaml = "^6.0.1"
-requests = "^2.31.0"
+requests = "^2.32.0"
 click = "^8.1.7"
 slack-sdk = "^3.27.1"
+setuptools = "^70.0.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.2"
