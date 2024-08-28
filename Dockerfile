@@ -36,6 +36,7 @@ COPY builder-post.sh /work/builder-post.sh
 # CAN REMOVE SECTION ONCE OVER TO PYTHON BASED BUILDER
 
 COPY ./requirements.txt /work/
+RUN pyenv versions && python --version
 RUN cd /work && pip install -r requirements.txt
 
 COPY ./image_builder /work/image_builder
