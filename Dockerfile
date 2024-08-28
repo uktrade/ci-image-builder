@@ -42,14 +42,9 @@ RUN pyenv versions
 
 # Install dependencies for all Python versions so that it
 # doesn't matter which is used to send Slack notifications
-RUN cd /work && \
-    pyenv versions --bare | while IFS= read -r line; do \
-        pyenv local "$line" \
-        python --version \
-        pip install -r requirements.txt \
-        pyenv local --unset \
-    done
-
+COPY ./install-dependencies-for-all-pythons.sh /work/
+RUN cd /work && ./install-dependencies-for-all-pythons.sh
+RUN rm /work/install-dependencies-for-all-pythons.sh
 RUN exit 1
 
 COPY ./image_builder /work/image_builder
