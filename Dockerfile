@@ -44,7 +44,7 @@ RUN pyenv versions
 # doesn't matter which is used to send Slack notifications
 RUN cd /work && \
     pyenv versions --bare | while IFS= read -r line; do \
-        pyenv local "${line}" \
+        pyenv local "$line" \
         python --version \
         pip install -r requirements.txt \
         pyenv local --unset \
