@@ -69,6 +69,7 @@ class Pack:
         )
         command = (
             f"pack build {self._repository} "
+            "--path DemoDotnet "
             f"--builder {self.codebase.build.builder.name}:{self.codebase.build.builder.version} "
             f"{tags} {environment} {buildpacks}"
         )
@@ -78,10 +79,11 @@ class Pack:
         return command
 
     def get_buildpacks(self):
-        buildpacks = ["paketo-buildpacks/git"]
+        # buildpacks = ["paketo-buildpacks/git"]
+        buildpacks = []
 
-        if self.codebase.build.packages:
-            buildpacks.append("fagiani/apt")
+        # if self.codebase.build.packages:
+        #     buildpacks.append("fagiani/apt")
 
         for pack in self.codebase.build.packs:
             buildpacks.append(pack.name)
@@ -94,9 +96,13 @@ class Pack:
             if "nodejs" in self.codebase.languages:
                 buildpacks.append("paketo-buildpacks/nodejs")
 
-        buildpacks.append("fagiani/run")
+        # buildpacks.append("fagiani/run")
         buildpacks.append("gcr.io/paketo-buildpacks/image-labels")
         buildpacks.append("gcr.io/paketo-buildpacks/environment-variables")
+
+        buildpacks.append("paketo-buildpacks/dotnet-core")
+        buildpacks.append("paketo-buildpacks/dotnet-publish")
+        buildpacks.append("paketo-buildpacks/dotnet-execute")
 
         return buildpacks
 
