@@ -36,8 +36,19 @@ COPY builder-post.sh /work/builder-post.sh
 # CAN REMOVE SECTION ONCE OVER TO PYTHON BASED BUILDER
 
 COPY ./requirements.txt /work/
-RUN pyenv versions && python --version
-RUN cd /work && pip install -r requirements.txt
+
+# So we can easily see what versions of Python it has installed
+RUN pyenv versions
+
+# Install dependencies for all Python versions so that it
+# doesn't matter which is used to send Slack notifications
+RUN cd /work && \
+    while IFS= read -r line; do \
+        pyenv local "${line}" \
+        python --version \
+        pip install -r requirements.txt \
+        pyenv local --unset \
+    done <<< "$(pyenv versions --bare)"
 
 COPY ./image_builder /work/image_builder
 COPY cli /work/
