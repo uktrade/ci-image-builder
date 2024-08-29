@@ -42,11 +42,11 @@ phases:
     - docker build --build-arg PACK_VERSION=${PACK_VERSION} -t $REPOSITORY_URI .
     - docker tag $REPOSITORY_URI:latest "$REPOSITORY_URI:$COMMIT_TAG"
     - >
-      if [ -z $BRANCH_TAG ]; then
+      if [ -n $BRANCH_TAG ]; then
         docker tag $REPOSITORY_URI:latest "$REPOSITORY_URI:$BRANCH_TAG";
       fi
     - >
-      if [ -z $TAG_TAG ]; then
+      if [ -n $TAG_TAG ]; then
         docker tag $REPOSITORY_URI:latest "$REPOSITORY_URI:$TAG_TAG";
       fi
     - docker tag $REPOSITORY_URI:latest "$REPOSITORY_URI:$PACK_VERSION_TAG"
