@@ -34,6 +34,7 @@ phases:
           TAG_LATEST="tag-latest";
         fi
       fi
+    - >
       TEST_TAG="0.0.0"
       REGEX='^([0-9]+\.){2}[0-9]+$'
       if [[ $TEST_TAG =~ $REGEX ]]; then echo "$TEST_TAG is semver"; else echo "$TEST_TAG not semver"; fi
