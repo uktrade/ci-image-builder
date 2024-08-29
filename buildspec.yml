@@ -21,13 +21,13 @@ phases:
     - PACK_VERSION_TAG="pack-$PACK_VERSION"
     - REPOSITORY_URI=public.ecr.aws/uktrade/ci-image-builder
     - >
-      if [ -z $CODEBUILD_WEBHOOK_TRIGGER ]; then
+      if [[ $CODEBUILD_WEBHOOK_TRIGGER =~ branch/* ]]; then
+        BRANCH_TAG="branch-$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}')";
+      else
         BRANCH_TAG="branch-$(git branch --show-current)";
-      elif [[ $CODEBUILD_WEBHOOK_TRIGGER == branch/* ]]; then
-        BRANCH_TAG="branch_$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}')";
       fi
     - >
-      if [[ $CODEBUILD_WEBHOOK_TRIGGER == tag/* ]]; then
+      if [[ $CODEBUILD_WEBHOOK_TRIGGER =~ tag/* ]]; then
         TAG_TAG=$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}');
       fi
     - > 
@@ -42,11 +42,11 @@ phases:
     - docker build --build-arg PACK_VERSION=${PACK_VERSION} -t $REPOSITORY_URI .
     - docker tag $REPOSITORY_URI:latest "$REPOSITORY_URI:$COMMIT_TAG"
     - >
-      if [ -n $BRANCH_TAG ]; then
+      if [ $BRANCH_TAG != "" ]; then
         docker tag $REPOSITORY_URI:latest "$REPOSITORY_URI:$BRANCH_TAG";
       fi
     - >
-      if [ -n $TAG_TAG ]; then
+      if [ $TAG_TAG != "" ]; then
         docker tag $REPOSITORY_URI:latest "$REPOSITORY_URI:$TAG_TAG";
         if [[ $TAG_TAG =~ ^(\d+\.\d+\.\d+)$ ]]; then
           docker tag $REPOSITORY_URI:latest "$REPOSITORY_URI:tag-latest";
