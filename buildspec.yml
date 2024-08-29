@@ -28,8 +28,9 @@ phases:
       fi
     - >
       if [[ $CODEBUILD_WEBHOOK_TRIGGER == tag/* ]]; then
-        TAG_TAG=tag-$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}');
-        if [[ $TAG_TAG =~ '^([0-9]+\.){2}[0-9]+$' ]]; then
+        COMMIT_TAG=$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}');
+        TAG_TAG="tag-$COMMIT_TAG";
+        if [[ $COMMIT_TAG =~ '^([0-9]+\.){2}[0-9]+$' ]]; then
           TAG_LATEST="tag-latest";
         fi
       fi
@@ -60,6 +61,7 @@ phases:
 
   post_build:
     commands:
+    - if [ "${CODEBUILD_BUILD_SUCCEEDING}" != "1" ]; then echo "Image build failed"; exit; fi
     - echo Build completed on `date`
     - echo pushing to repo
     - docker push -a $REPOSITORY_URI
