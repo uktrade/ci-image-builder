@@ -48,6 +48,9 @@ phases:
     - >
       if [ -n $TAG_TAG ]; then
         docker tag $REPOSITORY_URI:latest "$REPOSITORY_URI:$TAG_TAG";
+        if [[ $TAG_TAG =~ ^(\d+\.\d+\.\d+)$ ]]; then
+          docker tag $REPOSITORY_URI:latest "$REPOSITORY_URI:tag-latest";
+        fi
       fi
     - docker tag $REPOSITORY_URI:latest "$REPOSITORY_URI:$PACK_VERSION_TAG"
 
