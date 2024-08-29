@@ -34,16 +34,15 @@ phases:
           TAG_LATEST="tag-latest";
         fi
       fi
-    - >
-      TEST_TAG="0.0.0"
-      REGEX='^([0-9]+\.){2}[0-9]+$'
-      if [[ $TEST_TAG =~ $REGEX ]]; then echo "$TEST_TAG is semver"; else echo "$TEST_TAG not semver"; fi
-      TEST_TAG="0.0.0"
-      if [[ $TEST_TAG =~ '^([0-9]+\.){2}[0-9]+$' ]]; then echo "$TEST_TAG is semver"; else echo "$TEST_TAG not semver"; fi
-      TEST_TAG="000.000.000"
-      if [[ $TEST_TAG =~ '^([0-9]+\.){2}[0-9]+$' ]]; then echo "$TEST_TAG is semver"; else echo "$TEST_TAG not semver"; fi
-      TEST_TAG="a.b.c"
-      if [[ $TEST_TAG =~ '^([0-9]+\.){2}[0-9]+$' ]]; then echo "$TEST_TAG is semver"; else echo "$TEST_TAG not semver"; fi
+    - TEST_TAG="0.0.0"
+    - REGEX='^([0-9]+\.){2}[0-9]+$'
+    - if [[ $TEST_TAG =~ $REGEX ]]; then echo "$TEST_TAG is semver"; else echo "$TEST_TAG not semver"; fi
+    - TEST_TAG="0.0.0"
+    - if [[ $TEST_TAG =~ '^([0-9]+\.){2}[0-9]+$' ]]; then echo "$TEST_TAG is semver"; else echo "$TEST_TAG not semver"; fi
+    - TEST_TAG="000.000.000"
+    - if [[ $TEST_TAG =~ '^([0-9]+\.){2}[0-9]+$' ]]; then echo "$TEST_TAG is semver"; else echo "$TEST_TAG not semver"; fi
+    - TEST_TAG="a.b.c"
+    - if [[ $TEST_TAG =~ '^([0-9]+\.){2}[0-9]+$' ]]; then echo "$TEST_TAG is semver"; else echo "$TEST_TAG not semver"; fi
     - > 
       echo "COMMIT_TAG: $COMMIT_TAG"
       echo -e "\nBRANCH_TAG: $BRANCH_TAG"
