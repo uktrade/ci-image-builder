@@ -48,7 +48,7 @@ phases:
     - >
       if [ $TAG_TAG != "" ]; then
         docker tag $REPOSITORY_URI:latest "$REPOSITORY_URI:$TAG_TAG";
-        if [[ $TAG_TAG =~ ^(\d+\.\d+\.\d+)$ ]]; then
+        if [[ $TAG_TAG =~ '^([0-9]+\.){2}[0-9]+$' ]]; then
           docker tag $REPOSITORY_URI:latest "$REPOSITORY_URI:tag-latest";
         fi
       fi
