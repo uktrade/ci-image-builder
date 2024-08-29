@@ -136,4 +136,13 @@ Build the image:
 
 ## Publishing `ci-image-builder`
 
-TODO
+When you push a commit to GitHub, a CodeBuild job will attempt to build the image and publish it with the following tags intended to allow for testing etc.
+
+- `branch-<branch_name>`
+- `commit-<commit_hash>`
+- `pack-<pack_version>`
+
+When you tag a commit to release it, the following tags should be added
+
+- `tag-<commit_tag>`
+- `tag-latest` (if the image has a semantic versioning tag like `1.2.3`)

@@ -30,8 +30,6 @@ phases:
       if [[ $CODEBUILD_WEBHOOK_TRIGGER == tag/* ]]; then
         INCOMING_TAG=$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}');
         TAG_TAG="tag-$INCOMING_TAG";
-        # So it doesn't lose the "commit-*" tag from the image built from the untagged commit and lose our audit trail
-        COMMIT_TAG="tagged-$COMMIT_TAG"
         SEMVER_REGEX='^([0-9]+\.){2}[0-9]+$';
         if [[ $INCOMING_TAG =~ $SEMVER_REGEX ]]; then
           TAG_LATEST="tag-latest";
