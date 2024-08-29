@@ -32,9 +32,9 @@ phases:
       fi
     - > 
       echo "COMMIT_TAG: $COMMIT_TAG"
-      echo "BRANCH_TAG: $BRANCH_TAG"
-      echo "TAG_TAG: $TAG_TAG"
-      echo "PACK_VERSION_TAG: $PACK_VERSION_TAG"
+      echo -e "\nBRANCH_TAG: $BRANCH_TAG"
+      echo -e "\nTAG_TAG: $TAG_TAG"
+      echo -e "\nPACK_VERSION_TAG: $PACK_VERSION_TAG"
   build:
     commands:
     - echo Build started on `date`
