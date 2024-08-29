@@ -17,17 +17,39 @@ phases:
     - aws --version
     - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/uktrade
     - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-    - IMAGE_TAG=${COMMIT_HASH:=latest}
+    - COMMIT_TAG="commit-$COMMIT_HASH"
+    - PACK_VERSION_TAG="pack-$PACK_VERSION"
     - REPOSITORY_URI=public.ecr.aws/uktrade/ci-image-builder
-    - if [ -z $CODEBUILD_WEBHOOK_TRIGGER ]; then GIT_BRANCH=$(git branch --show-current); else GIT_BRANCH=$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}'); fi
+    - >
+      if [ -z $CODEBUILD_WEBHOOK_TRIGGER ]; then
+        BRANCH_TAG="branch-$(git branch --show-current)";
+      elif [[ $CODEBUILD_WEBHOOK_TRIGGER == branch/*]]; then
+        BRANCH_TAG="branch_$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}')";
+      fi
+    - >
+      if [[ $CODEBUILD_WEBHOOK_TRIGGER == tag/*]]; then
+        TAG_TAG=$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}');
+      fi
+    - > 
+      echo "COMMIT_TAG: $COMMIT_TAG"
+      echo "BRANCH_TAG: $BRANCH_TAG"
+      echo "TAG_TAG: $TAG_TAG"
+      echo "PACK_VERSION_TAG: $PACK_VERSION_TAG"
   build:
     commands:
     - echo Build started on `date`
     - echo Building the Docker image...
     - docker build --build-arg PACK_VERSION=${PACK_VERSION} -t $REPOSITORY_URI .
-    - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
-    - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$GIT_BRANCH
-    - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$PACK_VERSION
+    - docker tag $REPOSITORY_URI:latest "$REPOSITORY_URI:$COMMIT_TAG"
+    - >
+      if [ -z $BRANCH_TAG ]; then
+        docker tag $REPOSITORY_URI:latest "$REPOSITORY_URI:$BRANCH_TAG";
+      fi
+    - >
+      if [ -z $TAG_TAG ]; then
+        docker tag $REPOSITORY_URI:latest "$REPOSITORY_URI:$TAG_TAG";
+      fi
+    - docker tag $REPOSITORY_URI:latest "$REPOSITORY_URI:$PACK_VERSION_TAG"
 
   post_build:
     commands:
@@ -35,7 +57,7 @@ phases:
     - echo pushing to repo
     - docker push -a $REPOSITORY_URI
     - echo Writing image definitions file...
-    - printf '{"ImageURI":"%s"}' $REPOSITORY_URI:$IMAGE_TAG > imageDetail.json
+    - printf '{"ImageURI":"%s"}' $REPOSITORY_URI:$COMMIT_TAG > imageDetail.json
 artifacts:
   files:
     - imageDetail.json
