@@ -133,3 +133,7 @@ Build the image:
 ```shell
 ../ci-image-builder/cli build
 ```
+
+## Publishing `ci-image-builder`
+
+TODO
