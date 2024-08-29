@@ -23,11 +23,11 @@ phases:
     - >
       if [ -z $CODEBUILD_WEBHOOK_TRIGGER ]; then
         BRANCH_TAG="branch-$(git branch --show-current)";
-      elif [[ $CODEBUILD_WEBHOOK_TRIGGER == branch/*]]; then
+      elif [[ $CODEBUILD_WEBHOOK_TRIGGER == branch/* ]]; then
         BRANCH_TAG="branch_$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}')";
       fi
     - >
-      if [[ $CODEBUILD_WEBHOOK_TRIGGER == tag/*]]; then
+      if [[ $CODEBUILD_WEBHOOK_TRIGGER == tag/* ]]; then
         TAG_TAG=$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}');
       fi
     - > 
