@@ -30,7 +30,8 @@ phases:
       if [[ $CODEBUILD_WEBHOOK_TRIGGER == tag/* ]]; then
         INCOMING_TAG=$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}');
         TAG_TAG="tag-$INCOMING_TAG";
-        if [[ $INCOMING_TAG =~ '^([0-9]+\.){2}[0-9]+$' ]]; then
+        SEMVER_REGEX='^([0-9]+\.){2}[0-9]+$';
+        if [[ $INCOMING_TAG =~ $SEMVER_REGEX ]]; then
           TAG_LATEST="tag-latest";
         fi
       fi
