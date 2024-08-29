@@ -21,14 +21,14 @@ phases:
     - PACK_VERSION_TAG="pack-$PACK_VERSION"
     - REPOSITORY_URI=public.ecr.aws/uktrade/ci-image-builder
     - >
-      if [[ $CODEBUILD_WEBHOOK_TRIGGER =~ branch/* ]]; then
+      if [[ $CODEBUILD_WEBHOOK_TRIGGER == branch/* ]]; then
         BRANCH_TAG="branch-$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}')";
       else
         BRANCH_TAG="branch-$(git branch --show-current)";
       fi
     - >
-      if [[ $CODEBUILD_WEBHOOK_TRIGGER =~ tag/* ]]; then
-        TAG_TAG=$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}');
+      if [[ $CODEBUILD_WEBHOOK_TRIGGER == tag/* ]]; then
+        TAG_TAG=tag-$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}');
       fi
     - > 
       echo "COMMIT_TAG: $COMMIT_TAG"
