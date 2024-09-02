@@ -10,6 +10,7 @@ from unittest.mock import patch
 from click.testing import CliRunner
 from parameterized import parameterized
 
+from image_builder.commands.deploy import clone_deployment_repository
 from image_builder.commands.deploy import deploy
 from image_builder.const import ECR_REPO
 
@@ -498,3 +499,38 @@ class TestDeployCommand(BaseTestCase):
 
         self.assertEqual(result.exit_code, 0)
         self.teardown_environment()
+
+
+@patch("subprocess.run")
+def test_clone_deployment_repository(mock_run):
+    TestDeployCommand.setup_environment()
+    mock_run.return_value = StubbedProcess()
+
+    clone_deployment_repository()
+
+    mock_run.assert_called_with(
+        "git clone https://codestar-connections.eu-west-2.amazonaws.com/git-http/00000000000/eu-west-2/"
+        "00000000-0000-0000-0000-000000000000/organisation/repository-deploy.git deploy",
+        stdout=subprocess.PIPE,
+        shell=True,
+    )
+
+    TestDeployCommand.teardown_environment()
+
+
+@patch("subprocess.run")
+def test_clone_deployment_repository_with_deploy_repo_branch_set(mock_run):
+    TestDeployCommand.setup_environment()
+    mock_run.return_value = StubbedProcess()
+    os.environ["DEPLOY_REPOSITORY_BRANCH"] = "feature-branch"
+
+    clone_deployment_repository()
+
+    mock_run.assert_called_with(
+        "git clone https://codestar-connections.eu-west-2.amazonaws.com/git-http/00000000000/eu-west-2/"
+        "00000000-0000-0000-0000-000000000000/organisation/repository-deploy.git --branch feature-branch deploy",
+        stdout=subprocess.PIPE,
+        shell=True,
+    )
+
+    TestDeployCommand.teardown_environment()
