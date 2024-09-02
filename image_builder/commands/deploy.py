@@ -215,6 +215,8 @@ def clone_deployment_repository():
     account = os.getenv("AWS_ACCOUNT_ID")
     codestar_connection_id = os.getenv("CODESTAR_CONNECTION_ID")
     deploy_repository = os.getenv("DEPLOY_REPOSITORY")
+    branch_var = os.getenv("DEPLOY_REPOSITORY_BRANCH")
+    branch_option = "" if not branch_var else f" --branch {branch_var}"
 
     if not (region and account and codestar_connection_id and deploy_repository):
         raise CannotCloneDeployRepositoryDeployError(
@@ -225,7 +227,7 @@ def clone_deployment_repository():
     click.echo(f"Cloning repository {deploy_repository}")
     proc = subprocess.run(
         f"git clone https://codestar-connections.{region}.amazonaws.com/git-http/{account}/"
-        f"{region}/{codestar_connection_id}/{deploy_repository}.git deploy",
+        f"{region}/{codestar_connection_id}/{deploy_repository}.git{branch_option} deploy",
         stdout=subprocess.PIPE,
         shell=True,
     )
