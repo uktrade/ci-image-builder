@@ -4,9 +4,10 @@ from typing import List
 from slack_sdk import WebClient
 from slack_sdk.models import blocks
 
-from image_builder.codebase.codebase import Codebase
 from image_builder.progress import Progress
 from image_builder.utils.arn_parser import ARN
+
+NOTIFY_DATA_KEYS = ["revision_commit", "repository_name", "repository_url"]
 
 
 class Settings:
@@ -16,7 +17,6 @@ class Settings:
 
 
 class Notify:
-    codebase: Codebase
     reference: str | None
     settings: Settings
 
@@ -33,19 +33,33 @@ class Notify:
             except KeyError as e:
                 raise ValueError(f"{e} environment variable must be set")
 
-    def post_build_progress(self, progress: Progress, codebase: Codebase):
+    def _validate_data(self, data):
+        if data is None:
+            raise ValueError(f"The notification data can't be empty.")
+
+        if not isinstance(data, dict):
+            raise ValueError(f"The notification data isn't a valid object.")
+
+        if sorted(NOTIFY_DATA_KEYS) != sorted(data.keys()):
+            raise ValueError(
+                f"The notification data must include revision_commit, repository_name and repository_url."
+            )
+
+    def post_build_progress(self, progress: Progress, text_blocks=None):
         if self.send_notifications:
+            self._validate_data(text_blocks)
+
             message_headline = (
-                f"*Building {codebase.revision.get_repository_name()}@"
-                f"{codebase.revision.commit}*"
+                f"*Building {text_blocks['repository_name']}@"
+                f"{text_blocks['revision_commit']}*"
             )
             message_repository = (
-                f"*Repository*: <{codebase.revision.get_repository_url()}|"
-                f"{codebase.revision.get_repository_name()}>"
+                f"*Repository*: <{text_blocks['repository_url']}|"
+                f"{text_blocks['repository_name']}>"
             )
             message_revision = (
-                f"*Revision*: <{codebase.revision.get_repository_url()}/commit/"
-                f"{codebase.revision.commit}|{codebase.revision.commit}>"
+                f"*Revision*: <{text_blocks['repository_url']}/commit/"
+                f"{text_blocks['revision_commit']}|{text_blocks['revision_commit']}>"
             )
             message_build_logs = f"<{self.get_build_url()}|Build Logs>"
 
@@ -82,7 +96,7 @@ class Notify:
                 response = self.slack.chat_postMessage(
                     channel=os.environ["SLACK_CHANNEL_ID"],
                     blocks=message_blocks,
-                    text=f"Building: {codebase.revision.get_repository_name()}@{codebase.revision.commit}",
+                    text=f"Building: {text_blocks['repository_name']}@{text_blocks['revision_commit']}",
                     unfurl_links=False,
                     unfurl_media=False,
                 )
@@ -92,7 +106,7 @@ class Notify:
                     channel=os.environ["SLACK_CHANNEL_ID"],
                     blocks=message_blocks,
                     ts=self.reference,
-                    text=f"Building: {codebase.revision.get_repository_name()}@{codebase.revision.commit}",
+                    text=f"Building: {text_blocks['repository_name']}@{text_blocks['revision_commit']}",
                     unfurl_links=False,
                     unfurl_media=False,
                 )

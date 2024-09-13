@@ -107,3 +107,15 @@ class TestCodebase(BaseTestCase):
             Path("Procfile").read_text(), "web: django collectstatic && django serve"
         )
         self.assertEqual(Path("buildpack-run.sh").exists(), False)
+
+    def test_codebase_to_notify_attrs(
+        self, load_codebase_revision, load_codebase_processes, get_codebase_languages
+    ):
+        codebase = Codebase(Path("."))
+        codebase.setup()
+
+        res = codebase.get_notify_attrs()
+
+        self.assertEqual(res["revision_commit"], "shorthash")
+        self.assertEqual(res["repository_name"], "org/repo")
+        self.assertEqual(res["repository_url"], "https://github.com/org/repo")

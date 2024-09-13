@@ -34,6 +34,11 @@ class TestBuildCommand(unittest.TestCase):
         codebase().build.builder.name = "test-builder"
         codebase().build.builder.version = "0000000"
         codebase().build.repository = "ecr/test-repository"
+        codebase().get_notify_attrs.return_value = {
+            "repository_name": "org/repo",
+            "revision_commit": "commit-sha",
+            "repository_url": "https://github.com/org/repo",
+        }
         pack().get_buildpacks.return_value = [
             "fagiani/apt",
             "paketo-buildpacks/git",

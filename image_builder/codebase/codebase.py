@@ -57,3 +57,10 @@ class Codebase:
             self.path.joinpath(filename).write_text(contents)
         for filename, contents in self.original_files["delete"].items():
             self.path.joinpath(filename).unlink()
+
+    def get_notify_attrs(self):
+        return {
+            "repository_name": self.revision.get_repository_name(),
+            "repository_url": self.revision.get_repository_url(),
+            "revision_commit": self.revision.commit,
+        }
