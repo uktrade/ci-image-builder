@@ -23,11 +23,16 @@ class TestNotify(unittest.TestCase):
             "CODEBUILD_BUILD_ARN"
         ] = "arn:aws:codebuild:region:000000000000:build/project:example-build-id"
         self.codebase = MagicMock()
-        self.codebase.revision.commit = "commit-sha"
-        self.codebase.revision.get_repository_name.return_value = "org/repo"
-        self.codebase.revision.get_repository_url.return_value = (
-            "https://github.com/org/repo"
-        )
+        self.codebase.get_notify_attrs.return_value = {
+            "repository_name": "org/repo",
+            "revision_commit": "commit-sha",
+            "repository_url": "https://github.com/org/repo",
+        }
+        self.extras = {
+            "repository_name": "org/repo-extra",
+            "revision_commit": "commit-sha-extra",
+            "repository_url": "https://github.com/org/repo-extra",
+        }
 
     @parameterized.expand(
         [
@@ -41,13 +46,13 @@ class TestNotify(unittest.TestCase):
     ):
         del os.environ[environment_variable]
         with pytest.raises(ValueError) as e:
-            Notify(self.codebase)
+            Notify(True)
         self.assertEqual(
             f"'{environment_variable}' environment variable must be set", str(e.value)
         )
 
     def test_getting_build_url(self, webclient, time):
-        notify = Notify(self.codebase)
+        notify = Notify(True)
         self.assertEqual(
             notify.get_build_url(),
             "https://region.console.aws.amazon.com/codesuite/codebuild/000000000000"
@@ -55,10 +60,10 @@ class TestNotify(unittest.TestCase):
         )
 
     def test_sending_progress_updates(self, webclient, time):
-        notify = Notify(self.codebase)
+        notify = Notify(True)
         progress = Progress()
-        notify.post_build_progress(progress, self.codebase)
-        notify.post_build_progress(progress, self.codebase)
+        notify.post_build_progress(progress, self.codebase.get_notify_attrs())
+        notify.post_build_progress(progress, self.codebase.get_notify_attrs())
         notify.slack.chat_postMessage.assert_called_with(
             channel="channel-id",
             blocks=ANY,
@@ -74,7 +79,7 @@ class TestNotify(unittest.TestCase):
             unfurl_links=False,
             unfurl_media=False,
         )
-        notify.post_build_progress(progress, self.codebase)
+        notify.post_build_progress(progress, self.codebase.get_notify_attrs())
         notify.slack.chat_update.assert_called_with(
             channel="channel-id",
             blocks=ANY,
@@ -84,10 +89,40 @@ class TestNotify(unittest.TestCase):
             unfurl_media=False,
         )
 
+    def test_sending_progress_updates_non_codebase_data(self, webclient, time):
+        notify = Notify(True)
+        progress = Progress()
+        notify.post_build_progress(progress, self.extras)
+        notify.post_build_progress(progress, self.extras)
+        notify.slack.chat_postMessage.assert_called_with(
+            channel="channel-id",
+            blocks=ANY,
+            text="Building: org/repo-extra@commit-sha-extra",
+            unfurl_links=False,
+            unfurl_media=False,
+        )
+        notify.slack.chat_update.assert_called_with(
+            channel="channel-id",
+            blocks=ANY,
+            ts="first-message",
+            text="Building: org/repo-extra@commit-sha-extra",
+            unfurl_links=False,
+            unfurl_media=False,
+        )
+        notify.post_build_progress(progress, self.extras)
+        notify.slack.chat_update.assert_called_with(
+            channel="channel-id",
+            blocks=ANY,
+            ts="updated-message",
+            text="Building: org/repo-extra@commit-sha-extra",
+            unfurl_links=False,
+            unfurl_media=False,
+        )
+
     def test_sending_progress_updates_when_notifications_off(self, webclient, time):
         notify = Notify(False)
         progress = Progress()
-        notify.post_build_progress(progress, self.codebase)
+        notify.post_build_progress(progress, self.codebase.get_notify_attrs())
         self.assertFalse(hasattr(notify, "slack"))
 
     def test_sending_all_build_stages_successful(self, webclient, time):
@@ -95,7 +130,7 @@ class TestNotify(unittest.TestCase):
         progress = Progress()
 
         progress.current_phase_running()
-        notify.post_build_progress(progress, self.codebase)
+        notify.post_build_progress(progress, self.codebase.get_notify_attrs())
 
         notify.slack.chat_postMessage.assert_called_with(
             channel="channel-id",
@@ -109,7 +144,7 @@ class TestNotify(unittest.TestCase):
         progress.current_phase_success()
         progress.set_current_phase("build")
         progress.current_phase_running()
-        notify.post_build_progress(progress, self.codebase)
+        notify.post_build_progress(progress, self.codebase.get_notify_attrs())
 
         notify.slack.chat_update.assert_called_with(
             channel="channel-id",
@@ -124,7 +159,7 @@ class TestNotify(unittest.TestCase):
         progress.current_phase_success()
         progress.set_current_phase("publish")
         progress.current_phase_running()
-        notify.post_build_progress(progress, self.codebase)
+        notify.post_build_progress(progress, self.codebase.get_notify_attrs())
 
         notify.slack.chat_update.assert_called_with(
             channel="channel-id",
@@ -141,7 +176,7 @@ class TestNotify(unittest.TestCase):
         progress.current_phase_success()
         progress.set_current_phase("deploy")
         progress.current_phase_running()
-        notify.post_build_progress(progress, self.codebase)
+        notify.post_build_progress(progress, self.codebase.get_notify_attrs())
 
         notify.slack.chat_update.assert_called_with(
             channel="channel-id",
@@ -156,7 +191,7 @@ class TestNotify(unittest.TestCase):
 
         # set state to done
         progress.current_phase_success()
-        notify.post_build_progress(progress, self.codebase)
+        notify.post_build_progress(progress, self.codebase.get_notify_attrs())
 
         notify.slack.chat_update.assert_called_with(
             channel="channel-id",
@@ -175,7 +210,7 @@ class TestNotify(unittest.TestCase):
 
         progress.current_phase_running()
         progress.current_phase_failure()
-        notify.post_build_progress(progress, self.codebase)
+        notify.post_build_progress(progress, self.codebase.get_notify_attrs())
 
         notify.slack.chat_postMessage.assert_called_with(
             channel="channel-id",
@@ -183,6 +218,36 @@ class TestNotify(unittest.TestCase):
             text="Building: org/repo@commit-sha",
             unfurl_links=False,
             unfurl_media=False,
+        )
+
+    def test_sending_progress_updates_missing_data(self, webclient, time):
+        notify = Notify(True)
+        progress = Progress()
+
+        with pytest.raises(ValueError) as e:
+            notify.post_build_progress(progress, None)
+
+        self.assertEqual(f"The notification data can't be empty.", str(e.value))
+
+    def test_sending_progress_updates_invalid_type(self, webclient, time):
+        notify = Notify(True)
+        progress = Progress()
+
+        with pytest.raises(ValueError) as e:
+            notify.post_build_progress(progress, "Invalid")
+
+        self.assertEqual(f"The notification data isn't a valid object.", str(e.value))
+
+    def test_sending_progress_updates_invalid_data(self, webclient, time):
+        notify = Notify(True)
+        progress = Progress()
+
+        with pytest.raises(ValueError) as e:
+            notify.post_build_progress(progress, {"invalid_key": "test"})
+
+        self.assertEqual(
+            f"The notification data must include revision_commit, repository_name and repository_url.",
+            str(e.value),
         )
 
 
