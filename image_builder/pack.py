@@ -94,6 +94,10 @@ class Pack:
             if "nodejs" in self.codebase.languages:
                 buildpacks.append("paketo-buildpacks/nodejs")
 
+        if "paketo-buildpacks/ruby" not in buildpacks:
+            if "ruby" in self.codebase.languages:
+                buildpacks.append("paketo-buildpacks/ruby")
+
         buildpacks.append("fagiani/run")
         buildpacks.append("gcr.io/paketo-buildpacks/image-labels")
         buildpacks.append("gcr.io/paketo-buildpacks/environment-variables")
@@ -110,6 +114,10 @@ class Pack:
         if "paketo-buildpacks/nodejs" in buildpacks:
             node_version = self.codebase.languages["nodejs"].version
             environment.append(f"BP_NODE_VERSION={node_version}")
+
+        if "paketo-buildpacks/ruby" in buildpacks:
+            ruby_version = self.codebase.languages["ruby"].version
+            environment.append(f"BP_RUBY_VERSION={ruby_version}")
 
         if self.codebase.revision.tag:
             environment.append(f"BPE_GIT_TAG={self.codebase.revision.tag}")

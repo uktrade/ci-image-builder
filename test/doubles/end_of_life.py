@@ -8,6 +8,9 @@ def get_versions(url: str):
     if "python" in url:
         return EndOfLifeResponse("python", 200)
 
+    if "ruby" in url:
+        return EndOfLifeResponse("ruby", 200)
+
     return EndOfLifeResponse("nodejs", 404)
 
 
@@ -316,6 +319,112 @@ class EndOfLifeResponse:
                 "eol": "2013-10-29",
                 "latest": "2.6.9",
                 "latestReleaseDate": "2013-10-29",
+                "lts": False,
+            },
+        ],
+        "ruby": [
+            {
+                "cycle": "3.3",
+                "releaseDate": "2023-12-25",
+                "eol": "2027-03-31",
+                "latest": "3.3.5",
+                "latestReleaseDate": "2024-09-02",
+                "lts": False,
+            },
+            {
+                "cycle": "3.2",
+                "releaseDate": "2022-12-25",
+                "eol": "2026-03-31",
+                "latest": "3.2.5",
+                "latestReleaseDate": "2024-07-26",
+                "lts": False,
+            },
+            {
+                "cycle": "3.1",
+                "releaseDate": "2021-12-25",
+                "eol": "2025-03-31",
+                "latest": "3.1.6",
+                "latestReleaseDate": "2024-05-29",
+                "lts": False,
+            },
+            {
+                "cycle": "3.0",
+                "releaseDate": "2020-12-25",
+                "eol": "2024-04-23",
+                "latest": "3.0.7",
+                "latestReleaseDate": "2024-04-23",
+                "lts": False,
+            },
+            {
+                "cycle": "2.7",
+                "releaseDate": "2019-12-25",
+                "eol": "2023-03-31",
+                "latest": "2.7.8",
+                "latestReleaseDate": "2023-03-30",
+                "lts": False,
+            },
+            {
+                "cycle": "2.6",
+                "releaseDate": "2018-12-25",
+                "eol": "2022-03-31",
+                "latest": "2.6.10",
+                "latestReleaseDate": "2022-04-12",
+                "lts": False,
+            },
+            {
+                "cycle": "2.5",
+                "releaseDate": "2017-12-25",
+                "eol": "2021-03-31",
+                "latest": "2.5.9",
+                "latestReleaseDate": "2021-04-05",
+                "lts": False,
+            },
+            {
+                "cycle": "2.4",
+                "releaseDate": "2016-12-23",
+                "eol": "2020-03-31",
+                "latest": "2.4.10",
+                "latestReleaseDate": "2020-03-31",
+                "lts": False,
+            },
+            {
+                "cycle": "2.3",
+                "releaseDate": "2015-12-24",
+                "eol": "2019-03-31",
+                "latest": "2.3.8",
+                "latestReleaseDate": "2018-10-17",
+                "lts": False,
+            },
+            {
+                "cycle": "2.2",
+                "releaseDate": "2014-12-25",
+                "eol": "2018-03-31",
+                "latest": "2.2.10",
+                "latestReleaseDate": "2018-03-28",
+                "lts": False,
+            },
+            {
+                "cycle": "2.1",
+                "releaseDate": "2013-12-25",
+                "eol": "2017-03-31",
+                "latest": "2.1.10",
+                "latestReleaseDate": "2016-03-31",
+                "lts": False,
+            },
+            {
+                "cycle": "2.0.0",
+                "releaseDate": "2013-02-24",
+                "eol": "2016-02-24",
+                "latest": "2.0.0p648",
+                "latestReleaseDate": "2015-12-16",
+                "lts": False,
+            },
+            {
+                "cycle": "1.9.3",
+                "releaseDate": "2011-10-30",
+                "eol": "2015-02-23",
+                "latest": "1.9.3p551",
+                "latestReleaseDate": "2014-11-13",
                 "lts": False,
             },
         ],
