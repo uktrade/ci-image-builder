@@ -39,3 +39,11 @@ class TestCodebaseLanguagePython(BaseTestCase):
         assert language.name == "ruby"
         assert language.version == output_version
 
+    @patch("requests.get", return_value=EndOfLifeResponse("ruby", 200))
+    def test_getting_version_when_no_indicators_present(self, requests_get):
+        self.fs.create_file("Gemfile", contents=f"")
+
+        language = RubyLanguage.load(Path("."))
+
+        assert language.name == "ruby"
+        assert language.version == "3.3"
