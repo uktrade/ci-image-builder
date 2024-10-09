@@ -11,7 +11,7 @@ from image_builder.codebase.language import RubyLanguage
 from image_builder.codebase.language.base import CodebaseLanguageNotDetectedError
 
 
-class TestCodebaseLanguagePython(BaseTestCase):
+class TestCodebaseLanguageRuby(BaseTestCase):
     def setUp(self):
         super().setUp()
         self.setUpPyfakefs()
