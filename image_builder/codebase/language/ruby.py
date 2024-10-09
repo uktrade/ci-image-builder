@@ -12,8 +12,8 @@ class RubyLanguage(BaseLanguage):
 
     @staticmethod
     def load(path: Path):
-        has_ruby = path.joinpath("Gemfile").exists()
-        if not has_ruby:
+        gemfile = path.joinpath("Gemfile")
+        if not gemfile.exists():
             raise CodebaseLanguageNotDetectedError
 
         language = RubyLanguage()
