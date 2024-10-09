@@ -23,5 +23,6 @@ def create_python_indicator(fs, version, indicator_type="pyproject"):
     if indicator_type == "runtime":
         fs.create_file("runtime.txt", contents=f"python-{version}.x")
 
+
 def create_ruby_indicator(fs, version):
     fs.create_file("Gemfile", contents=f"ruby {version}")
