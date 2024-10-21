@@ -3,10 +3,12 @@ from pathlib import Path
 from .base import CodebaseLanguageError
 from .nodejs import NodeJSLanguage
 from .python import PythonLanguage
+from .ruby import RubyLanguage
 
 LANGUAGES = {
     "python": PythonLanguage,
     "nodejs": NodeJSLanguage,
+    "ruby": RubyLanguage,
 }
 
 
