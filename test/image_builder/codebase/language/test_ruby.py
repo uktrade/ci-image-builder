@@ -31,7 +31,7 @@ class TestCodebaseLanguageRuby(BaseTestCase):
             ('"3.11.8"', "3.11"),
         ]
     )
-    def test_getting_version_from_pyproject(self, input_version, output_version):
+    def test_getting_version_from_gemfile(self, input_version, output_version):
         create_ruby_indicator(self.fs, input_version)
 
         language = RubyLanguage.load(Path("."))
