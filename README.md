@@ -102,6 +102,13 @@ The version of Python used to run your code in the built image will come from th
 - `runtime.txt`
 - The latest release
 
+### How the Ruby version is specified
+
+The version of Ruby used to run your code in the built image will come from the following in this order of preference:
+
+- `Gemfile`
+- The latest release
+
 ## Building an Image
 
 Images are built by CodeBuild when a push to a branch or tag of your repository matches a given pattern.
