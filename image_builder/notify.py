@@ -118,7 +118,7 @@ class Notify:
                         )
                         self.reference = response["ts"]
             except SlackApiError as e:
-                        logger.info(f"Slack API Error: {e.response["error"]}")
+                        logger.error(f"Slack API Error: {e.response['error']}")
 
     def post_job_comment(
         self, title: str, message: List[str], send_to_main_channel=False
