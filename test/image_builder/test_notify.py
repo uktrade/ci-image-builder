@@ -8,6 +8,7 @@ from unittest.mock import patch
 import pytest
 from parameterized import parameterized
 from slack_sdk.models import blocks
+from slack_sdk.errors import SlackApiError
 
 from image_builder.notify import Notify
 from image_builder.progress import Progress
@@ -249,7 +250,39 @@ class TestNotify(unittest.TestCase):
             f"The notification data must include revision_commit, repository_name and repository_url.",
             str(e.value),
         )
+      
+            
+    def test_slack_api_error_on_chat_post_message(self, webclient, time):
+        notify = Notify(True)
+        progress = Progress()
+        
+        notify.slack.chat_postMessage.side_effect = SlackApiError(
+            message="invalid_arguments",
+            response={"ok": False, "error": "invalid_arguments"}
+        )
 
+        with self.assertLogs(logger="image_builder.notify", level='INFO') as log:
+            notify.post_build_progress(progress, self.codebase.get_notify_attrs())
+        
+        self.assertEqual(log.records[0].getMessage(), "Slack API Error: invalid_arguments")
+
+
+    def test_slack_api_error_on_chat_update(self, webclient, time):
+        notify = Notify(True)
+        progress = Progress()
+        
+        notify.reference = "mock-timestamp"
+
+        notify.slack.chat_update.side_effect = SlackApiError(
+            message="message_not_found",
+            response={"ok": False, "error": "message_not_found"}
+        )
+        
+        with self.assertLogs(logger="image_builder.notify", level='INFO') as log:
+            notify.post_build_progress(progress, self.codebase.get_notify_attrs())
+        
+        self.assertEqual(log.records[0].getMessage(), "Slack API Error: message_not_found")  
+        
 
 def get_expected_message_blocks(
     setup="running", build="pending", publish="pending", deploy="pending"
