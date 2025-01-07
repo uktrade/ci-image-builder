@@ -1,11 +1,15 @@
 import os
+import logging
 from typing import List
 
 from slack_sdk import WebClient
 from slack_sdk.models import blocks
+from slack_sdk.errors import SlackApiError
 
 from image_builder.progress import Progress
 from image_builder.utils.arn_parser import ARN
+
+logging.basicConfig(level=logging.INFO)
 
 NOTIFY_DATA_KEYS = ["revision_commit", "repository_name", "repository_url"]
 
@@ -91,26 +95,30 @@ class Notify:
                     ]
                 ),
             ]
-
-            if self.reference is None:
-                response = self.slack.chat_postMessage(
-                    channel=os.environ["SLACK_CHANNEL_ID"],
-                    blocks=message_blocks,
-                    text=f"Building: {text_blocks['repository_name']}@{text_blocks['revision_commit']}",
-                    unfurl_links=False,
-                    unfurl_media=False,
-                )
-                self.reference = response["ts"]
-            else:
-                response = self.slack.chat_update(
-                    channel=os.environ["SLACK_CHANNEL_ID"],
-                    blocks=message_blocks,
-                    ts=self.reference,
-                    text=f"Building: {text_blocks['repository_name']}@{text_blocks['revision_commit']}",
-                    unfurl_links=False,
-                    unfurl_media=False,
-                )
-                self.reference = response["ts"]
+            
+            try:
+                if self.reference is None:
+                    
+                        response = self.slack.chat_postMessage(
+                            channel=os.environ["SLACK_CHANNEL_ID"],
+                            blocks=message_blocks,
+                            text=f"Building: {text_blocks['repository_name']}@{text_blocks['revision_commit']}",
+                            unfurl_links=False,
+                            unfurl_media=False,
+                        )
+                        self.reference = response["ts"]
+                else:
+                        response = self.slack.chat_update(
+                            channel=os.environ["SLACK_CHANNEL_ID"],
+                            blocks=message_blocks,
+                            ts=self.reference,
+                            text=f"Building: {text_blocks['repository_name']}@{text_blocks['revision_commit']}",
+                            unfurl_links=False,
+                            unfurl_media=False,
+                        )
+                        self.reference = response["ts"]
+            except SlackApiError as e:
+                        logging.info(f"Slack API Error: {e.response["error"]}")
 
     def post_job_comment(
         self, title: str, message: List[str], send_to_main_channel=False
