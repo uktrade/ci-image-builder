@@ -261,7 +261,7 @@ class TestNotify(unittest.TestCase):
             response={"ok": False, "error": "invalid_arguments"}
         )
 
-        with self.assertLogs(logger="image_builder.notify", level='INFO') as log:
+        with self.assertLogs(logger="image_builder.notify") as log:
             notify.post_build_progress(progress, self.codebase.get_notify_attrs())
         
         self.assertEqual(log.records[0].getMessage(), "Slack API Error: invalid_arguments")
@@ -278,7 +278,7 @@ class TestNotify(unittest.TestCase):
             response={"ok": False, "error": "message_not_found"}
         )
         
-        with self.assertLogs(logger="image_builder.notify", level='INFO') as log:
+        with self.assertLogs(logger="image_builder.notify") as log:
             notify.post_build_progress(progress, self.codebase.get_notify_attrs())
         
         self.assertEqual(log.records[0].getMessage(), "Slack API Error: message_not_found")  
