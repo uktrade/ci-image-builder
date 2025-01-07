@@ -9,7 +9,7 @@ from slack_sdk.errors import SlackApiError
 from image_builder.progress import Progress
 from image_builder.utils.arn_parser import ARN
 
-logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 NOTIFY_DATA_KEYS = ["revision_commit", "repository_name", "repository_url"]
 
@@ -118,7 +118,7 @@ class Notify:
                         )
                         self.reference = response["ts"]
             except SlackApiError as e:
-                        logging.info(f"Slack API Error: {e.response["error"]}")
+                        logger.info(f"Slack API Error: {e.response["error"]}")
 
     def post_job_comment(
         self, title: str, message: List[str], send_to_main_channel=False
