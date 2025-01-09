@@ -24,10 +24,15 @@ class Notify:
     reference: str | None
     settings: Settings
 
-    def __init__(self, send_notifications: bool = True):
+    def __init__(
+        self,
+        send_notifications: bool = True,
+        logger: logging.Logger = logging.getLogger(__name__),
+    ):
         self.settings = Settings()
         self.send_notifications = send_notifications
         self.reference = None
+        self.logger = logger
 
         if self.send_notifications:
             try:
@@ -117,9 +122,9 @@ class Notify:
                     )
                     self.reference = response["ts"]
             except SlackApiError as e:
-                logger.error(f"Slack API Error: {e.response['error']}")
+                self.logger.error(f"Slack API Error: {e.response['error']}")
             except Exception as e:
-                logger.error(f"Error sending Slack message: {str(e)}")
+                self.logger.error(f"Error sending Slack message: {str(e)}")
 
     def post_job_comment(
         self, title: str, message: List[str], send_to_main_channel=False
