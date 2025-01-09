@@ -251,39 +251,53 @@ class TestNotify(unittest.TestCase):
             str(e.value),
         )
 
-    def test_slack_api_error_on_chat_post_message(self, webclient, time):
-        notify = Notify(True)
-        progress = Progress()
 
-        notify.slack.chat_postMessage.side_effect = SlackApiError(
-            message="invalid_arguments",
-            response={"ok": False, "error": "invalid_arguments"},
-        )
+def test_slack_api_error_on_chat_post_message():
+    mock_logger = MagicMock()
+    notify = Notify(True, logger=mock_logger)
+    notify.slack = WebClient("slack-token")
+    progress = Progress()
 
-        with self.assertLogs(logger="image_builder.notify") as log:
-            notify.post_build_progress(progress, self.codebase.get_notify_attrs())
+    notify.slack.chat_postMessage.side_effect = SlackApiError(
+        message="invalid_arguments",
+        response={"ok": False, "error": "invalid_arguments"},
+    )
 
-        self.assertEqual(
-            log.records[0].getMessage(), "Slack API Error: invalid_arguments"
-        )
+    notify.post_build_progress(
+        progress,
+        {
+            "repository_name": "org/repo",
+            "revision_commit": "commit-sha",
+            "repository_url": "https://github.com/org/repo",
+        },
+    )
 
-    def test_slack_api_error_on_chat_update(self, webclient, time):
-        notify = Notify(True)
-        progress = Progress()
+    mock_logger.error.assert_called_once_with("Slack API Error: invalid_arguments")
 
-        notify.reference = "mock-timestamp"
 
-        notify.slack.chat_update.side_effect = SlackApiError(
-            message="message_not_found",
-            response={"ok": False, "error": "message_not_found"},
-        )
+def test_slack_api_error_on_chat_update():
+    mock_logger = MagicMock()
+    notify = Notify(True, logger=mock_logger)
+    notify.slack = WebClient("slack-token")
+    progress = Progress()
 
-        with self.assertLogs(logger="image_builder.notify") as log:
-            notify.post_build_progress(progress, self.codebase.get_notify_attrs())
+    notify.reference = "mock-timestamp"
 
-        self.assertEqual(
-            log.records[0].getMessage(), "Slack API Error: message_not_found"
-        )
+    notify.slack.chat_update.side_effect = SlackApiError(
+        message="message_not_found",
+        response={"ok": False, "error": "message_not_found"},
+    )
+
+    notify.post_build_progress(
+        progress,
+        {
+            "repository_name": "org/repo",
+            "revision_commit": "commit-sha",
+            "repository_url": "https://github.com/org/repo",
+        },
+    )
+
+    mock_logger.error.assert_called_once_with("Slack API Error: message_not_found")
 
 
 def test_exception_on_chat_post_message():
