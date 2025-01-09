@@ -285,6 +285,23 @@ class TestNotify(unittest.TestCase):
             log.records[0].getMessage(), "Slack API Error: message_not_found"
         )
 
+    def test_exception_on_chat_post_message(self, webclient, time):
+        notify = Notify(True)
+        progress = Progress()
+
+        original_environ = os.environ.copy()
+        del os.environ["SLACK_CHANNEL_ID"]
+
+        with self.assertLogs(logger="image_builder.notify") as log:
+            notify.post_build_progress(progress, self.codebase.get_notify_attrs())
+
+        os.environ.update(original_environ)
+
+        self.assertEqual(
+            log.records[0].getMessage(),
+            "Error sending Slack message: 'SLACK_CHANNEL_ID'",
+        )
+
 
 def get_expected_message_blocks(
     setup="running", build="pending", publish="pending", deploy="pending"
