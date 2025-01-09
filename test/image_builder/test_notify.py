@@ -285,22 +285,53 @@ class TestNotify(unittest.TestCase):
             log.records[0].getMessage(), "Slack API Error: message_not_found"
         )
 
-    def test_exception_on_chat_post_message(self, webclient, time):
-        notify = Notify(True)
-        progress = Progress()
 
-        original_environ = os.environ.copy()
-        del os.environ["SLACK_CHANNEL_ID"]
+def test_exception_on_chat_post_message():
+    mock_logger = MagicMock()
+    notify = Notify(True, logger=mock_logger)
+    notify.slack = WebClient("slack-token")
+    progress = Progress()
 
-        with self.assertLogs(logger="image_builder.notify") as log:
-            notify.post_build_progress(progress, self.codebase.get_notify_attrs())
+    original_environ = os.environ.copy()
+    del os.environ["SLACK_CHANNEL_ID"]
 
-        os.environ.update(original_environ)
+    notify.post_build_progress(
+        progress,
+        {
+            "repository_name": "org/repo",
+            "revision_commit": "commit-sha",
+            "repository_url": "https://github.com/org/repo",
+        },
+    )
+    os.environ.update(original_environ)
 
-        self.assertEqual(
-            log.records[0].getMessage(),
-            "Error sending Slack message: 'SLACK_CHANNEL_ID'",
-        )
+    mock_logger.error.assert_called_once_with(
+        "Error sending Slack message: 'SLACK_CHANNEL_ID'"
+    )
+
+
+def test_exception_on_chat_update_message():
+    mock_logger = MagicMock()
+    notify = Notify(True, logger=mock_logger)
+    notify.slack = WebClient("slack-token")
+    progress = Progress()
+
+    notify.reference = "mock-timestamp"
+
+    notify.slack.chat_update.side_effect = Exception("Something went wrong")
+
+    notify.post_build_progress(
+        progress,
+        {
+            "repository_name": "org/repo",
+            "revision_commit": "commit-sha",
+            "repository_url": "https://github.com/org/repo",
+        },
+    )
+
+    mock_logger.error.assert_called_once_with(
+        "Error sending Slack message: Something went wrong"
+    )
 
 
 def get_expected_message_blocks(
