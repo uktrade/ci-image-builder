@@ -127,23 +127,28 @@ class Notify:
     def post_job_comment(
         self, title: str, message: List[str], send_to_main_channel=False
     ):
-        if self.send_notifications:
-            response = self.slack.chat_postMessage(
-                channel=os.environ["SLACK_CHANNEL_ID"],
-                blocks=[
-                    blocks.SectionBlock(
-                        text=blocks.TextObject(type="mrkdwn", text=line)
-                    )
-                    for line in message
-                    if line
-                ],
-                text=title,
-                reply_broadcast=send_to_main_channel,
-                unfurl_links=False,
-                unfurl_media=False,
-                thread_ts=self.reference,
-            )
-            return response["ts"]
+        try:
+            if self.send_notifications:
+                response = self.slack.chat_postMessage(
+                    channel=os.environ["SLACK_CHANNEL_ID"],
+                    blocks=[
+                        blocks.SectionBlock(
+                            text=blocks.TextObject(type="mrkdwn", text=line)
+                        )
+                        for line in message
+                        if line
+                    ],
+                    text=title,
+                    reply_broadcast=send_to_main_channel,
+                    unfurl_links=False,
+                    unfurl_media=False,
+                    thread_ts=self.reference,
+                )
+                return response["ts"]
+        except SlackApiError as e:
+            self.logger.error(f"Slack API Error: {e.response['error']}")
+        except Exception as e:
+            self.logger.error(f"Error sending Slack message: {str(e)}")
 
     def get_build_url(self):
         try:
