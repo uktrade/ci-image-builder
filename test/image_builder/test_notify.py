@@ -252,7 +252,7 @@ class TestNotify(unittest.TestCase):
         )
 
 
-def test_slack_api_error_on_chat_post_message():
+def test_slack_api_error_on_chat_post_message_in_post_build_progress_method():
     mock_logger = MagicMock()
     notify = Notify(True, logger=mock_logger)
     notify.slack = WebClient("slack-token")
@@ -275,7 +275,7 @@ def test_slack_api_error_on_chat_post_message():
     mock_logger.error.assert_called_once_with("Slack API Error: invalid_arguments")
 
 
-def test_slack_api_error_on_chat_update():
+def test_slack_api_error_on_chat_update_in_post_build_progress_method():
     mock_logger = MagicMock()
     notify = Notify(True, logger=mock_logger)
     notify.slack = WebClient("slack-token")
@@ -300,7 +300,7 @@ def test_slack_api_error_on_chat_update():
     mock_logger.error.assert_called_once_with("Slack API Error: message_not_found")
 
 
-def test_exception_on_chat_post_message():
+def test_exception_on_chat_post_message_in_post_build_progress_method():
     mock_logger = MagicMock()
     notify = Notify(True, logger=mock_logger)
     notify.slack = WebClient("slack-token")
@@ -324,7 +324,7 @@ def test_exception_on_chat_post_message():
     )
 
 
-def test_exception_on_chat_update_message():
+def test_exception_on_chat_update_message_in_post_build_progress_method():
     mock_logger = MagicMock()
     notify = Notify(True, logger=mock_logger)
     notify.slack = WebClient("slack-token")
@@ -345,6 +345,53 @@ def test_exception_on_chat_update_message():
 
     mock_logger.error.assert_called_once_with(
         "Error sending Slack message: Something went wrong"
+    )
+
+
+def test_slack_api_error_on_chat_post_message_in_post_job_comment_method():
+    mock_logger = MagicMock()
+    notify = Notify(True, logger=mock_logger)
+    notify.slack = WebClient("slack-token")
+
+    notify.slack.chat_postMessage.side_effect = SlackApiError(
+        message="invalid_arguments",
+        response={"ok": False, "error": "invalid_arguments"},
+    )
+
+    notify.post_job_comment(
+        "uktrade/demodjango@12345fab deploying to dev",
+        [
+            "<https://github.com/uktrade/demodjango/commit/12345fab|"
+            "uktrade/demodjango@12345fab deploying to `dev` "
+            "| <{notify.get_build_url()}|Build Log>",
+        ],
+        False,
+    )
+
+    mock_logger.error.assert_called_once_with("Slack API Error: invalid_arguments")
+
+
+def test_exception_on_chat_post_message_in_post_job_comment_method():
+    mock_logger = MagicMock()
+    notify = Notify(True, logger=mock_logger)
+    notify.slack = WebClient("slack-token")
+
+    original_environ = os.environ.copy()
+    del os.environ["SLACK_CHANNEL_ID"]
+
+    notify.post_job_comment(
+        "uktrade/demodjango@12345fab deploying to dev",
+        [
+            "<https://github.com/uktrade/demodjango/commit/12345fab|"
+            "uktrade/demodjango@12345fab deploying to `dev` "
+            "| <{notify.get_build_url()}|Build Log>",
+        ],
+        False,
+    )
+    os.environ.update(original_environ)
+
+    mock_logger.error.assert_called_once_with(
+        "Error sending Slack message: 'SLACK_CHANNEL_ID'"
     )
 
 
