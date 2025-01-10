@@ -152,17 +152,18 @@ class Notify:
             pass
 
     def get_build_url(self):
-        try:
-            arn = ARN(self.settings.build_arn)
-            url = (
-                "https://{region}.console.aws.amazon.com/codesuite/codebuild/{account}/projects/{"
-                "project}/build/{project}%3A{build_id}"
-            )
-            return url.format(
-                region=arn.region,
-                account=arn.account_id,
-                project=arn.project.replace("build/", ""),
-                build_id=arn.build_id,
-            )
-        except ValueError:
-            return ""
+        if self.send_notifications:
+            try:
+                arn = ARN(self.settings.build_arn)
+                url = (
+                    "https://{region}.console.aws.amazon.com/codesuite/codebuild/{account}/projects/{"
+                    "project}/build/{project}%3A{build_id}"
+                )
+                return url.format(
+                    region=arn.region,
+                    account=arn.account_id,
+                    project=arn.project.replace("build/", ""),
+                    build_id=arn.build_id,
+                )
+            except ValueError:
+                return ""
