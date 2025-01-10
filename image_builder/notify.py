@@ -9,8 +9,6 @@ from slack_sdk.models import blocks
 from image_builder.progress import Progress
 from image_builder.utils.arn_parser import ARN
 
-logger = logging.getLogger(__name__)
-
 NOTIFY_DATA_KEYS = ["revision_commit", "repository_name", "repository_url"]
 
 
