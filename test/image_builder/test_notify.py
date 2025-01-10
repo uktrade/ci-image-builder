@@ -359,7 +359,7 @@ def test_slack_api_error_on_chat_post_message_in_post_job_comment_method():
     )
 
     notify.post_job_comment(
-        "uktrade/demodjango@12345fab deploying to dev",
+        "",
         [
             "<https://github.com/uktrade/demodjango/commit/12345fab|"
             "uktrade/demodjango@12345fab deploying to `dev` "
