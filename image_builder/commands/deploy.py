@@ -101,7 +101,7 @@ def deploy(send_notifications):
             deploy_command += f" --name {service}/{i + 1}"
 
         result = subprocess.run(
-            deploy_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, cwd=Path("./deploy")
+            deploy_command, stdout=subprocess.PIPE, shell=True, cwd=Path("./deploy")
         )
 
         if result.returncode != 0:

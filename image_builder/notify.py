@@ -121,10 +121,8 @@ class Notify:
                     self.reference = response["ts"]
             except SlackApiError as e:
                 self.logger.error(f"Slack API Error: {e.response['error']}")
-                pass
             except Exception as e:
                 self.logger.error(f"Error sending Slack message: {str(e)}")
-                pass
 
     def post_job_comment(
         self, title: str, message: List[str], send_to_main_channel=False
@@ -149,10 +147,8 @@ class Notify:
                 return response["ts"]
         except SlackApiError as e:
             self.logger.error(f"Slack API Error: {e.response['error']}")
-            pass
         except Exception as e:
             self.logger.error(f"Error sending Slack message: {str(e)}")
-            pass
 
     def get_build_url(self):
         if self.send_notifications:
