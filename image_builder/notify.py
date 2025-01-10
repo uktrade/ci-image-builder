@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import List
 
@@ -23,11 +24,13 @@ class Notify:
 
     def __init__(
         self,
-        send_notifications: bool = True
+        send_notifications: bool = True,
+        logger: logging.Logger = logging.getLogger(__name__),
     ):
         self.settings = Settings()
         self.send_notifications = send_notifications
         self.reference = None
+        self.logger = logger
 
         if self.send_notifications:
             try:
@@ -117,10 +120,10 @@ class Notify:
                     )
                     self.reference = response["ts"]
             except SlackApiError as e:
-                # self.logger.error(f"Slack API Error: {e.response['error']}")
+                self.logger.error(f"Slack API Error: {e.response['error']}")
                 pass
             except Exception as e:
-                # self.logger.error(f"Error sending Slack message: {str(e)}")
+                self.logger.error(f"Error sending Slack message: {str(e)}")
                 pass
 
     def post_job_comment(
@@ -145,10 +148,10 @@ class Notify:
                 )
                 return response["ts"]
         except SlackApiError as e:
-            # self.logger.error(f"Slack API Error: {e.response['error']}")
+            self.logger.error(f"Slack API Error: {e.response['error']}")
             pass
         except Exception as e:
-            # self.logger.error(f"Error sending Slack message: {str(e)}")
+            self.logger.error(f"Error sending Slack message: {str(e)}")
             pass
 
     def get_build_url(self):
