@@ -1,6 +1,4 @@
-# import logging
 import os
-import sys
 from typing import List
 
 from slack_sdk import WebClient
@@ -25,13 +23,11 @@ class Notify:
 
     def __init__(
         self,
-        send_notifications: bool = True,
-        # logger: logging.Logger = logging.getLogger(__name__),
+        send_notifications: bool = True
     ):
         self.settings = Settings()
         self.send_notifications = send_notifications
         self.reference = None
-        # self.logger = logger
 
         if self.send_notifications:
             try:
@@ -122,10 +118,10 @@ class Notify:
                     self.reference = response["ts"]
             except SlackApiError as e:
                 # self.logger.error(f"Slack API Error: {e.response['error']}")
-                print(f"Slack API Error: {e.response['error']}", file=sys.stderr)
+                pass
             except Exception as e:
                 # self.logger.error(f"Error sending Slack message: {str(e)}")
-                print(f"Error sending Slack message: {str(e)}", file=sys.stderr)
+                pass
 
     def post_job_comment(
         self, title: str, message: List[str], send_to_main_channel=False
@@ -150,10 +146,10 @@ class Notify:
                 return response["ts"]
         except SlackApiError as e:
             # self.logger.error(f"Slack API Error: {e.response['error']}")
-            print(f"Slack API Error: {e.response['error']}", file=sys.stderr)
+            pass
         except Exception as e:
             # self.logger.error(f"Error sending Slack message: {str(e)}")
-            print(f"Error sending Slack message: {str(e)}", file=sys.stderr)
+            pass
 
     def get_build_url(self):
         try:
