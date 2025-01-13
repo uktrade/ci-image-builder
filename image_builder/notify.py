@@ -1,7 +1,9 @@
+import logging
 import os
 from typing import List
 
 from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
 from slack_sdk.models import blocks
 
 from image_builder.progress import Progress
@@ -20,10 +22,15 @@ class Notify:
     reference: str | None
     settings: Settings
 
-    def __init__(self, send_notifications: bool = True):
+    def __init__(
+        self,
+        send_notifications: bool = True,
+        logger: logging.Logger = logging.getLogger(__name__),
+    ):
         self.settings = Settings()
         self.send_notifications = send_notifications
         self.reference = None
+        self.logger = logger
 
         if self.send_notifications:
             try:
@@ -92,59 +99,70 @@ class Notify:
                 ),
             ]
 
-            if self.reference is None:
-                response = self.slack.chat_postMessage(
-                    channel=os.environ["SLACK_CHANNEL_ID"],
-                    blocks=message_blocks,
-                    text=f"Building: {text_blocks['repository_name']}@{text_blocks['revision_commit']}",
-                    unfurl_links=False,
-                    unfurl_media=False,
-                )
-                self.reference = response["ts"]
-            else:
-                response = self.slack.chat_update(
-                    channel=os.environ["SLACK_CHANNEL_ID"],
-                    blocks=message_blocks,
-                    ts=self.reference,
-                    text=f"Building: {text_blocks['repository_name']}@{text_blocks['revision_commit']}",
-                    unfurl_links=False,
-                    unfurl_media=False,
-                )
-                self.reference = response["ts"]
+            try:
+                if self.reference is None:
+                    response = self.slack.chat_postMessage(
+                        channel=os.environ["SLACK_CHANNEL_ID"],
+                        blocks=message_blocks,
+                        text=f"Building: {text_blocks['repository_name']}@{text_blocks['revision_commit']}",
+                        unfurl_links=False,
+                        unfurl_media=False,
+                    )
+                    self.reference = response["ts"]
+                else:
+                    response = self.slack.chat_update(
+                        channel=os.environ["SLACK_CHANNEL_ID"],
+                        blocks=message_blocks,
+                        ts=self.reference,
+                        text=f"Building: {text_blocks['repository_name']}@{text_blocks['revision_commit']}",
+                        unfurl_links=False,
+                        unfurl_media=False,
+                    )
+                    self.reference = response["ts"]
+            except SlackApiError as e:
+                self.logger.error(f"Slack API Error: {e.response['error']}")
+            except Exception as e:
+                self.logger.error(f"Error sending Slack message: {str(e)}")
 
     def post_job_comment(
         self, title: str, message: List[str], send_to_main_channel=False
     ):
-        if self.send_notifications:
-            response = self.slack.chat_postMessage(
-                channel=os.environ["SLACK_CHANNEL_ID"],
-                blocks=[
-                    blocks.SectionBlock(
-                        text=blocks.TextObject(type="mrkdwn", text=line)
-                    )
-                    for line in message
-                    if line
-                ],
-                text=title,
-                reply_broadcast=send_to_main_channel,
-                unfurl_links=False,
-                unfurl_media=False,
-                thread_ts=self.reference,
-            )
-            return response["ts"]
+        try:
+            if self.send_notifications:
+                response = self.slack.chat_postMessage(
+                    channel=os.environ["SLACK_CHANNEL_ID"],
+                    blocks=[
+                        blocks.SectionBlock(
+                            text=blocks.TextObject(type="mrkdwn", text=line)
+                        )
+                        for line in message
+                        if line
+                    ],
+                    text=title,
+                    reply_broadcast=send_to_main_channel,
+                    unfurl_links=False,
+                    unfurl_media=False,
+                    thread_ts=self.reference,
+                )
+                return response["ts"]
+        except SlackApiError as e:
+            self.logger.error(f"Slack API Error: {e.response['error']}")
+        except Exception as e:
+            self.logger.error(f"Error sending Slack message: {str(e)}")
 
     def get_build_url(self):
-        try:
-            arn = ARN(self.settings.build_arn)
-            url = (
-                "https://{region}.console.aws.amazon.com/codesuite/codebuild/{account}/projects/{"
-                "project}/build/{project}%3A{build_id}"
-            )
-            return url.format(
-                region=arn.region,
-                account=arn.account_id,
-                project=arn.project.replace("build/", ""),
-                build_id=arn.build_id,
-            )
-        except ValueError:
-            return ""
+        if self.send_notifications:
+            try:
+                arn = ARN(self.settings.build_arn)
+                url = (
+                    "https://{region}.console.aws.amazon.com/codesuite/codebuild/{account}/projects/{"
+                    "project}/build/{project}%3A{build_id}"
+                )
+                return url.format(
+                    region=arn.region,
+                    account=arn.account_id,
+                    project=arn.project.replace("build/", ""),
+                    build_id=arn.build_id,
+                )
+            except ValueError:
+                return ""

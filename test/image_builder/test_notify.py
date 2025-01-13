@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 import pytest
 from parameterized import parameterized
+from slack_sdk.errors import SlackApiError
 from slack_sdk.models import blocks
 
 from image_builder.notify import Notify
@@ -249,6 +250,149 @@ class TestNotify(unittest.TestCase):
             f"The notification data must include revision_commit, repository_name and repository_url.",
             str(e.value),
         )
+
+
+def test_slack_api_error_on_chat_post_message_in_post_build_progress_method():
+    mock_logger = MagicMock()
+    notify = Notify(True, logger=mock_logger)
+    notify.slack = WebClient("slack-token")
+    progress = Progress()
+
+    notify.slack.chat_postMessage.side_effect = SlackApiError(
+        message="invalid_arguments",
+        response={"ok": False, "error": "invalid_arguments"},
+    )
+
+    notify.post_build_progress(
+        progress,
+        {
+            "repository_name": "org/repo",
+            "revision_commit": "commit-sha",
+            "repository_url": "https://github.com/org/repo",
+        },
+    )
+
+    mock_logger.error.assert_called_once_with("Slack API Error: invalid_arguments")
+
+
+def test_slack_api_error_on_chat_update_in_post_build_progress_method():
+    mock_logger = MagicMock()
+    notify = Notify(True, logger=mock_logger)
+    notify.slack = WebClient("slack-token")
+    progress = Progress()
+
+    notify.reference = "mock-timestamp"
+
+    notify.slack.chat_update.side_effect = SlackApiError(
+        message="message_not_found",
+        response={"ok": False, "error": "message_not_found"},
+    )
+
+    notify.post_build_progress(
+        progress,
+        {
+            "repository_name": "org/repo",
+            "revision_commit": "commit-sha",
+            "repository_url": "https://github.com/org/repo",
+        },
+    )
+
+    mock_logger.error.assert_called_once_with("Slack API Error: message_not_found")
+
+
+def test_exception_on_chat_post_message_in_post_build_progress_method():
+    mock_logger = MagicMock()
+    notify = Notify(True, logger=mock_logger)
+    notify.slack = WebClient("slack-token")
+    progress = Progress()
+
+    original_environ = os.environ.copy()
+    del os.environ["SLACK_CHANNEL_ID"]
+
+    notify.post_build_progress(
+        progress,
+        {
+            "repository_name": "org/repo",
+            "revision_commit": "commit-sha",
+            "repository_url": "https://github.com/org/repo",
+        },
+    )
+    os.environ.update(original_environ)
+
+    mock_logger.error.assert_called_once_with(
+        "Error sending Slack message: 'SLACK_CHANNEL_ID'"
+    )
+
+
+def test_exception_on_chat_update_message_in_post_build_progress_method():
+    mock_logger = MagicMock()
+    notify = Notify(True, logger=mock_logger)
+    notify.slack = WebClient("slack-token")
+    progress = Progress()
+
+    notify.reference = "mock-timestamp"
+
+    notify.slack.chat_update.side_effect = Exception("Something went wrong")
+
+    notify.post_build_progress(
+        progress,
+        {
+            "repository_name": "org/repo",
+            "revision_commit": "commit-sha",
+            "repository_url": "https://github.com/org/repo",
+        },
+    )
+
+    mock_logger.error.assert_called_once_with(
+        "Error sending Slack message: Something went wrong"
+    )
+
+
+def test_slack_api_error_on_chat_post_message_in_post_job_comment_method():
+    mock_logger = MagicMock()
+    notify = Notify(True, logger=mock_logger)
+    notify.slack = WebClient("slack-token")
+
+    notify.slack.chat_postMessage.side_effect = SlackApiError(
+        message="invalid_arguments",
+        response={"ok": False, "error": "invalid_arguments"},
+    )
+
+    notify.post_job_comment(
+        "",
+        [
+            "<https://github.com/uktrade/demodjango/commit/12345fab|"
+            "uktrade/demodjango@12345fab deploying to `dev` "
+            "| <{notify.get_build_url()}|Build Log>",
+        ],
+        False,
+    )
+
+    mock_logger.error.assert_called_once_with("Slack API Error: invalid_arguments")
+
+
+def test_exception_on_chat_post_message_in_post_job_comment_method():
+    mock_logger = MagicMock()
+    notify = Notify(True, logger=mock_logger)
+    notify.slack = WebClient("slack-token")
+
+    original_environ = os.environ.copy()
+    del os.environ["SLACK_CHANNEL_ID"]
+
+    notify.post_job_comment(
+        "uktrade/demodjango@12345fab deploying to dev",
+        [
+            "<https://github.com/uktrade/demodjango/commit/12345fab|"
+            "uktrade/demodjango@12345fab deploying to `dev` "
+            "| <{notify.get_build_url()}|Build Log>",
+        ],
+        False,
+    )
+    os.environ.update(original_environ)
+
+    mock_logger.error.assert_called_once_with(
+        "Error sending Slack message: 'SLACK_CHANNEL_ID'"
+    )
 
 
 def get_expected_message_blocks(
