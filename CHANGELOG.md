@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/uktrade/ci-image-builder/compare/1.3.0...1.3.1) (2025-01-13)
+
+
+### Bug Fixes
+
+* Change release please to python ([#97](https://github.com/uktrade/ci-image-builder/issues/97)) ([1c7cd72](https://github.com/uktrade/ci-image-builder/commit/1c7cd7251968b0b67ba9d74151728f840b17bae4))
+
 ## [1.3.0](https://github.com/uktrade/ci-image-builder/compare/1.2.1...1.3.0) (2025-01-13)
 
 
