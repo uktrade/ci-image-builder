@@ -135,6 +135,8 @@ class Pack:
             f"BP_OCI_SOURCE={self.codebase.revision.get_repository_url()}"
         )
 
+        environment.append("BPE_DD_VERSION_SET=this_is_test")
+
         additional_labels = []
 
         if self.build_timestamp is not None:
