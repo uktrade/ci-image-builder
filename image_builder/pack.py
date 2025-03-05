@@ -121,6 +121,10 @@ class Pack:
 
         if self.codebase.revision.tag:
             environment.append(f"BPE_GIT_TAG={self.codebase.revision.tag}")
+            # DD environment parameter
+            environment.append(f"BPE_DD_VERSION={self.codebase.revision.tag}")
+        else:
+            environment.append(f"BPE_DD_VERSION={self.codebase.revision.commit}")
 
         if self.codebase.revision.commit:
             environment.append(f"BPE_GIT_COMMIT={self.codebase.revision.commit}")
@@ -139,7 +143,6 @@ class Pack:
         environment.append(
             f"BPE_DD_GIT_REPOSITORY_URL={self.codebase.revision.get_repository_url()}"
         )
-        environment.append(f"BPE_DD_VERSION={self.codebase.revision.commit}")
         environment.append(f"BPE_DD_GIT_COMMIT_SHA={self.codebase.revision.long_commit}")
 
         additional_labels = []
