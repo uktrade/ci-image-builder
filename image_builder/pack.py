@@ -137,10 +137,10 @@ class Pack:
 
         # DD environment parameters.
         environment.append(
-            f"BPE_DD_GIT_REPOSITORY_URL_2={self.codebase.revision.get_repository_url()}"
+            f"BPE_DD_GIT_REPOSITORY_URL={self.codebase.revision.get_repository_url()}"
         )
-        environment.append(f"BPE_DD_VERSION_2={self.codebase.revision.commit}")
-        environment.append(f"BPE_DD_GIT_COMMIT_SHA_2={self.codebase.revision.long_commit}")
+        environment.append(f"BPE_DD_VERSION={self.codebase.revision.commit}")
+        environment.append(f"BPE_DD_GIT_COMMIT_SHA={self.codebase.revision.long_commit}")
 
         additional_labels = []
 
