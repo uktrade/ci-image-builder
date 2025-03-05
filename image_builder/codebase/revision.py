@@ -22,9 +22,10 @@ class Revision:
     commit: str
     tag: str
 
-    def __init__(self, remote: str, commit: str, tag: str = None, branch: str = None):
+    def __init__(self, remote: str, commit: str, long_commit: str, tag: str = None, branch: str = None):
         self.branch = branch
         self.commit = commit
+        self.long_commit = long_commit
         self.tag = tag
         self.remote = remote
         if not (self.remote or self.branch or self.tag):
@@ -103,6 +104,8 @@ def load_codebase_revision(path: Path):
                     tag = possible_tag.split(" ")[1]
                     tag = tag.replace("refs/tags/", "")
                     break
+    else:
+        long_commit = None
 
     if (
         tag is None
@@ -120,4 +123,4 @@ def load_codebase_revision(path: Path):
     else:
         remote = None
 
-    return Revision(remote, commit, tag=tag, branch=branch)
+    return Revision(remote, commit, long_commit, tag=tag, branch=branch)
