@@ -22,7 +22,14 @@ class Revision:
     commit: str
     tag: str
 
-    def __init__(self, remote: str, commit: str, long_commit: str, tag: str = None, branch: str = None):
+    def __init__(
+        self,
+        remote: str,
+        commit: str,
+        long_commit: str,
+        tag: str = None,
+        branch: str = None,
+    ):
         self.branch = branch
         self.commit = commit
         self.long_commit = long_commit

@@ -246,7 +246,10 @@ class TestPackEnvironment(BaseTestCase):
             "image_builder.codebase.codebase.load_codebase_revision",
             mock.Mock(
                 return_value=Revision(
-                    "git@github.com:org/repo.git", "shorthash", "longhash", branch="feat/tests"
+                    "git@github.com:org/repo.git",
+                    "shorthash",
+                    "longhash",
+                    branch="feat/tests",
                 )
             ),
         ):
