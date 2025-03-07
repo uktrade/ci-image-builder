@@ -55,6 +55,7 @@ class TestCodebaseRevision(BaseTestCase):
         revision = load_codebase_revision(Path("."))
 
         self.assertEqual(revision.commit, "shorthash")
+        self.assertEqual(revision.long_commit, "longhash")
         self.assertEqual(revision.branch, "main")
         self.assertEqual(revision.tag, "2.0.0")
         self.assertEqual(revision.get_repository_name(), "org/repo")

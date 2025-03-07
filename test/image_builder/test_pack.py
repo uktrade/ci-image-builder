@@ -215,12 +215,15 @@ class TestPackEnvironment(BaseTestCase):
                 "BP_NODE_VERSION=20.7",
                 "BP_RUBY_VERSION=3.3",
                 "BPE_GIT_TAG=v2.4.6",
+                "BPE_DD_VERSION=v2.4.6",
                 "BPE_GIT_COMMIT=shorthash",
                 "BP_OCI_REVISION=shorthash",
                 "BP_OCI_VERSION=shorthash",
                 "BPE_GIT_BRANCH=feat/tests",
                 "BP_OCI_REF_NAME=tag-v2.4.6",
                 "BP_OCI_SOURCE=https://github.com/org/repo",
+                "BPE_DD_GIT_REPOSITORY_URL=https://github.com/org/repo",
+                "BPE_DD_GIT_COMMIT_SHA=longhash",
                 'BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp"',
             ],
         )
@@ -243,7 +246,7 @@ class TestPackEnvironment(BaseTestCase):
             "image_builder.codebase.codebase.load_codebase_revision",
             mock.Mock(
                 return_value=Revision(
-                    "git@github.com:org/repo.git", "shorthash", branch="feat/tests"
+                    "git@github.com:org/repo.git", "shorthash", "longhash", branch="feat/tests"
                 )
             ),
         ):
@@ -324,12 +327,15 @@ class TestCommand(BaseTestCase):
             "--env BP_NODE_VERSION=20.7",
             "--env BP_RUBY_VERSION=3.3",
             "--env BPE_GIT_TAG=v2.4.6",
+            "--env BPE_DD_VERSION=v2.4.6",
             "--env BPE_GIT_COMMIT=shorthash",
             "--env BP_OCI_REVISION=shorthash",
             "--env BP_OCI_VERSION=shorthash",
             "--env BPE_GIT_BRANCH=feat/tests",
             "--env BP_OCI_REF_NAME=tag-v2.4.6",
             "--env BP_OCI_SOURCE=https://github.com/org/repo",
+            "--env BPE_DD_GIT_REPOSITORY_URL=https://github.com/org/repo",
+            "--env BPE_DD_GIT_COMMIT_SHA=longhash",
             '--env BP_IMAGE_LABELS="uk.gov.trade.digital.build.timestamp=timestamp"',
             "--buildpack paketo-buildpacks/git",
             "--buildpack paketo-buildpacks/python",
