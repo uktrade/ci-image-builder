@@ -46,11 +46,13 @@ class TestBuildCommand(unittest.TestCase):
         ]
 
     @staticmethod
-    def run_build(publish=False):
+    def run_build(publish=False, with_runner_image=None):
         runner = CliRunner()
         args = ["--send-notifications"]
         if publish:
             args.append("--publish")
+        if with_runner_image:
+            args.append(f"--with-runner-image {with_runner_image}")
         result = runner.invoke(build, args)
         return result
 
@@ -79,6 +81,13 @@ class TestBuildCommand(unittest.TestCase):
         pack().codebase.setup.assert_called()
         progress().set_current_phase.assert_has_calls([])
         notify().post_build_progress.assert_has_calls([call(ANY, ANY)] * 2)
+
+    def test_build_with_runner_image(self, pack, docker, codebase, notify, progress):
+        self.setup_mocks(pack, docker, codebase, notify, progress)
+        self.run_build(with_runner_image="nice-secure-base-image")
+
+        # Todo assert called with nice-secure-base-image.
+        pack().build.assert_called()
 
     def test_perfect_build_with_publish_and_additional_repo(
         self, pack, docker, codebase, notify, progress
