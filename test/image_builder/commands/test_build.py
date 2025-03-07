@@ -9,7 +9,6 @@ from unittest.mock import call
 from unittest.mock import patch
 
 from click.testing import CliRunner
-from parameterized import parameterized
 
 from image_builder.commands.build import build
 from image_builder.const import ADDITIONAL_ECR_REPO
@@ -55,8 +54,7 @@ class TestBuildCommand(unittest.TestCase):
         result = runner.invoke(build, args)
         return result
 
-    @parameterized.expand([True, False])
-    def test_perfect_build(self, pack, docker, codebase, notify, progress, publish):
+    def test_perfect_build(self, pack, docker, codebase, notify, progress):
         self.setup_mocks(pack, docker, codebase, notify, progress)
         result = self.run_build()
 
