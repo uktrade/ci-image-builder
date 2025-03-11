@@ -63,7 +63,7 @@ class Pack:
                 self.codebase.revision.get_docker_tags(),
             )
 
-    def get_command(self, publish=False):
+    def get_command(self, publish=False, run_image=None):
         buildpacks = " ".join([f"--buildpack {p}" for p in self.get_buildpacks()])
         environment = " ".join([f"--env {e}" for e in self.get_environment()])
         tags = " ".join(
@@ -80,6 +80,10 @@ class Pack:
 
         if publish:
             command += f" --publish --cache-image {self._repository}:cache"
+
+        if run_image:
+            command += f" --run-image {run_image}"
+
         return command
 
     def get_buildpacks(self):
