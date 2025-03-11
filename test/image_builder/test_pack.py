@@ -528,6 +528,27 @@ class TestCommand(BaseTestCase):
 
         publish_to_additional.assert_not_called()
 
+    def test_build_with_run_image(
+        self,
+        publish_to_additional,
+        subprocess_popen,
+        load_codebase_revision,
+        load_codebase_processes,
+        load_codebase_languages,
+    ):
+        codebase = Codebase(Path("."))
+        pack = Pack(codebase, "timestamp")
+
+        pack.build(run_image="nice-secure-base-image")
+
+        subprocess_popen.assert_called_with(
+            " ".join(self.expected_command + [self.run_image_opts]),
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+
 
 @patch(
     "image_builder.codebase.codebase.load_codebase_languages",
