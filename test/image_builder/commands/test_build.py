@@ -78,7 +78,7 @@ class TestBuildCommand(unittest.TestCase):
             result.output,
         )
 
-        pack().build.assert_called()
+        pack().build.assert_called_once_with(False, ANY, ANY, None)
         pack().codebase.setup.assert_called()
         progress().set_current_phase.assert_has_calls([])
         notify().post_build_progress.assert_has_calls([call(ANY, ANY)] * 2)
@@ -118,7 +118,7 @@ class TestBuildCommand(unittest.TestCase):
             result.output,
         )
 
-        pack().build.assert_called()
+        pack().build.assert_called_once_with(True, ANY, ANY, ANY)
         pack().codebase.setup.assert_called()
         progress().set_current_phase.assert_has_calls([])
         notify().post_build_progress.assert_has_calls([call(ANY, ANY)] * 2)
