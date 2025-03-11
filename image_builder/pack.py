@@ -28,9 +28,8 @@ class Pack:
         on_exporting: Callable = None,
         run_image=None,
     ):
-        command = self.get_command(publish, run_image)
         proc = subprocess.Popen(
-            command,
+            self.get_command(publish, run_image),
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,

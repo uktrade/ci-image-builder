@@ -340,7 +340,7 @@ class TestCommand(BaseTestCase):
             "--buildpack gcr.io/paketo-buildpacks/environment-variables",
         ]
         self.publish_opts = "--publish --cache-image 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:cache"
-        self.run_image_opts = "--run-image nice-secure-base-image"
+        self.run_image_opt = "--run-image nice-secure-base-image"
 
     def test_get_repository_url_from_config(
         self,
@@ -442,7 +442,7 @@ class TestCommand(BaseTestCase):
         codebase = Codebase(Path("."))
         pack = Pack(codebase, "timestamp")
 
-        expected = " ".join(self.expected_command + [self.run_image_opts])
+        expected = " ".join(self.expected_command + [self.run_image_opt])
 
         self.assertEqual(pack.get_command(run_image="nice-secure-base-image"), expected)
 
@@ -542,7 +542,7 @@ class TestCommand(BaseTestCase):
         pack.build(run_image="nice-secure-base-image")
 
         subprocess_popen.assert_called_with(
-            " ".join(self.expected_command + [self.run_image_opts]),
+            " ".join(self.expected_command + [self.run_image_opt]),
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
