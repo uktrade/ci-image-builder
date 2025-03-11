@@ -15,7 +15,11 @@ from image_builder.progress import Progress
     default=False,
     help="Send slack notifications.",
 )
-def build(publish, send_notifications):
+@click.option(
+    "--with-runner-image",
+    help="Specify a runner image to be used as the base for your application image.",
+)
+def build(publish, send_notifications, with_runner_image):
     codebase = Codebase(".")
     notify = Notify(send_notifications)
     progress = Progress()
@@ -72,6 +76,7 @@ def build(publish, send_notifications):
             publish,
             on_building(notify, progress, codebase),
             on_publishing(notify, progress, codebase),
+            with_runner_image,
         )
 
         progress.current_phase_success()

@@ -22,10 +22,15 @@ class Pack:
         self.build_timestamp = build_timestamp
 
     def build(
-        self, publish=False, on_building: Callable = None, on_exporting: Callable = None
+        self,
+        publish=False,
+        on_building: Callable = None,
+        on_exporting: Callable = None,
+        run_image=None,
     ):
+        command = self.get_command(publish)
         proc = subprocess.Popen(
-            self.get_command(publish),
+            command,
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,

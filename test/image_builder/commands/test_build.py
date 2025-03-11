@@ -52,7 +52,8 @@ class TestBuildCommand(unittest.TestCase):
         if publish:
             args.append("--publish")
         if with_runner_image:
-            args.append(f"--with-runner-image {with_runner_image}")
+            args.append("--with-runner-image")
+            args.append(with_runner_image)
         result = runner.invoke(build, args)
         return result
 
@@ -84,10 +85,10 @@ class TestBuildCommand(unittest.TestCase):
 
     def test_build_with_runner_image(self, pack, docker, codebase, notify, progress):
         self.setup_mocks(pack, docker, codebase, notify, progress)
-        self.run_build(with_runner_image="nice-secure-base-image")
+        run_image = "nice-secure-base-image"
+        self.run_build(with_runner_image=run_image)
 
-        # Todo assert called with nice-secure-base-image.
-        pack().build.assert_called()
+        pack().build.assert_called_once_with(ANY, ANY, ANY, run_image)
 
     def test_perfect_build_with_publish_and_additional_repo(
         self, pack, docker, codebase, notify, progress
