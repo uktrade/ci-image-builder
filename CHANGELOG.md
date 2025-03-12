@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/uktrade/ci-image-builder/compare/1.4.0...1.5.0) (2025-03-12)
+
+
+### Features
+
+* DBTP-1816 Enable specifying a run image ([#102](https://github.com/uktrade/ci-image-builder/issues/103)) ([e01eba3](https://github.com/uktrade/ci-image-builder/commit/e01eba3fed9562997dd72a64448a599b4062a0eb))
+
 ## [1.4.0](https://github.com/uktrade/ci-image-builder/compare/1.3.1...1.4.0) (2025-03-12)
 
 
