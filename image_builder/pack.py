@@ -22,10 +22,14 @@ class Pack:
         self.build_timestamp = build_timestamp
 
     def build(
-        self, publish=False, on_building: Callable = None, on_exporting: Callable = None
+        self,
+        publish=False,
+        on_building: Callable = None,
+        on_exporting: Callable = None,
+        run_image=None,
     ):
         proc = subprocess.Popen(
-            self.get_command(publish),
+            self.get_command(publish, run_image),
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -58,7 +62,7 @@ class Pack:
                 self.codebase.revision.get_docker_tags(),
             )
 
-    def get_command(self, publish=False):
+    def get_command(self, publish=False, run_image=None):
         buildpacks = " ".join([f"--buildpack {p}" for p in self.get_buildpacks()])
         environment = " ".join([f"--env {e}" for e in self.get_environment()])
         tags = " ".join(
@@ -75,6 +79,10 @@ class Pack:
 
         if publish:
             command += f" --publish --cache-image {self._repository}:cache"
+
+        if run_image:
+            command += f" --run-image {run_image}"
+
         return command
 
     def get_buildpacks(self):
@@ -121,6 +129,10 @@ class Pack:
 
         if self.codebase.revision.tag:
             environment.append(f"BPE_GIT_TAG={self.codebase.revision.tag}")
+            # DD environment parameter
+            environment.append(f"BPE_DD_VERSION={self.codebase.revision.tag}")
+        else:
+            environment.append(f"BPE_DD_VERSION={self.codebase.revision.commit}")
 
         if self.codebase.revision.commit:
             environment.append(f"BPE_GIT_COMMIT={self.codebase.revision.commit}")
@@ -133,6 +145,14 @@ class Pack:
         environment.append(f"BP_OCI_REF_NAME={self.get_bp_oci_ref_name()}")
         environment.append(
             f"BP_OCI_SOURCE={self.codebase.revision.get_repository_url()}"
+        )
+
+        # DD environment parameters.
+        environment.append(
+            f"BPE_DD_GIT_REPOSITORY_URL={self.codebase.revision.get_repository_url()}"
+        )
+        environment.append(
+            f"BPE_DD_GIT_COMMIT_SHA={self.codebase.revision.long_commit}"
         )
 
         additional_labels = []
