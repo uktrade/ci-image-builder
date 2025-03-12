@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/uktrade/ci-image-builder/compare/1.3.1...1.4.0) (2025-03-12)
+
+
+### Features
+
+* dbtp 1659 datadog ([#102](https://github.com/uktrade/ci-image-builder/issues/102)) ([8d96657](https://github.com/uktrade/ci-image-builder/commit/8d96657fffa4b465824902f48203ff6ed2f43835))
+
 ## [1.3.1](https://github.com/uktrade/ci-image-builder/compare/1.3.0...1.3.1) (2025-01-13)
 
 
