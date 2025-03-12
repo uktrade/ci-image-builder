@@ -19,7 +19,7 @@ phases:
     - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
     - COMMIT_TAG="commit-$COMMIT_HASH"
     - PACK_VERSION_TAG="pack-$PACK_VERSION"
-    - REPOSITORY_URI=public.ecr.aws/uktrade/ci-image-builder-dbtp-1659-datadog
+    - REPOSITORY_URI=public.ecr.aws/uktrade/ci-image-builder
     - >
       if [[ $CODEBUILD_WEBHOOK_TRIGGER == branch/* ]]; then
         BRANCH_TAG="branch-$(echo $CODEBUILD_WEBHOOK_TRIGGER | awk -F "/" '{print $2}')";
