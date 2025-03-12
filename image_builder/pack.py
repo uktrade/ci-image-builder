@@ -22,10 +22,14 @@ class Pack:
         self.build_timestamp = build_timestamp
 
     def build(
-        self, publish=False, on_building: Callable = None, on_exporting: Callable = None
+        self,
+        publish=False,
+        on_building: Callable = None,
+        on_exporting: Callable = None,
+        run_image=None,
     ):
         proc = subprocess.Popen(
-            self.get_command(publish),
+            self.get_command(publish, run_image),
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -58,7 +62,7 @@ class Pack:
                 self.codebase.revision.get_docker_tags(),
             )
 
-    def get_command(self, publish=False):
+    def get_command(self, publish=False, run_image=None):
         buildpacks = " ".join([f"--buildpack {p}" for p in self.get_buildpacks()])
         environment = " ".join([f"--env {e}" for e in self.get_environment()])
         tags = " ".join(
@@ -75,6 +79,10 @@ class Pack:
 
         if publish:
             command += f" --publish --cache-image {self._repository}:cache"
+
+        if run_image:
+            command += f" --run-image {run_image}"
+
         return command
 
     def get_buildpacks(self):

@@ -9,7 +9,6 @@ from unittest.mock import call
 from unittest.mock import patch
 
 from click.testing import CliRunner
-from parameterized import parameterized
 
 from image_builder.commands.build import build
 from image_builder.const import ADDITIONAL_ECR_REPO
@@ -47,16 +46,18 @@ class TestBuildCommand(unittest.TestCase):
         ]
 
     @staticmethod
-    def run_build(publish=False):
+    def run_build(publish=False, with_runner_image=None):
         runner = CliRunner()
         args = ["--send-notifications"]
         if publish:
             args.append("--publish")
+        if with_runner_image:
+            args.append("--with-runner-image")
+            args.append(with_runner_image)
         result = runner.invoke(build, args)
         return result
 
-    @parameterized.expand([True, False])
-    def test_perfect_build(self, pack, docker, codebase, notify, progress, publish):
+    def test_perfect_build(self, pack, docker, codebase, notify, progress):
         self.setup_mocks(pack, docker, codebase, notify, progress)
         result = self.run_build()
 
@@ -77,10 +78,17 @@ class TestBuildCommand(unittest.TestCase):
             result.output,
         )
 
-        pack().build.assert_called()
+        pack().build.assert_called_once_with(False, ANY, ANY, None)
         pack().codebase.setup.assert_called()
         progress().set_current_phase.assert_has_calls([])
         notify().post_build_progress.assert_has_calls([call(ANY, ANY)] * 2)
+
+    def test_build_with_runner_image(self, pack, docker, codebase, notify, progress):
+        self.setup_mocks(pack, docker, codebase, notify, progress)
+        run_image = "nice-secure-base-image"
+        self.run_build(with_runner_image=run_image)
+
+        pack().build.assert_called_once_with(ANY, ANY, ANY, run_image)
 
     def test_perfect_build_with_publish_and_additional_repo(
         self, pack, docker, codebase, notify, progress
@@ -110,7 +118,7 @@ class TestBuildCommand(unittest.TestCase):
             result.output,
         )
 
-        pack().build.assert_called()
+        pack().build.assert_called_once_with(True, ANY, ANY, ANY)
         pack().codebase.setup.assert_called()
         progress().set_current_phase.assert_has_calls([])
         notify().post_build_progress.assert_has_calls([call(ANY, ANY)] * 2)
