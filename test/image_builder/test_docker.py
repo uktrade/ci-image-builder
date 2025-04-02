@@ -25,7 +25,7 @@ class TestDocker(unittest.TestCase):
         os.environ[
             "CODEBUILD_BUILD_ARN"
         ] = "arn:aws:codebuild:region:000000000000:build/project:example-build-id"
-        self.ssm_client = boto3.client("ssm")
+        self.ssm_client = boto3.client("ssm", region_name="eu-west-2")
         self.ssm_client_stub = Stubber(self.ssm_client)
         self.ssm_client_stub.add_response(
             "get_parameter",
