@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/uktrade/ci-image-builder/compare/1.5.0...1.5.1) (2025-04-02)
+
+
+### Bug Fixes
+
+* Docker hub rate limiting (DBTP-1956) ([#111](https://github.com/uktrade/ci-image-builder/issues/111)) ([3b891d0](https://github.com/uktrade/ci-image-builder/commit/3b891d061a5afee21163cc3f0b1d14f1ef749cc9))
+
 ## [1.5.0](https://github.com/uktrade/ci-image-builder/compare/1.4.0...1.5.0) (2025-03-12)
 
 
