@@ -11,6 +11,9 @@ def get_versions(url: str):
     if "ruby" in url:
         return EndOfLifeResponse("ruby", 200)
 
+    if "php" in url:
+        return EndOfLifeResponse("php", 200)
+
     return EndOfLifeResponse("nodejs", 404)
 
 
@@ -210,6 +213,35 @@ class EndOfLifeResponse:
                 "latest": "1.8.4",
                 "latestReleaseDate": "2015-07-09",
                 "lts": False,
+            },
+        ],
+        "php": [
+            {
+                "cycle": "8.4",
+                "releaseDate": "2024-11-21",
+                "eol": "2028-12-31",
+                "latest": "8.4.5",
+                "latestReleaseDate": "2025-03-13",
+                "lts": False,
+                "support": "2026-12-31",
+            },
+            {
+                "cycle": "8.3",
+                "releaseDate": "2023-11-23",
+                "eol": "2027-12-31",
+                "latest": "8.3.19",
+                "latestReleaseDate": "2025-03-13",
+                "lts": False,
+                "support": "2025-12-31",
+            },
+            {
+                "cycle": "7.4",
+                "releaseDate": "2019-11-28",
+                "eol": "2022-11-28",
+                "latest": "7.4.33",
+                "latestReleaseDate": "2022-11-03",
+                "lts": False,
+                "support": "2021-11-28",
             },
         ],
         "python": [

@@ -2,6 +2,7 @@ from pathlib import Path
 from test.base_test_case import BaseTestCase
 from test.doubles.end_of_life import get_versions
 from test.helpers.files import create_nodejs_indicator
+from test.helpers.files import create_php_indicator
 from test.helpers.files import create_python_indicator
 from test.helpers.files import create_ruby_indicator
 from unittest.mock import patch
@@ -49,6 +50,17 @@ class TestDetectingCodebaseLanguages(BaseTestCase):
         self.assertEqual(languages["ruby"].version, "3.3")
         self.assertEqual(languages["ruby"].end_of_life, False)
         requests_get.assert_called_with("https://endoflife.date/api/ruby.json")
+
+    @patch("requests.get", wraps=get_versions)
+    def test_only_php(self, requests_get):
+        create_php_indicator(self.fs, "8.3")
+
+        languages = load_codebase_languages(Path("."))
+
+        self.assertEqual(languages["php"].name, "php")
+        self.assertEqual(languages["php"].version, "8.3")
+        self.assertEqual(languages["php"].end_of_life, False)
+        requests_get.assert_called_with("https://endoflife.date/api/php.json")
 
     @patch("requests.get", wraps=get_versions)
     def test_all_languages(self, requests_get):

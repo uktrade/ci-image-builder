@@ -26,3 +26,9 @@ def create_python_indicator(fs, version, indicator_type="pyproject"):
 
 def create_ruby_indicator(fs, version):
     fs.create_file("Gemfile", contents=f"ruby {version}")
+
+
+def create_php_indicator(fs, version):
+    fs.create_file(
+        "composer.json", contents=json.dumps({"require": {"php": f">={version}"}})
+    )
