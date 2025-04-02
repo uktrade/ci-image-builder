@@ -186,3 +186,28 @@ class TestDocker(unittest.TestCase):
                 ),
             ]
         )
+
+    @patch(
+        "subprocess.run",
+        return_value=StubbedProcess(returncode=returncode_docker_running),
+    )
+    def test_docker_login_failed_logging_into_docker_hub(self, run):
+        os.environ["CODESTAR_CONNECTION_ARN"] = "something"
+
+        self.ssm_client_stub.add_client_error("get_parameter")
+
+        with self.ssm_client_stub:
+            Docker.login(
+                registry="000000000000.dkr.ecr.oz-wizd-1.amazonaws.com",
+                ssm_client=self.ssm_client,
+            )
+
+        run.assert_has_calls(
+            [
+                call(
+                    f"aws ecr get-login-password --region oz-wizd-1 | docker login --username AWS --password-stdin 000000000000.dkr.ecr.oz-wizd-1.amazonaws.com",
+                    stdout=subprocess.PIPE,
+                    shell=True,
+                ),
+            ]
+        )
