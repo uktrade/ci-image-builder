@@ -49,11 +49,14 @@ def get_latest_version_for(product: str, lts: bool = True, version: str = None) 
 
 def is_end_of_life(product: str, version: str) -> bool:
     versions = get_versions(product)
-    filtered_versions = [v for v in versions if v["cycle"] == version]
+    filtered_versions = []
 
-    if len(filtered_versions) == 0:
-        version = version.split(".")[0]
-        filtered_versions = [v for v in versions if v["cycle"] == version]
+    version_segments = version.split(".")
+    for position in range(len(version_segments)):
+        check_version = ".".join(version_segments[0 : len(version_segments) - position])
+        filtered_versions = [v for v in versions if v["cycle"] == check_version]
+        if filtered_versions:
+            break
 
     this_version = filtered_versions[0]
 
