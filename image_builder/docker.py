@@ -63,6 +63,7 @@ class Docker:
             except (
                 botocore.exceptions.NoCredentialsError,
                 botocore.exceptions.SSOError,
+                botocore.exceptions.NoRegionError,
             ) as e:
                 print(
                     "Failed to authenticate with AWS to retrieve credentials for docker hub",
