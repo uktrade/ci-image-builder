@@ -1,11 +1,14 @@
 import os
 import subprocess
 import unittest
+from datetime import datetime
 from test.doubles.process import StubbedProcess
 from unittest.mock import call
 from unittest.mock import patch
 
+import boto3
 import pytest
+from botocore.stub import Stubber
 
 from image_builder.docker import Docker
 from image_builder.docker import DockerNotInstalledError
@@ -22,6 +25,28 @@ class TestDocker(unittest.TestCase):
         os.environ[
             "CODEBUILD_BUILD_ARN"
         ] = "arn:aws:codebuild:region:000000000000:build/project:example-build-id"
+        self.ssm_client = boto3.client("ssm")
+        self.ssm_client_stub = Stubber(self.ssm_client)
+        self.ssm_client_stub.add_response(
+            "get_parameter",
+            {
+                "Parameter": {
+                    "Name": "/codebuild/docker_hub_credentials",
+                    "Type": "SecureString",
+                    "Value": '{"username":"USER","password":"PASS"}',
+                    "Version": 123,
+                    "Selector": "string",
+                    "SourceResult": "string",
+                    "LastModifiedDate": datetime(2015, 1, 1),
+                    "ARN": "string",
+                    "DataType": "string",
+                }
+            },
+            {
+                "Name": "/codebuild/docker_hub_credentials",
+                "WithDecryption": True,
+            },
+        )
 
     @patch("subprocess.Popen", return_value=None)
     @patch(
@@ -100,7 +125,8 @@ class TestDocker(unittest.TestCase):
         return_value=StubbedProcess(returncode=returncode_docker_running),
     )
     def test_docker_login_with_public_repository(self, run):
-        Docker.login(registry="public.ecr.aws")
+        with self.ssm_client_stub:
+            Docker.login(registry="public.ecr.aws", ssm_client=self.ssm_client)
 
         run.assert_has_calls(
             [
@@ -117,10 +143,42 @@ class TestDocker(unittest.TestCase):
         return_value=StubbedProcess(returncode=returncode_docker_running),
     )
     def test_docker_login_with_private_repository(self, run):
-        Docker.login(registry="000000000000.dkr.ecr.oz-wizd-1.amazonaws.com")
+        with self.ssm_client_stub:
+            Docker.login(
+                registry="000000000000.dkr.ecr.oz-wizd-1.amazonaws.com",
+                ssm_client=self.ssm_client,
+            )
 
         run.assert_has_calls(
             [
+                call(
+                    f"aws ecr get-login-password --region oz-wizd-1 | docker login --username AWS --password-stdin 000000000000.dkr.ecr.oz-wizd-1.amazonaws.com",
+                    stdout=subprocess.PIPE,
+                    shell=True,
+                ),
+            ]
+        )
+
+    @patch(
+        "subprocess.run",
+        return_value=StubbedProcess(returncode=returncode_docker_running),
+    )
+    def test_docker_login_to_docker_hub(self, run):
+        os.environ["CODESTAR_CONNECTION_ARN"] = "something"
+
+        with self.ssm_client_stub:
+            Docker.login(
+                registry="000000000000.dkr.ecr.oz-wizd-1.amazonaws.com",
+                ssm_client=self.ssm_client,
+            )
+
+        run.assert_has_calls(
+            [
+                call(
+                    "docker login --username USER --password PASS",
+                    stdout=subprocess.PIPE,
+                    shell=True,
+                ),
                 call(
                     f"aws ecr get-login-password --region oz-wizd-1 | docker login --username AWS --password-stdin 000000000000.dkr.ecr.oz-wizd-1.amazonaws.com",
                     stdout=subprocess.PIPE,
