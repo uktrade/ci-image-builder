@@ -3,6 +3,7 @@ from test.base_test_case import BaseTestCase
 from test.doubles.end_of_life import get_versions
 from test.helpers.files import create_nodejs_indicator
 from test.helpers.files import create_python_indicator
+from test.helpers.files import create_ruby_indicator
 from unittest.mock import patch
 
 import pytest
@@ -39,9 +40,21 @@ class TestDetectingCodebaseLanguages(BaseTestCase):
         requests_get.assert_called_with("https://endoflife.date/api/nodejs.json")
 
     @patch("requests.get", wraps=get_versions)
+    def test_only_ruby(self, requests_get):
+        create_ruby_indicator(self.fs, "3.3.2")
+
+        languages = load_codebase_languages(Path("."))
+
+        self.assertEqual(languages["ruby"].name, "ruby")
+        self.assertEqual(languages["ruby"].version, "3.3")
+        self.assertEqual(languages["ruby"].end_of_life, False)
+        requests_get.assert_called_with("https://endoflife.date/api/ruby.json")
+
+    @patch("requests.get", wraps=get_versions)
     def test_all_languages(self, requests_get):
         create_python_indicator(self.fs, "3.11.x", "runtime")
         create_nodejs_indicator(self.fs, "18.4.2")
+        create_ruby_indicator(self.fs, "3.3.2")
 
         languages = load_codebase_languages(Path("."))
 
@@ -54,6 +67,11 @@ class TestDetectingCodebaseLanguages(BaseTestCase):
         self.assertEqual(languages["nodejs"].version, "18")
         self.assertEqual(languages["nodejs"].end_of_life, False)
         requests_get.assert_called_with("https://endoflife.date/api/nodejs.json")
+
+        self.assertEqual(languages["ruby"].name, "ruby")
+        self.assertEqual(languages["ruby"].version, "3.3")
+        self.assertEqual(languages["ruby"].end_of_life, False)
+        requests_get.assert_called_with("https://endoflife.date/api/ruby.json")
 
 
 class TestBaseLanguageClass(BaseTestCase):
