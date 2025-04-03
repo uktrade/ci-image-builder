@@ -30,5 +30,5 @@ def create_ruby_indicator(fs, version):
 
 def create_php_indicator(fs, version):
     fs.create_file(
-        "composer.json", contents=json.dumps({"require": {"php": f">={version}"}})
+        "composer.json", contents=json.dumps({"require": {"php": f"^{version}"}})
     )
