@@ -11,12 +11,12 @@ from image_builder.codebase.language import PHPLanguage
 from image_builder.codebase.language.base import CodebaseLanguageNotDetectedError
 
 
-class TestCodebaseLanguagePython(BaseTestCase):
+class TestCodebaseLanguagePHP(BaseTestCase):
     def setUp(self):
         super().setUp()
         self.setUpPyfakefs()
 
-    def test_without_python_application_present(self):
+    def test_without_php_application_present(self):
         with pytest.raises(CodebaseLanguageNotDetectedError):
             PHPLanguage.load(Path("."))
 
