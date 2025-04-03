@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/uktrade/ci-image-builder/compare/1.5.1...1.6.0) (2025-04-03)
+
+
+### Features
+
+* Add support for python 3.13 (off-ticket) ([#113](https://github.com/uktrade/ci-image-builder/issues/113)) ([979a676](https://github.com/uktrade/ci-image-builder/commit/979a67688dc40e2bdfec04764b6d2197f04ff211))
+
 ## [1.5.1](https://github.com/uktrade/ci-image-builder/compare/1.5.0...1.5.1) (2025-04-02)
 
 
