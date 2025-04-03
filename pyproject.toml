@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ci-image-builder"
-version = "1.5.0"
+version = "1.6.0"
 description = "Build Application Images in a pipeline"
 authors = ["Department for Business and Trade Platform Team <sre-team@digital.trade.gov.uk>"]
 readme = "README.md"
@@ -12,6 +12,7 @@ PyYaml = "^6.0.1"
 requests = "^2.32.2"
 click = "^8.1.7"
 slack-sdk = "^3.27.1"
+boto3 = "^1.37.25"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.2"

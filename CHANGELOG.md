@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.6.0](https://github.com/uktrade/ci-image-builder/compare/1.5.1...1.6.0) (2025-04-03)
+
+
+### Features
+
+* Add support for python 3.13 (off-ticket) ([#113](https://github.com/uktrade/ci-image-builder/issues/113)) ([979a676](https://github.com/uktrade/ci-image-builder/commit/979a67688dc40e2bdfec04764b6d2197f04ff211))
+
+## [1.5.1](https://github.com/uktrade/ci-image-builder/compare/1.5.0...1.5.1) (2025-04-02)
+
+
+### Bug Fixes
+
+* Docker hub rate limiting (DBTP-1956) ([#111](https://github.com/uktrade/ci-image-builder/issues/111)) ([3b891d0](https://github.com/uktrade/ci-image-builder/commit/3b891d061a5afee21163cc3f0b1d14f1ef749cc9))
+
 ## [1.5.0](https://github.com/uktrade/ci-image-builder/compare/1.4.0...1.5.0) (2025-03-12)
 
 
