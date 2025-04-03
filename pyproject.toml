@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ci-image-builder"
-version = "1.5.1"
+version = "1.6.0"
 description = "Build Application Images in a pipeline"
 authors = ["Department for Business and Trade Platform Team <sre-team@digital.trade.gov.uk>"]
 readme = "README.md"
