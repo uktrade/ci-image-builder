@@ -67,6 +67,7 @@ class TestDetectingCodebaseLanguages(BaseTestCase):
         create_python_indicator(self.fs, "3.11.x", "runtime")
         create_nodejs_indicator(self.fs, "18.4.2")
         create_ruby_indicator(self.fs, "3.3.2")
+        create_php_indicator(self.fs, "8.3.1")
 
         languages = load_codebase_languages(Path("."))
 
@@ -84,6 +85,11 @@ class TestDetectingCodebaseLanguages(BaseTestCase):
         self.assertEqual(languages["ruby"].version, "3.3")
         self.assertEqual(languages["ruby"].end_of_life, False)
         requests_get.assert_called_with("https://endoflife.date/api/ruby.json")
+
+        self.assertEqual(languages["php"].name, "php")
+        self.assertEqual(languages["php"].version, "8.3")
+        self.assertEqual(languages["php"].end_of_life, False)
+        requests_get.assert_called_with("https://endoflife.date/api/php.json")
 
 
 class TestBaseLanguageClass(BaseTestCase):
