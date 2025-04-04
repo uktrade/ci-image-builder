@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/uktrade/ci-image-builder/compare/1.6.0...1.7.0) (2025-04-04)
+
+
+### Features
+
+* Add support for the PHP language (off-ticket) ([#115](https://github.com/uktrade/ci-image-builder/issues/115)) ([d562ec9](https://github.com/uktrade/ci-image-builder/commit/d562ec941ace34af92cfe811b01286c3beb7d1d5))
+
 ## [1.6.0](https://github.com/uktrade/ci-image-builder/compare/1.5.1...1.6.0) (2025-04-03)
 
 
