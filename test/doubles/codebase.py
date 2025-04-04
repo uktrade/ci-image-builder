@@ -1,7 +1,8 @@
 from image_builder.codebase.language import Languages
 from image_builder.codebase.language import NodeJSLanguage
+from image_builder.codebase.language import PHPLanguage
 from image_builder.codebase.language import PythonLanguage
-from image_builder.codebase.language.ruby import RubyLanguage
+from image_builder.codebase.language import RubyLanguage
 from image_builder.codebase.processes import Process
 from image_builder.codebase.processes import Processes
 from image_builder.codebase.revision import Revision
@@ -17,6 +18,9 @@ def load_codebase_languages_double(path):
 
     languages["ruby"] = RubyLanguage()
     languages["ruby"].version = "3.3"
+
+    languages["php"] = PHPLanguage()
+    languages["php"].version = "8.2"
     return languages
 
 

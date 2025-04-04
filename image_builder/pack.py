@@ -106,6 +106,10 @@ class Pack:
             if "ruby" in self.codebase.languages:
                 buildpacks.append("paketo-buildpacks/ruby")
 
+        if "paketo-buildpacks/php" not in buildpacks:
+            if "php" in self.codebase.languages:
+                buildpacks.append("paketo-buildpacks/php")
+
         buildpacks.append("fagiani/run")
         buildpacks.append("gcr.io/paketo-buildpacks/image-labels")
         buildpacks.append("gcr.io/paketo-buildpacks/environment-variables")
@@ -126,6 +130,11 @@ class Pack:
         if "paketo-buildpacks/ruby" in buildpacks:
             ruby_version = self.codebase.languages["ruby"].version
             environment.append(f"BP_RUBY_VERSION={ruby_version}")
+
+        if "paketo-buildpacks/php" in buildpacks:
+            php_version = self.codebase.languages["php"].version
+            environment.append(f"BP_PHP_VERSION={php_version}")
+            environment.append(f"BP_PHP_WEB_DIR=web")
 
         if self.codebase.revision.tag:
             environment.append(f"BPE_GIT_TAG={self.codebase.revision.tag}")
