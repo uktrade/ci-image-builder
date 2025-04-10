@@ -11,7 +11,7 @@ python = "^3.11"
 PyYaml = "^6.0.1"
 requests = "^2.32.3"
 click = "^8.1.8"
-slack-sdk = "^3.27.1"
+slack-sdk = "^3.35.0"
 boto3 = "^1.37.25"
 
 [tool.poetry.group.dev.dependencies]
