@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.7.1](https://github.com/uktrade/ci-image-builder/compare/1.7.0...1.7.1) (2025-04-11)
+
+
+### Dependencies
+
+* bump click from 8.1.7 to 8.1.8 ([#121](https://github.com/uktrade/ci-image-builder/issues/121)) ([df20b0e](https://github.com/uktrade/ci-image-builder/commit/df20b0e7ad00daf932ae162e34233187f9e383f7))
+* bump pre-commit from 3.5.0 to 4.2.0 ([#119](https://github.com/uktrade/ci-image-builder/issues/119)) ([2244d93](https://github.com/uktrade/ci-image-builder/commit/2244d93a808c5e20bf0d14c9e4649362c07dbf69))
+* bump pyfakefs from 5.7.3 to 5.8.0 ([#120](https://github.com/uktrade/ci-image-builder/issues/120)) ([2d4cb91](https://github.com/uktrade/ci-image-builder/commit/2d4cb91f3b0d892470219aa6943690ef43151658))
+* bump pyfakefs from 5.7.3 to 5.8.0 ([#126](https://github.com/uktrade/ci-image-builder/issues/126)) ([e4f9201](https://github.com/uktrade/ci-image-builder/commit/e4f9201738131752646f3d00fb725587aadb7162))
+* bump pytest from 7.4.2 to 8.3.5 ([#118](https://github.com/uktrade/ci-image-builder/issues/118)) ([099e241](https://github.com/uktrade/ci-image-builder/commit/099e2418e86498932b2bd0f82635be104ad071c9))
+* bump pytest-cov from 4.1.0 to 6.1.1 ([#122](https://github.com/uktrade/ci-image-builder/issues/122)) ([f8f1242](https://github.com/uktrade/ci-image-builder/commit/f8f124204c498f511ad542aa6847bbf3c3691337))
+* bump requests from 2.32.2 to 2.32.3 ([#125](https://github.com/uktrade/ci-image-builder/issues/125)) ([7884ea0](https://github.com/uktrade/ci-image-builder/commit/7884ea0e38864f71c2cfc809f352164998d2366d))
+* bump slack-sdk from 3.27.1 to 3.35.0 ([#124](https://github.com/uktrade/ci-image-builder/issues/124)) ([0c89408](https://github.com/uktrade/ci-image-builder/commit/0c89408b17d08f030a2b06fd78ad0d1ffa0d74ff))
+
 ## [1.7.0](https://github.com/uktrade/ci-image-builder/compare/1.6.0...1.7.0) (2025-04-04)
 
 
