@@ -1,6 +1,7 @@
 builders:
   - name: paketobuildpacks/builder-jammy-full
     versions:
+      - version: 0.3.482
       - version: 0.3.473
       - version: 0.3.431     
       - version: 0.3.414 
@@ -12,6 +13,7 @@ builders:
       - version: 0.3.288
   - name: paketobuildpacks/builder-jammy-base
     versions:
+      - version: 0.4.409
       - version: 0.4.398
       - version: 0.4.378
       - version: 0.4.279
