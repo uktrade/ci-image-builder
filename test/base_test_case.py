@@ -1,11 +1,13 @@
 import os
 
+from freezegun import freeze_time
 from pyfakefs.fake_filesystem_unittest import TestCase
 
 from image_builder.const import ADDITIONAL_ECR_REPO
 from image_builder.const import ECR_REPO
 
 
+@freeze_time("2025-04-14 12:26:00")
 class BaseTestCase(TestCase):
     def setUp(self):
         super().setUp()
