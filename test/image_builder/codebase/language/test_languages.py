@@ -37,7 +37,7 @@ class TestDetectingCodebaseLanguages(BaseTestCase):
 
         self.assertEqual(languages["nodejs"].name, "nodejs")
         self.assertEqual(languages["nodejs"].version, "18")
-        self.assertEqual(languages["nodejs"].end_of_life, False)
+        self.assertEqual(languages["nodejs"].end_of_life, True)
         requests_get.assert_called_with("https://endoflife.date/api/nodejs.json")
 
     @patch("requests.get", wraps=get_versions)
@@ -78,7 +78,7 @@ class TestDetectingCodebaseLanguages(BaseTestCase):
 
         self.assertEqual(languages["nodejs"].name, "nodejs")
         self.assertEqual(languages["nodejs"].version, "18")
-        self.assertEqual(languages["nodejs"].end_of_life, False)
+        self.assertEqual(languages["nodejs"].end_of_life, True)
         requests_get.assert_called_with("https://endoflife.date/api/nodejs.json")
 
         self.assertEqual(languages["ruby"].name, "ruby")

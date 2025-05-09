@@ -29,8 +29,8 @@ class TestCodebaseLanguageNodeJS(BaseTestCase):
 
     @parameterized.expand(
         [
-            (">18.10", "18", False),
-            ("18", "18", False),
+            (">18.10", "18", True),
+            ("18", "18", True),
             ("19.4.33", "19", True),
             ("^20.4", "20", False),
         ]
