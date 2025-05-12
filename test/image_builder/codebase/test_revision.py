@@ -130,6 +130,7 @@ class TestCodebaseRevision(BaseTestCase):
 )
 class TestRevisionTags(BaseTestCase):
     def setUp(self):
+        super().setUp()
         self.setUpPyfakefs()
         self.fs.create_dir(".copilot")
         self.fs.create_file(
