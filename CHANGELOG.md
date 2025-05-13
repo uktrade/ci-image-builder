@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.2](https://github.com/uktrade/ci-image-builder/compare/1.7.1...1.7.2) (2025-05-12)
+
+
+### Bug Fixes
+
+* Address vulnerabilities in older versions of npm-install buildpack (off-ticket) ([#149](https://github.com/uktrade/ci-image-builder/issues/149)) ([024d787](https://github.com/uktrade/ci-image-builder/commit/024d787cfff7f836645b6a0d0efe7774ccb81b98))
+
 ## [1.7.1](https://github.com/uktrade/ci-image-builder/compare/1.7.0...1.7.1) (2025-04-11)
 
 
