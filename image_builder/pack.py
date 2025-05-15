@@ -138,6 +138,9 @@ class Pack:
             php_version = self.codebase.languages["php"].version
             environment.append(f"BP_PHP_VERSION={php_version}")
             environment.append(f"BP_PHP_WEB_DIR=web")
+            environment.append(f"BP_PHP_SERVER=httpd")
+            environment.append(f"COMPOSER=composer.json")
+            environment.append(f"COMPOSER_VENDOR_DIR=vendor")
 
         if self.codebase.revision.tag:
             environment.append(f"BPE_GIT_TAG={self.codebase.revision.tag}")
