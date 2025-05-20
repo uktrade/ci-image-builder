@@ -134,7 +134,10 @@ class Pack:
         if "paketo-buildpacks/php" in buildpacks:
             php_version = self.codebase.languages["php"].version
             environment.append(f"BP_PHP_VERSION={php_version}")
-            environment.append(f"BP_PHP_WEB_DIR=web")
+            environment.append("BP_PHP_WEB_DIR=web")
+            environment.append("BP_PHP_SERVER=httpd")
+            environment.append("COMPOSER=composer.json")
+            environment.append("COMPOSER_VENDOR_DIR=vendor")
 
         if self.codebase.revision.tag:
             environment.append(f"BPE_GIT_TAG={self.codebase.revision.tag}")
