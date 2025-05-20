@@ -82,8 +82,8 @@ class TestPackBuildpacks(BaseTestCase):
                 "paketo-buildpacks/ruby",
                 "paketo-buildpacks/php",
                 "fagiani/run",
-                "gcr.io/paketo-buildpacks/image-labels",
-                "gcr.io/paketo-buildpacks/environment-variables",
+                "paketo-buildpacks/image-labels@4.9.0",
+                "paketo-buildpacks/environment-variables@4.9.0",
             ],
         )
 
@@ -116,8 +116,8 @@ class TestPackBuildpacks(BaseTestCase):
                 "paketo-buildpacks/ruby",
                 "paketo-buildpacks/php",
                 "fagiani/run",
-                "gcr.io/paketo-buildpacks/image-labels",
-                "gcr.io/paketo-buildpacks/environment-variables",
+                "paketo-buildpacks/image-labels@4.9.0",
+                "paketo-buildpacks/environment-variables@4.9.0",
             ],
         )
 
@@ -154,8 +154,8 @@ class TestPackBuildpacks(BaseTestCase):
                 "paketo-buildpacks/ruby",
                 "paketo-buildpacks/php",
                 "fagiani/run",
-                "gcr.io/paketo-buildpacks/image-labels",
-                "gcr.io/paketo-buildpacks/environment-variables",
+                "paketo-buildpacks/image-labels@4.9.0",
+                "paketo-buildpacks/environment-variables@4.9.0",
             ],
         )
 
@@ -353,8 +353,8 @@ class TestCommand(BaseTestCase):
             "--buildpack paketo-buildpacks/ruby",
             "--buildpack paketo-buildpacks/php",
             "--buildpack fagiani/run",
-            "--buildpack gcr.io/paketo-buildpacks/image-labels",
-            "--buildpack gcr.io/paketo-buildpacks/environment-variables",
+            "--buildpack paketo-buildpacks/image-labels@4.9.0",
+            "--buildpack paketo-buildpacks/environment-variables@4.9.0",
         ]
         self.publish_opts = "--publish --cache-image 000000000000.dkr.ecr.region.amazonaws.com/ecr/repos:cache"
         self.run_image_opt = "--run-image nice-secure-base-image"
