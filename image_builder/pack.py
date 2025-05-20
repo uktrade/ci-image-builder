@@ -111,8 +111,8 @@ class Pack:
                 buildpacks.append("paketo-buildpacks/php")
 
         buildpacks.append("fagiani/run")
-        buildpacks.append("gcr.io/paketo-buildpacks/image-labels")
-        buildpacks.append("gcr.io/paketo-buildpacks/environment-variables")
+        buildpacks.append("paketo-buildpacks/image-labels@4.9.0")
+        buildpacks.append("paketo-buildpacks/environment-variables@4.9.0")
 
         return buildpacks
 
