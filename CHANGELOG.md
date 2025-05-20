@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.3](https://github.com/uktrade/ci-image-builder/compare/1.7.2...1.7.3) (2025-05-20)
+
+
+### Bug Fixes
+
+* Buildpack images not found (off-ticket) ([#163](https://github.com/uktrade/ci-image-builder/issues/163)) ([69dda31](https://github.com/uktrade/ci-image-builder/commit/69dda315b4fa7faadd5bc4534f5765710f05197c))
+* Buildpack settings for php and drupal (off-ticket) ([#164](https://github.com/uktrade/ci-image-builder/issues/164)) ([b14db21](https://github.com/uktrade/ci-image-builder/commit/b14db2144bb4a423201eb736c0382056f512abc6))
+
 ## [1.7.2](https://github.com/uktrade/ci-image-builder/compare/1.7.1...1.7.2) (2025-05-12)
 
 
