@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/uktrade/ci-image-builder/compare/1.7.3...1.8.0) (2025-05-29)
+
+
+### Features
+
+* Update buildspec to only add 'latest' tag for semantic releases (DBTP-2088) ([#173](https://github.com/uktrade/ci-image-builder/issues/173)) ([6b51d36](https://github.com/uktrade/ci-image-builder/commit/6b51d36f227e782f133b5047bb6958b956e1154f))
+
 ## [1.7.3](https://github.com/uktrade/ci-image-builder/compare/1.7.2...1.7.3) (2025-05-20)
 
 
